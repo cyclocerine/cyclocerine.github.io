@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faiq's GitHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        header {
+            background: #4CAF50;
+            color: #fff;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            background-color: #fff;
+            color: #4CAF50;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border: 2px solid #4CAF50;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 15px;
+            width: 300px;
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .card a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #4CAF50;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .card a:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .card {
+                width: 90%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <h1>Welcome to Faiq's GitHub!</h1>
+        <p>Your go-to place for open-source projects, tutorials, and tech explorations.</p>
+        <a href="https://github.com/cyclocerine" class="cta-button" target="_blank">Visit My GitHub</a>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- About Me Card -->
+        <div class="card">
+            <h3>About Me</h3>
+            <p>I'm Faiq, an IT Engineer with a passion for building innovative tech solutions. Explore my GitHub to see what I'm working on!</p>
+            <a href="https://github.com/cyclocerine" target="_blank">View My Work</a>
+        </div>
+
+        <!-- Latest Projects Card -->
+        <div class="card">
+            <h3>Latest Projects</h3>
+            <p>From IoT creations to software development, I’m always working on something cool. Check out my recent projects!</p>
+            <a href="https://github.com/cyclocerine" target="_blank">Explore Projects</a>
+        </div>
+
+        <!-- Contact Me Card -->
+        <div class="card">
+            <h3>Get in Touch</h3>
+            <p>Let's collaborate! If you have any questions or want to discuss a project, don't hesitate to reach out.</p>
+            <a href="mailto:faiq@example.com" target="_blank">Contact Me</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Made with ❤️ by Faiq | <a href="https://github.com/cyclocerine" target="_blank">Visit My GitHub</a></p>
+    </footer>
+
+</body>
+</html>
