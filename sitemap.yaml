@@ -1,0 +1,25 @@
+name: Generate Sitemap
+
+on:
+  push:
+    branches:
+      - main  # Ganti dengan nama branch utama Anda jika berbeda
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Diperlukan untuk mendapatkan riwayat commit lengkap
+      - name: Generate sitemap
+        uses: cicirello/generate-sitemap@v1
+        with:
+          base-url: 'https://cyclocerine.github.io'  # Ganti dengan URL situs Anda
+      - name: Commit sitemap
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add sitemap.xml
+          git commit -m "Add sitemap"
+          git push
