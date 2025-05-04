@@ -17,15 +17,19 @@ jobs:
         with:
           base-url: 'https://cyclocerine.github.io/'  # Replace with your site URL
       - name: Check for changes
+        id: changes
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add sitemap.xml
           if git diff --cached --quiet; then
             echo "No changes detected in sitemap.xml. Skipping commit."
-            exit 0
+            echo "changes-detected=false" >> $GITHUB_ENV
+          else
+            echo "changes-detected=true" >> $GITHUB_ENV
           fi
       - name: Commit sitemap
+        if: env.changes-detected == 'true'
         run: |
           git commit -m "Add sitemap"
           git push
