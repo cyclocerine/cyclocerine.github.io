@@ -15,7 +15,7 @@ jobs:
       - name: Generate sitemap
         uses: cicirello/generate-sitemap@v1
         with:
-          base-url: 'https://cyclocerine.github.io'  # Ganti dengan URL situs Anda
+          base-url: 'https://cyclocerine.github.io/'  # Ganti dengan URL situs Anda
       - name: Commit sitemap
         run: |
           git config user.name "GitHub Actions"
