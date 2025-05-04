@@ -3,7 +3,7 @@ name: Generate Sitemap
 on:
   push:
     branches:
-      - main  # Ganti dengan nama branch utama Anda jika berbeda
+      - main  # Change this if your default branch name is different
 
 jobs:
   build:
@@ -11,15 +11,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Diperlukan untuk mendapatkan riwayat commit lengkap
+          fetch-depth: 0  # Required to get the full commit history
       - name: Generate sitemap
         uses: cicirello/generate-sitemap@v1
         with:
-          base-url: 'https://cyclocerine.github.io/'  # Ganti dengan URL situs Anda
-      - name: Commit sitemap
+          base-url: 'https://cyclocerine.github.io/'  # Replace with your site URL
+      - name: Check for changes
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add sitemap.xml
+          if git diff --cached --quiet; then
+            echo "No changes detected in sitemap.xml. Skipping commit."
+            exit 0
+          fi
+      - name: Commit sitemap
+        run: |
           git commit -m "Add sitemap"
           git push
