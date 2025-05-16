@@ -9,13 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Required to get the full commit history
+
       - name: Generate sitemap
         uses: cicirello/generate-sitemap@v1
         with:
-          base-url: 'https://cyclocerine.github.io/'  # Replace with your site URL
+          base-url-path: 'https://cyclocerine.github.io/'  # Correct input name
+
       - name: Check for changes
         id: changes
         run: |
@@ -23,13 +26,13 @@ jobs:
           git config user.email "actions@github.com"
           git add sitemap.xml
           if git diff --cached --quiet; then
-            echo "No changes detected in sitemap.xml. Skipping commit."
-            echo "changes-detected=false" >> $GITHUB_ENV
+            echo "CHANGES_DETECTED=false" >> $GITHUB_ENV
           else
-            echo "changes-detected=true" >> $GITHUB_ENV
+            echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
           fi
-      - name: Commit sitemap
-        if: env.changes-detected == 'true'
+
+      - name: Commit and push sitemap
+        if: env.CHANGES_DETECTED == 'true'
         run: |
-          git commit -m "Add sitemap"
+          git commit -m "Update sitemap"
           git push
