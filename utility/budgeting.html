@@ -6,36 +6,11 @@
     <title>Perencana Keuangan Interaktif - Jogja</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase global variables for use in the script below
-        window.firebaseApp = initializeApp(JSON.parse(__firebase_config));
-        window.db = getFirestore(window.firebaseApp);
-        window.auth = getAuth(window.firebaseApp);
-        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // Expose Firestore functions to global scope for use in main script
-        window.addDoc = addDoc;
-        window.setDoc = setDoc;
-        window.deleteDoc = deleteDoc;
-        window.onSnapshot = onSnapshot;
-        window.collection = collection;
-        window.query = query;
-        window.orderBy = orderBy;
-        window.getDocs = getDocs;
-        window.doc = doc;
-        window.signInAnonymously = signInAnonymously; // Expose signInAnonymously
-        window.signInWithCustomToken = signInWithCustomToken; // Expose signInWithCustomToken
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Slate & Amber -->
-    <!-- Application Structure Plan: Menggunakan pendekatan dasbor modular. Bagian utama menampilkan Donut Chart interaktif untuk alokasi anggaran dan kartu detail dinamis, kini dengan input untuk edit anggaran. Slider "Dana Fleksibel" tetap ada. Bagian baru ditambahkan untuk pelacakan pengeluaran dengan form, daftar, Bar Chart ringkasan kategori, dan Bagan Tren Pengeluaran Bulanan (Line Chart). Fitur LLM dikelompokkan dalam satu bagian dengan tombol untuk saran dinamis. Dua fitur baru: kartu "Ringkasan Saldo Saat Ini" di area utama untuk overview cepat, dan bagian "Tujuan Keuangan Anda" dengan form dan daftar progres tujuan. Fitur baru yang ditambahkan adalah penyimpanan data di Firestore untuk persistensi lintas perangkat, Bagan Perbandingan Anggaran vs. Realisasi Pengeluaran, dan Laporan Keuangan Bulanan Otomatis. Struktur ini dirancang untuk memberikan pandangan menyeluruh dan kontrol penuh atas keuangan pengguna, dari alokasi, pelacakan, hingga perencanaan tujuan, semuanya terintegrasi dengan saran cerdas dari Gemini dan penyimpanan data yang andal, serta opsi Mode Gelap. -->
+    <!-- Application Structure Plan: Menggunakan pendekatan dasbor modular. Bagian utama menampilkan Donut Chart interaktif untuk alokasi anggaran dan kartu detail dinamis, kini dengan input untuk edit anggaran. Slider "Dana Fleksibel" tetap ada. Bagian baru ditambahkan untuk pelacakan pengeluaran dengan form, daftar, Bar Chart ringkasan kategori, dan Bagan Tren Pengeluaran Bulanan (Line Chart). Fitur LLM dikelompokkan dalam satu bagian dengan tombol untuk saran dinamis. Dua fitur baru: kartu "Ringkasan Saldo Saat Ini" di area utama untuk overview cepat, dan bagian "Tujuan Keuangan Anda" dengan form dan daftar progres tujuan. Fitur baru yang ditambahkan adalah penyimpanan data di localStorage untuk persistensi lokal, Bagan Perbandingan Anggaran vs. Realisasi Pengeluaran, dan Laporan Keuangan Bulanan Otomatis. Struktur ini dirancang untuk memberikan pandangan menyeluruh dan kontrol penuh atas keuangan pengguna, dari alokasi, pelacakan, hingga perencanaan tujuan, semuanya terintegrasi dengan saran cerdas dari Gemini dan penyimpanan data lokal, serta opsi Mode Gelap. -->
     <!-- Visualization & Content Choices: Alokasi Anggaran -> Tujuan: Proporsi -> Donut Chart (Chart.js) -> Interaksi: Klik untuk detail, Edit input untuk anggaran -> Alasan: Gambaran intuitif & penetapan anggaran dinamis. Dana Fleksibel -> Tujuan: Keterlibatan/Perencanaan -> Slider + Teks Dinamis -> Interaksi: Geser untuk alokasi ulang -> Alasan: Memberdayakan pengambilan keputusan pengguna. Ringkasan Saldo Saat Ini -> Tujuan: Overview Cepat -> Kartu Teks Dinamis (HTML/JS) -> Interaksi: Diperbarui otomatis (termasuk income) -> Alasan: Memberikan informasi saldo real-time. Pencatat Pengeluaran -> Tujuan: Pelacakan Transaksi -> Form Input & List Dinamis (HTML/JS) -> Interaksi: Input data, tampilkan list -> Alasan: Kontrol langsung atas pencatatan pengeluaran. Ringkasan Pengeluaran per Kategori -> Tujuan: Analisis Visual -> Bar Chart (Chart.js) -> Interaksi: Otomatis diperbarui -> Alasan: Visualisasi distribusi pengeluaran. Bagan Anggaran vs. Realisasi -> Tujuan: Perbandingan Kinerja -> Bar Chart (Chart.js) -> Interaksi: Otomatis diperbarui -> Alasan: Menilai kepatuhan anggaran. Visualisasi Tren Pengeluaran Bulanan -> Tujuan: Analisis Tren -> Line Chart (Chart.js) -> Interaksi: Pilih rentang bulan -> Alasan: Mengidentifikasi pola pengeluaran dari waktu ke waktu. Pelacakan Pemasukan Sederhana -> Tujuan: Pelacakan Sumber Daya -> Form Input & List Dinamis (HTML/JS) -> Interaksi: Input data, tampilkan list -> Alasan: Gambaran lengkap arus kas. Tujuan Keuangan -> Tujuan: Motivasi & Pelacakan Progres -> Form + List Tujuan dengan Progress Bar (HTML/JS) -> Interaksi: Input tujuan, tampilkan progres -> Alasan: Memvisualisasikan pencapaian finansial. Laporan Keuangan Bulanan -> Tujuan: Evaluasi Periode -> Dropdown + Tombol + Teks Dinamis (HTML/JS + LLM) -> Interaksi: Pilih bulan, generate laporan -> Alasan: Ringkasan performa finansial. Fitur LLM -> Tujuan: Saran & Ide Dinamis -> Tombol + Area Teks Hasil (Vanilla JS) -> Interaksi: Klik untuk generate -> Alasan: Meningkatkan utilitas dan personalisasi. Tips -> Tujuan: Menginformasikan -> Kartu -> Interaksi: Statis -> Alasan: Keterbacaan. Notifikasi Cerdas -> Tujuan: Pemberitahuan Proaktif -> Pesan singkat/modal (JS) -> Interaksi: Otomatis muncul -> Alasan: Membantu menjaga anggaran. Mode Gelap -> Tujuan: Personalisasi UI -> Tombol Toggle (HTML/JS) -> Interaksi: Klik untuk ganti tema -> Alasan: Pilihan tampilan yang disukai pengguna. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -192,7 +167,7 @@
                         <span class="text-lg font-semibold text-slate-700">Saldo Tersedia:</span>
                         <span id="currentBalance" class="text-3xl font-bold text-green-600">Rp 2.000.000</span>
                     </div>
-                     <p class="text-sm text-slate-500 mt-2">ID Pengguna Anda (untuk akses data): <span id="displayUserId" class="font-medium">Memuat...</span></p>
+                     <p class="text-sm text-slate-500 mt-2">ID Sesi Anda: <span id="displayUserId" class="font-medium">Sesi Lokal</span></p>
                 </div>
             </div>
         </main>
@@ -294,7 +269,7 @@
                 <form id="goalForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
                         <label for="goalName" class="block text-sm font-medium text-slate-700 mb-1">Nama Tujuan</label>
-                        <input type="text" id="goalName" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., Beli Laptop Baru" required>
+                        <input type="text" id="goalName" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
                     </div>
                     <div>
                         <label for="goalTarget" class="block text-sm font-medium text-slate-700 mb-1">Target Dana (Rp)</label>
@@ -460,7 +435,6 @@
         let currentValues = [...defaultInitialBudget.values]; // This will be the editable budget
         let initialDataLabels = [...defaultInitialBudget.labels]; // Labels remain fixed for now
 
-        // FIX: Moved 'tips' array declaration to the top of the script
         const tips = [
             { icon: '📍', title: 'Lokasi Strategis', desc: 'Cari kost/kontrakan yang dekat dengan tempat kerja atau aktivitas utama untuk menghemat pengeluaran bensin.' },
             { icon: '🍚', title: 'Manfaatkan Angkringan', desc: 'Angkringan adalah sahabat anak kost. Pilihan makanannya banyak, murah, dan tersedia hingga larut malam.' },
@@ -470,13 +444,45 @@
             { icon: '💻', title: 'Cari Penghasilan Tambahan', desc: 'Pertimbangkan untuk mengambil pekerjaan lepas (freelance) atau proyek sampingan sesuai keahlian Anda untuk menambah pemasukan.' }
         ];
 
+        const details = { // Moved 'details' array declaration to global scope
+            'Makan': {
+                icon: '🍔',
+                desc: 'Alokasi untuk makan 3x sehari. Prioritaskan mencari warung/angkringan yang terjangkau atau masak sendiri untuk menekan biaya secara signifikan.',
+            },
+            'Bensin': {
+                icon: '⛽',
+                desc: 'Cukup untuk mobilitas harian dan sesekali jalan-jalan di Jogja menggunakan motor CBR 150R. Atur perjalanan agar lebih efisien.',
+            },
+            'Tabungan': {
+                icon: '💰',
+                desc: 'Prioritas utama yang harus disisihkan di awal bulan. Pertimbangkan instrumen investasi sederhana seperti reksadana untuk potensi pertumbuhan.',
+            },
+            'Nongkrong & Hiburan': {
+                icon: '☕',
+                desc: 'Alokasi untuk bersosialisasi dan hiburan. Jogja punya banyak pilihan tempat nongkrong terjangkau. Manfaatkan promo jika ada.',
+            },
+            'Pulsa & Data': {
+                icon: '�',
+                desc: 'Kebutuhan untuk komunikasi dan akses internet. Manfaatkan WiFi gratis di tempat publik atau kantor untuk menghemat kuota data.',
+            },
+            'Keperluan Pribadi': {
+                icon: '🧼',
+                desc: 'Anggaran untuk kebutuhan bulanan seperti perlengkapan mandi, deterjen, dan kebutuhan personal lainnya.',
+            },
+            'Dana Darurat': {
+                icon: '🚑',
+                desc: 'Dana cadangan untuk pengeluaran tak terduga seperti ban bocor, sakit ringan, atau kebutuhan mendesak lainnya. Simpan di tempat yang mudah diakses.',
+            }
+        };
+
+
         const flexibleFundTotal = 300000;
         const ctx = document.getElementById('budgetChart').getContext('2d');
         let budgetChart;
 
-        let expenses = []; // Array to store expense objects fetched from Firestore
-        let incomes = []; // Array to store income objects fetched from Firestore
-        let goals = []; // Array to store goal objects fetched from Firestore
+        let expenses = []; // Array to store expense objects loaded from localStorage
+        let incomes = []; // Array to store income objects loaded from localStorage
+        let goals = []; // Array to store goal objects loaded from localStorage
         let userBudgetTargets = {}; // Object to store user-defined budget targets per category
 
         // Chart variables now attached to window object to prevent redeclaration errors
@@ -485,7 +491,7 @@
         window.monthlyTrendChart = null; // New chart for monthly trend
 
         const currentBalanceDisplay = document.getElementById('currentBalance');
-        const displayUserId = document.getElementById('displayUserId');
+        const displayUserId = document.getElementById('displayUserId'); // This will now display a static or random ID for localStorage context
         const darkModeToggle = document.getElementById('darkModeToggle');
         const budgetInputsContainer = document.getElementById('budgetInputs');
 
@@ -566,62 +572,39 @@
 
                 document.getElementById(inputId).addEventListener('change', (e) => {
                     userBudgetTargets[label] = parseInt(e.target.value) || 0;
-                    window.saveUserBudgetTargets(); // Save to Firestore
+                    window.saveUserBudgetTargets(); // Save to localStorage
                     createBudgetChart(); // Re-render donut chart with new targets
                     updateBudgetVsActualChart(); // Update budget vs actual chart
                 });
             });
         }
 
-        // Load and Save User Budget Targets from Firestore
-        window.loadUserBudgetTargets = async () => {
-            if (!window.userId || !window.db) {
-                console.warn("Firestore not ready for user budget targets. Using defaults.");
-                userBudgetTargets = {}; // Reset to empty, fallback to defaults
-                populateBudgetInputs();
-                createBudgetChart();
-                return;
+        // Load and Save User Budget Targets from localStorage
+        window.loadUserBudgetTargets = () => {
+            const storedTargets = localStorage.getItem('userBudgetTargets');
+            if (storedTargets) {
+                userBudgetTargets = JSON.parse(storedTargets);
+                console.log("User budget targets loaded from localStorage:", userBudgetTargets);
+            } else {
+                console.log("No user budget targets found in localStorage, using defaults.");
+                userBudgetTargets = {}; 
             }
-            const docRef = window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/settings/budget_targets`);
-            window.onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    userBudgetTargets = docSnap.data();
-                    console.log("User budget targets loaded:", userBudgetTargets);
-                } else {
-                    console.log("No user budget targets found, using defaults.");
-                    userBudgetTargets = {}; // Reset to empty, fallback to defaults
-                }
-                populateBudgetInputs(); // Always populate after loading/defaults
-                createBudgetChart(); // Re-render donut chart
-                updateBudgetVsActualChart(); // Update budget vs actual chart
-            }, (error) => {
-                console.error("Error loading user budget targets:", error);
-                userBudgetTargets = {}; // Fallback to defaults on error
-                populateBudgetInputs();
-                createBudgetChart();
-            });
+            populateBudgetInputs(); 
+            createBudgetChart(); 
+            updateBudgetVsActualChart(); 
         };
 
-        window.saveUserBudgetTargets = async () => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot save user budget targets.");
-                return;
-            }
-            try {
-                const docRef = window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/settings/budget_targets`);
-                await window.setDoc(docRef, userBudgetTargets, { merge: true });
-                console.log("User budget targets saved successfully!");
-            } catch (e) {
-                console.error("Error saving user budget targets: ", e);
-            }
+        window.saveUserBudgetTargets = () => {
+            localStorage.setItem('userBudgetTargets', JSON.stringify(userBudgetTargets));
+            console.log("User budget targets saved to localStorage!");
         };
 
         // --- End Budget Chart and Dynamic Budgeting ---
 
         function updateDetailsCard(index) {
-            const label = initialDataLabels[index]; // Use initialDataLabels for consistent lookup
-            const value = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)]; // Use user target or default
-            const detail = details[label];
+            const label = initialDataLabels[index]; 
+            const value = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)]; 
+            const detail = details[label]; // Access details from global scope
             const card = document.getElementById('detailsCard');
 
             card.innerHTML = `
@@ -665,7 +648,6 @@
             const hiburanLabel = 'Nongkrong & Hiburan';
             const tabunganLabel = 'Tabungan';
             
-            // Adjust based on current user budget targets if they exist, otherwise default
             const currentHiburanBudget = userBudgetTargets[hiburanLabel] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(hiburanLabel)];
             const currentTabunganBudget = userBudgetTargets[tabunganLabel] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(tabunganLabel)];
 
@@ -674,14 +656,6 @@
 
             hiburanValueEl.textContent = formatRupiah(newHiburanTotal);
             tabunganValueEl.textContent = formatRupiah(newTabunganTotal);
-
-            // Update userBudgetTargets for the display, but this slider only impacts this display, not saved budget directly
-            // If the user *changes* the flexible fund, it's usually a one-time allocation.
-            // For persistence, the flexible fund itself would need to be budgetable and tracked
-            // For now, this just visually re-allocates the fixed flexible fund.
-            // If the goal is for the slider to PERMANENTLY reallocate, it would need to update userBudgetTargets
-            // and trigger saveUserBudgetTargets(). But flexible fund is usually temporary.
-            // Sticking to visual representation for the flexible fund for now, as it's an "extra" fund.
         });
         
         const nongkrongButton = document.getElementById('nongkrongButton');
@@ -786,60 +760,31 @@
         const incomesListDiv = document.getElementById('incomesList');
         const noIncomesMessage = document.getElementById('noIncomesMessage');
 
-        window.loadIncomes = async () => {
-            if (!window.userId || !window.db) {
-                console.warn("Firestore not ready for incomes. Data not loaded.");
-                return;
-            }
-            const q = window.query(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/incomes`), window.orderBy("date", "desc"));
-            window.onSnapshot(q, (snapshot) => {
+        window.loadIncomes = () => {
+            const storedIncomes = localStorage.getItem('userIncomes');
+            if (storedIncomes) {
+                incomes = JSON.parse(storedIncomes);
+            } else {
                 incomes = [];
-                snapshot.forEach((doc) => {
-                    incomes.push({ id: doc.id, ...doc.data() });
-                });
-                renderIncomesList();
-                updateCurrentBalance();
-            }, (error) => {
-                console.error("Error fetching incomes:", error);
-            });
+            }
+            renderIncomesList();
+            updateCurrentBalance();
         };
 
-        window.saveIncome = async (newIncome) => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot save income.");
-                modalTitle.textContent = 'Error Koneksi';
-                modalContent.textContent = 'Tidak dapat menyimpan pemasukan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
-                llmResponseModal.classList.remove('hidden');
-                return;
-            }
-            try {
-                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/incomes`), newIncome);
-                console.log("Income saved successfully!");
-            } catch (e) {
-                console.error("Error adding income: ", e);
-                modalTitle.textContent = 'Gagal Menyimpan';
-                modalContent.textContent = `Gagal menyimpan pemasukan: ${e.message}. Coba lagi.`;
-                llmResponseModal.classList.remove('hidden');
-            }
+        window.saveIncome = (newIncome) => {
+            incomes.push(newIncome);
+            localStorage.setItem('userIncomes', JSON.stringify(incomes));
+            renderIncomesList();
+            updateCurrentBalance();
+            console.log("Income saved successfully to localStorage!");
         };
 
-        window.deleteIncome = async (id) => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot delete income.");
-                modalTitle.textContent = 'Error Koneksi';
-                modalContent.textContent = 'Tidak dapat menghapus pemasukan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
-                llmResponseModal.classList.remove('hidden');
-                return;
-            }
-            try {
-                await window.deleteDoc(window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/incomes`, id));
-                console.log("Income deleted successfully!");
-            } catch (e) {
-                console.error("Error deleting income: ", e);
-                modalTitle.textContent = 'Gagal Menghapus';
-                modalContent.textContent = `Gagal menghapus pemasukan: ${e.message}. Coba lagi.`;
-                llmResponseModal.classList.remove('hidden');
-            }
+        window.deleteIncome = (index) => {
+            incomes.splice(index, 1);
+            localStorage.setItem('userIncomes', JSON.stringify(incomes));
+            renderIncomesList();
+            updateCurrentBalance();
+            console.log("Income deleted successfully from localStorage!");
         };
 
         function renderIncomesList() {
@@ -852,7 +797,7 @@
                 noIncomesMessage.classList.add('hidden');
             }
 
-            incomes.forEach((income) => {
+            incomes.forEach((income, index) => { // Added index for deletion
                 const incomeItem = document.createElement('div');
                 incomeItem.className = 'income-item bg-white';
                 incomeItem.innerHTML = `
@@ -860,7 +805,7 @@
                         <p class="text-sm font-semibold text-slate-800">${income.source || 'Pemasukan'} - ${formatRupiah(income.amount)}</p>
                         <p class="text-xs text-slate-500">${income.date}</p>
                     </div>
-                    <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-id="${income.id}">
+                    <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-index="${index}">
                         &times;
                     </button>
                 `;
@@ -869,8 +814,8 @@
 
             incomesListDiv.querySelectorAll('button').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    const idToDelete = e.target.dataset.id;
-                    window.deleteIncome(idToDelete);
+                    const indexToDelete = parseInt(e.target.dataset.index);
+                    window.deleteIncome(indexToDelete);
                 });
             });
         }
@@ -911,65 +856,46 @@
         const trendYearSelect = document.getElementById('trendYearSelect');
 
         // Functions to be exposed to global scope
-        window.loadExpenses = async () => {
-            if (!window.userId || !window.db) {
-                console.warn("Firestore not ready for expenses. Data not loaded.");
-                return;
-            }
-            const q = window.query(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/expenses`), window.orderBy("date", "desc"));
-            window.onSnapshot(q, (snapshot) => {
+        window.loadExpenses = () => {
+            const storedExpenses = localStorage.getItem('userExpenses');
+            if (storedExpenses) {
+                expenses = JSON.parse(storedExpenses);
+            } else {
                 expenses = [];
-                snapshot.forEach((doc) => {
-                    expenses.push({ id: doc.id, ...doc.data() });
-                });
-                renderExpensesList();
-                updateExpenseSummaryChart();
-                updateBudgetVsActualChart();
-                populateTrendYears();
-                updateMonthlyTrendChart(); // Update trend chart after loading expenses
-                updateCurrentBalance();
-                checkBudgetAlerts(); // Check for budget alerts after expense update
-            }, (error) => {
-                console.error("Error fetching expenses:", error);
-            });
+            }
+            renderExpensesList();
+            updateExpenseSummaryChart();
+            updateBudgetVsActualChart();
+            populateTrendYears();
+            updateMonthlyTrendChart(); // Update trend chart after loading expenses
+            updateCurrentBalance();
+            checkBudgetAlerts(); // Check for budget alerts after expense update
         };
 
-        window.saveExpense = async (newExpense) => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot save expense.");
-                modalTitle.textContent = 'Error Koneksi';
-                modalContent.textContent = 'Tidak dapat menyimpan pengeluaran. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
-                llmResponseModal.classList.remove('hidden');
-                return;
-            }
-            try {
-                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/expenses`), newExpense);
-                console.log("Expense saved successfully!");
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                modalTitle.textContent = 'Gagal Menyimpan';
-                modalContent.textContent = `Gagal menyimpan pengeluaran: ${e.message}. Coba lagi.`;
-                llmResponseModal.classList.remove('hidden');
-            }
+        window.saveExpense = (newExpense) => {
+            expenses.push(newExpense);
+            localStorage.setItem('userExpenses', JSON.stringify(expenses));
+            renderExpensesList();
+            updateExpenseSummaryChart();
+            updateBudgetVsActualChart();
+            populateTrendYears();
+            updateMonthlyTrendChart();
+            updateCurrentBalance();
+            checkBudgetAlerts();
+            console.log("Expense saved successfully to localStorage!");
         };
 
-        window.deleteExpense = async (id) => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot delete expense.");
-                 modalTitle.textContent = 'Error Koneksi';
-                modalContent.textContent = 'Tidak dapat menghapus pengeluaran. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
-                llmResponseModal.classList.remove('hidden');
-                return;
-            }
-            try {
-                await window.deleteDoc(window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/expenses`, id));
-                console.log("Expense deleted successfully!");
-            } catch (e) {
-                console.error("Error deleting document: ", e);
-                modalTitle.textContent = 'Gagal Menghapus';
-                modalContent.textContent = `Gagal menghapus pengeluaran: ${e.message}. Coba lagi.`;
-                llmResponseModal.classList.remove('hidden');
-            }
+        window.deleteExpense = (index) => { // Changed id to index for localStorage
+            expenses.splice(index, 1);
+            localStorage.setItem('userExpenses', JSON.stringify(expenses));
+            renderExpensesList();
+            updateExpenseSummaryChart();
+            updateBudgetVsActualChart();
+            populateTrendYears();
+            updateMonthlyTrendChart();
+            updateCurrentBalance();
+            checkBudgetAlerts();
+            console.log("Expense deleted successfully from localStorage!");
         };
 
         function renderExpensesList() {
@@ -982,7 +908,10 @@
                  noExpensesMessage.classList.add('hidden');
             }
 
-            expenses.forEach((expense) => {
+            // Sort expenses by date, newest first
+            expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            expenses.forEach((expense, index) => { // Added index for deletion
                 const expenseItem = document.createElement('div');
                 expenseItem.className = 'expense-item bg-white';
                 expenseItem.innerHTML = `
@@ -990,7 +919,7 @@
                         <p class="text-sm font-semibold text-slate-800">${expense.category} - ${formatRupiah(expense.amount)}</p>
                         <p class="text-xs text-slate-500">${expense.date} ${expense.description ? '(' + expense.description + ')' : ''}</p>
                     </div>
-                    <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-id="${expense.id}">
+                    <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-index="${index}">
                         &times;
                     </button>
                 `;
@@ -999,8 +928,8 @@
 
             expensesListDiv.querySelectorAll('button').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    const idToDelete = e.target.dataset.id;
-                    window.deleteExpense(idToDelete);
+                    const indexToDelete = parseInt(e.target.dataset.index);
+                    window.deleteExpense(indexToDelete);
                 });
             });
         }
@@ -1020,7 +949,7 @@
             }
 
             const newExpense = { date, amount, category, description };
-            window.saveExpense(newExpense); // Use Firestore save
+            window.saveExpense(newExpense); // Use localStorage save
             expenseForm.reset();
             expenseDateInput.valueAsDate = new Date();
         });
@@ -1157,7 +1086,7 @@
         }
 
         function populateTrendYears() {
-            const years = new Set(expenses.map(exp => new Date(exp.date).getFullYear()));
+            const years = new Set([...expenses.map(exp => new Date(exp.date).getFullYear()), ...incomes.map(inc => new Date(inc.date).getFullYear())]); // Include income years
             const currentYear = new Date().getFullYear();
             if (!years.has(currentYear)) years.add(currentYear); // Ensure current year is an option
             
@@ -1169,34 +1098,58 @@
                 trendYearSelect.appendChild(option);
             });
             trendYearSelect.value = currentYear; // Set default to current year
+            trendYearSelect.removeEventListener('change', updateMonthlyTrendChart); // Prevent multiple listeners
             trendYearSelect.addEventListener('change', updateMonthlyTrendChart);
         }
 
         function updateMonthlyTrendChart() {
             const selectedYear = parseInt(trendYearSelect.value);
             const months = Array.from({ length: 12 }, (_, i) => new Date(selectedYear, i).toLocaleString('id-ID', { month: 'short' }));
-            const monthlyTotals = {};
+            const monthlyExpenseTotals = {};
+            const monthlyIncomeTotals = {};
 
-            initialDataLabels.forEach(label => { // Initialize all categories for all months
-                monthlyTotals[label] = Array(12).fill(0);
+            // Initialize all categories for all months for expenses
+            initialDataLabels.forEach(label => { 
+                monthlyExpenseTotals[label] = Array(12).fill(0);
             });
+            // Also initialize a total for "Pemasukan"
+            monthlyIncomeTotals['Pemasukan'] = Array(12).fill(0);
+
 
             expenses.filter(exp => new Date(exp.date).getFullYear() === selectedYear)
                     .forEach(exp => {
                         const monthIndex = new Date(exp.date).getMonth();
-                        if (monthlyTotals[exp.category]) {
-                            monthlyTotals[exp.category][monthIndex] += exp.amount;
+                        if (monthlyExpenseTotals[exp.category]) {
+                            monthlyExpenseTotals[exp.category][monthIndex] += exp.amount;
                         }
                     });
 
-            const datasets = Object.keys(monthlyTotals).map((category, i) => ({
+            incomes.filter(inc => new Date(inc.date).getFullYear() === selectedYear)
+                    .forEach(inc => {
+                        const monthIndex = new Date(inc.date).getMonth();
+                        monthlyIncomeTotals['Pemasukan'][monthIndex] += inc.amount;
+                    });
+
+
+            const datasets = Object.keys(monthlyExpenseTotals).map((category, i) => ({
                 label: category,
-                data: monthlyTotals[category],
-                borderColor: `hsl(${i * 60}, 70%, 60%)`, // Consistent colors
+                data: monthlyExpenseTotals[category],
+                borderColor: `hsl(${i * 60}, 70%, 60%)`, // Consistent colors for expenses
                 backgroundColor: `hsla(${i * 60}, 70%, 60%, 0.2)`,
                 fill: false,
                 tension: 0.1
             }));
+
+            // Add income dataset
+            datasets.push({
+                label: 'Total Pemasukan',
+                data: monthlyIncomeTotals['Pemasukan'],
+                borderColor: '#10b981', // Emerald green for income
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: false,
+                tension: 0.1
+            });
+
 
             if (window.monthlyTrendChart) {
                 window.monthlyTrendChart.destroy();
@@ -1228,7 +1181,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Jumlah Pengeluaran (Rp)'
+                                text: 'Jumlah (Rp)'
                             },
                             ticks: {
                                 callback: function(value) {
@@ -1245,7 +1198,8 @@
         function updateCurrentBalance() {
             const totalExpensesAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
             const totalIncomesAmount = incomes.reduce((sum, inc) => sum + inc.amount, 0);
-            const remainingBalance = totalInitialBudgetFixed + totalIncomesAmount - totalExpensesAmount;
+            // Balance is initial budget + total incomes - total expenses
+            const remainingBalance = totalInitialBudgetFixed + totalIncomesAmount - totalExpensesAmount; 
             currentBalanceDisplay.textContent = formatRupiah(remainingBalance);
             currentBalanceDisplay.className = `text-3xl font-bold ${remainingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`;
         }
@@ -1296,60 +1250,31 @@
         const noGoalsMessage = document.getElementById('noGoalsMessage');
 
         // Functions to be exposed for goals
-        window.loadGoals = async () => {
-            if (!window.userId || !window.db) {
-                console.warn("Firestore not ready for goals. Data not loaded.");
-                return;
-            }
-            const q = window.query(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/goals`));
-            window.onSnapshot(q, (snapshot) => {
+        window.loadGoals = () => {
+            const storedGoals = localStorage.getItem('userGoals');
+            if (storedGoals) {
+                goals = JSON.parse(storedGoals);
+            } else {
                 goals = [];
-                snapshot.forEach((doc) => {
-                    goals.push({ id: doc.id, ...doc.data() });
-                });
-                renderGoalsList();
-                checkGoalAlerts(); // Check for goal alerts after loading/updating goals
-            }, (error) => {
-                console.error("Error fetching goals:", error);
-            });
+            }
+            renderGoalsList();
+            checkGoalAlerts(); 
         };
 
-        window.saveGoal = async (newGoal) => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot save goal.");
-                modalTitle.textContent = 'Error Koneksi';
-                modalContent.textContent = 'Tidak dapat menyimpan tujuan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
-                llmResponseModal.classList.remove('hidden');
-                return;
-            }
-            try {
-                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/goals`), newGoal);
-                console.log("Goal saved successfully!");
-            } catch (e) {
-                console.error("Error adding goal: ", e);
-                modalTitle.textContent = 'Gagal Menyimpan';
-                modalContent.textContent = `Gagal menyimpan tujuan: ${e.message}. Coba lagi.`;
-                llmResponseModal.classList.remove('hidden');
-            }
+        window.saveGoal = (newGoal) => {
+            goals.push(newGoal);
+            localStorage.setItem('userGoals', JSON.stringify(goals));
+            renderGoalsList();
+            checkGoalAlerts();
+            console.log("Goal saved successfully to localStorage!");
         };
 
-        window.deleteGoal = async (id) => {
-            if (!window.userId || !window.db) {
-                console.error("Firestore not ready. Cannot delete goal.");
-                modalTitle.textContent = 'Error Koneksi';
-                modalContent.textContent = 'Tidak dapat menghapus tujuan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
-                llmResponseModal.classList.remove('hidden');
-                return;
-            }
-            try {
-                await window.deleteDoc(window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/goals`, id));
-                console.log("Goal deleted successfully!");
-            } catch (e) {
-                console.error("Error deleting goal: ", e);
-                modalTitle.textContent = 'Gagal Menghapus';
-                modalContent.textContent = `Gagal menghapus tujuan: ${e.message}. Coba lagi.`;
-                llmResponseModal.classList.remove('hidden');
-            }
+        window.deleteGoal = (index) => { // Changed id to index for localStorage
+            goals.splice(index, 1);
+            localStorage.setItem('userGoals', JSON.stringify(goals));
+            renderGoalsList();
+            checkGoalAlerts();
+            console.log("Goal deleted successfully from localStorage!");
         };
 
         function renderGoalsList() {
@@ -1362,7 +1287,7 @@
                 noGoalsMessage.classList.add('hidden');
             }
 
-            goals.forEach((goal) => {
+            goals.forEach((goal, index) => { // Added index for deletion
                 const progress = (goal.current / goal.target) * 100;
                 const progressWidth = Math.min(progress, 100);
                 const remaining = goal.target - goal.current;
@@ -1372,7 +1297,7 @@
                 goalItem.innerHTML = `
                     <div class="flex justify-between w-full mb-1">
                         <span class="font-semibold text-slate-800">${goal.name}</span>
-                        <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-id="${goal.id}">
+                        <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-index="${index}">
                             &times;
                         </button>
                     </div>
@@ -1392,8 +1317,8 @@
 
             goalsListDiv.querySelectorAll('button').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    const idToDelete = e.target.dataset.id;
-                    window.deleteGoal(idToDelete);
+                    const indexToDelete = parseInt(e.target.dataset.index);
+                    window.deleteGoal(indexToDelete);
                 });
             });
         }
@@ -1412,7 +1337,7 @@
             }
 
             const newGoal = { name, target, current };
-            window.saveGoal(newGoal); // Use Firestore save
+            window.saveGoal(newGoal); // Use localStorage save
             goalForm.reset();
         });
         // --- End Goal Tracking ---
@@ -1440,17 +1365,22 @@
                 const expenseDate = new Date(exp.date);
                 return expenseDate.getFullYear() === parseInt(year) && (expenseDate.getMonth() + 1) === parseInt(month);
             });
+            const filteredIncomes = incomes.filter(inc => {
+                const incomeDate = new Date(inc.date);
+                return incomeDate.getFullYear() === parseInt(year) && (incomeDate.getMonth() + 1) === parseInt(month);
+            });
 
-            if (filteredExpenses.length === 0) {
-                monthlyReportOutput.innerHTML = `<p class="text-center text-slate-500">Tidak ada pengeluaran dicatat untuk bulan ${selectedMonthYear}.</p>`;
+
+            if (filteredExpenses.length === 0 && filteredIncomes.length === 0) {
+                monthlyReportOutput.innerHTML = `<p class="text-center text-slate-500">Tidak ada pengeluaran atau pemasukan dicatat untuk bulan ${selectedMonthYear}.</p>`;
                 reportLoadingIndicator.classList.add('hidden');
                 return;
             }
 
-            let reportPrompt = `Saya ingin laporan keuangan untuk bulan ${selectedMonthYear}. Berikut adalah pengeluaran yang saya catat:\n\n`;
+            let reportPrompt = `Saya ingin laporan keuangan untuk bulan ${selectedMonthYear}. `;
+            
             let totalReportExpense = 0;
             const reportCategoryTotals = {};
-
             filteredExpenses.forEach(exp => {
                 totalReportExpense += exp.amount;
                 if (reportCategoryTotals[exp.category]) {
@@ -1459,14 +1389,12 @@
                     reportCategoryTotals[exp.category] = exp.amount;
                 }
             });
+            reportPrompt += `Total Pengeluaran Bulan Ini: ${formatRupiah(totalReportExpense)}. Rincian Pengeluaran per Kategori: ${JSON.stringify(reportCategoryTotals)}. `;
 
-            reportPrompt += `Total Pengeluaran Bulan Ini: ${formatRupiah(totalReportExpense)}\n\n`;
-            reportPrompt += `Rincian Pengeluaran per Kategori:\n`;
-            for (const category in reportCategoryTotals) {
-                reportPrompt += `- ${category}: ${formatRupiah(reportCategoryTotals[category])}\n`;
-            }
+            let totalReportIncome = incomes.filter(inc => inc.date.startsWith(selectedMonthYear)).reduce((sum, inc) => sum + inc.amount, 0);
+            reportPrompt += `Total Pemasukan Bulan Ini: ${formatRupiah(totalReportIncome)}. `;
 
-            reportPrompt += `\nAnggaran bulanan saya adalah ${formatRupiah(totalInitialBudgetFixed)}. Berikan saya ringkasan laporan keuangan ini, termasuk perbandingan dengan anggaran, area pengeluaran terbesar, dan 2-3 saran singkat yang relevan untuk bulan berikutnya berdasarkan pola ini. Buat ringkasan dalam format yang mudah dibaca dengan poin-poin penting.`;
+            reportPrompt += `\nAnggaran bulanan saya adalah ${formatRupiah(totalInitialBudgetFixed)}. Berikan saya ringkasan laporan keuangan ini, termasuk perbandingan dengan anggaran, analisis arus kas (pemasukan vs pengeluaran), area pengeluaran terbesar, dan 2-3 saran singkat yang relevan untuk bulan berikutnya berdasarkan pola ini. Buat ringkasan dalam format yang mudah dibaca dengan poin-poin penting.`;
 
             try {
                 let chatHistory = [{ role: "user", parts: [{ text: reportPrompt }] }];
@@ -1588,43 +1516,17 @@
             slider.value = flexibleFundTotal;
             slider.dispatchEvent(new Event('input'));
             
-            createBudgetChart(); // Use the new createBudgetChart
             populateTips();
             
-            // Set userId display placeholder until Firebase auth is ready
-            displayUserId.textContent = "Memuat...";
+            displayUserId.textContent = "Sesi Lokal"; // Indicate local storage, no user ID from Firebase
 
-            // Auth state listener moved inside window.onload to ensure window.auth is defined
-            window.auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    window.userId = user.uid;
-                    console.log("Firebase authenticated. User ID:", window.userId);
-                    displayUserId.textContent = window.userId; // Update display here
-                    // Load data after authentication is confirmed
-                    window.loadUserBudgetTargets(); // Load user specific budget targets first
-                    window.loadExpenses();
-                    window.loadIncomes(); // Load incomes
-                    window.loadGoals();
-                } else {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined') {
-                            await window.signInWithCustomToken(window.auth, __initial_auth_token);
-                        } else {
-                            await window.signInAnonymously(window.auth);
-                        }
-                    } catch (error) {
-                        console.error("Firebase authentication failed:", error);
-                        window.userId = crypto.randomUUID();
-                        displayUserId.textContent = window.userId + " (Anonim)"; // Indicate anonymous
-                        // Even without full auth, try to load data, but it might fail due to permissions
-                        window.loadUserBudgetTargets(); 
-                        window.loadExpenses();
-                        window.loadIncomes();
-                        window.loadGoals();
-                    }
-                }
-            });
+            // Load data from localStorage
+            window.loadUserBudgetTargets(); 
+            window.loadExpenses();
+            window.loadIncomes(); 
+            window.loadGoals();
         };
     </script>
 </body>
 </html>
+�
