@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perencana Keuangan Interaktif - Jogja</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase global variables for use in the script below
+        window.firebaseApp = initializeApp(JSON.parse(__firebase_config));
+        window.db = getFirestore(window.firebaseApp);
+        window.auth = getAuth(window.firebaseApp);
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Expose Firestore functions to global scope for use in main script
+        window.addDoc = addDoc;
+        window.setDoc = setDoc;
+        window.deleteDoc = deleteDoc;
+        window.onSnapshot = onSnapshot;
+        window.collection = collection;
+        window.query = query;
+        window.orderBy = orderBy;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.signInAnonymously = signInAnonymously; // Expose signInAnonymously
+        window.signInWithCustomToken = signInWithCustomToken; // Expose signInWithCustomToken
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate & Amber -->
+    <!-- Application Structure Plan: Menggunakan pendekatan dasbor modular. Bagian utama menampilkan Donut Chart interaktif untuk alokasi anggaran dan kartu detail dinamis, kini dengan input untuk edit anggaran. Slider "Dana Fleksibel" tetap ada. Bagian baru ditambahkan untuk pelacakan pengeluaran dengan form, daftar, Bar Chart ringkasan kategori, dan Bagan Tren Pengeluaran Bulanan (Line Chart). Fitur LLM dikelompokkan dalam satu bagian dengan tombol untuk saran dinamis. Dua fitur baru: kartu "Ringkasan Saldo Saat Ini" di area utama untuk overview cepat, dan bagian "Tujuan Keuangan Anda" dengan form dan daftar progres tujuan. Fitur baru yang ditambahkan adalah penyimpanan data di Firestore untuk persistensi lintas perangkat, Bagan Perbandingan Anggaran vs. Realisasi Pengeluaran, dan Laporan Keuangan Bulanan Otomatis. Struktur ini dirancang untuk memberikan pandangan menyeluruh dan kontrol penuh atas keuangan pengguna, dari alokasi, pelacakan, hingga perencanaan tujuan, semuanya terintegrasi dengan saran cerdas dari Gemini dan penyimpanan data yang andal, serta opsi Mode Gelap. -->
+    <!-- Visualization & Content Choices: Alokasi Anggaran -> Tujuan: Proporsi -> Donut Chart (Chart.js) -> Interaksi: Klik untuk detail, Edit input untuk anggaran -> Alasan: Gambaran intuitif & penetapan anggaran dinamis. Dana Fleksibel -> Tujuan: Keterlibatan/Perencanaan -> Slider + Teks Dinamis -> Interaksi: Geser untuk alokasi ulang -> Alasan: Memberdayakan pengambilan keputusan pengguna. Ringkasan Saldo Saat Ini -> Tujuan: Overview Cepat -> Kartu Teks Dinamis (HTML/JS) -> Interaksi: Diperbarui otomatis (termasuk income) -> Alasan: Memberikan informasi saldo real-time. Pencatat Pengeluaran -> Tujuan: Pelacakan Transaksi -> Form Input & List Dinamis (HTML/JS) -> Interaksi: Input data, tampilkan list -> Alasan: Kontrol langsung atas pencatatan pengeluaran. Ringkasan Pengeluaran per Kategori -> Tujuan: Analisis Visual -> Bar Chart (Chart.js) -> Interaksi: Otomatis diperbarui -> Alasan: Visualisasi distribusi pengeluaran. Bagan Anggaran vs. Realisasi -> Tujuan: Perbandingan Kinerja -> Bar Chart (Chart.js) -> Interaksi: Otomatis diperbarui -> Alasan: Menilai kepatuhan anggaran. Visualisasi Tren Pengeluaran Bulanan -> Tujuan: Analisis Tren -> Line Chart (Chart.js) -> Interaksi: Pilih rentang bulan -> Alasan: Mengidentifikasi pola pengeluaran dari waktu ke waktu. Pelacakan Pemasukan Sederhana -> Tujuan: Pelacakan Sumber Daya -> Form Input & List Dinamis (HTML/JS) -> Interaksi: Input data, tampilkan list -> Alasan: Gambaran lengkap arus kas. Tujuan Keuangan -> Tujuan: Motivasi & Pelacakan Progres -> Form + List Tujuan dengan Progress Bar (HTML/JS) -> Interaksi: Input tujuan, tampilkan progres -> Alasan: Memvisualisasikan pencapaian finansial. Laporan Keuangan Bulanan -> Tujuan: Evaluasi Periode -> Dropdown + Tombol + Teks Dinamis (HTML/JS + LLM) -> Interaksi: Pilih bulan, generate laporan -> Alasan: Ringkasan performa finansial. Fitur LLM -> Tujuan: Saran & Ide Dinamis -> Tombol + Area Teks Hasil (Vanilla JS) -> Interaksi: Klik untuk generate -> Alasan: Meningkatkan utilitas dan personalisasi. Tips -> Tujuan: Menginformasikan -> Kartu -> Interaksi: Statis -> Alasan: Keterbacaan. Notifikasi Cerdas -> Tujuan: Pemberitahuan Proaktif -> Pesan singkat/modal (JS) -> Interaksi: Otomatis muncul -> Alasan: Membantu menjaga anggaran. Mode Gelap -> Tujuan: Personalisasi UI -> Tombol Toggle (HTML/JS) -> Interaksi: Klik untuk ganti tema -> Alasan: Pilihan tampilan yang disukai pengguna. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+            width: 100%;
+            max-width: 450px;
+            margin: auto;
+        }
+        @media (min-width: 1024px) {
+            .chart-container {
+                height: 50vh;
+                 max-width: 500px;
+            }
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #f59e0b; /* amber-500 */
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        .slider-thumb::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #f59e0b; /* amber-500 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+         .expense-item, .income-item, .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .expense-item:last-child, .income-item:last-child, .goal-item:last-child {
+            border-bottom: none;
+        }
+        .expense-chart-container, .budget-vs-actual-chart-container, .monthly-trend-chart-container {
+            position: relative;
+            height: 300px; /* Fixed height for charts */
+            width: 100%;
+            max-width: 600px; /* Max width to keep it readable */
+            margin: auto;
+            margin-top: 2rem; /* Space from list */
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e2e8f0; /* slate-200 */
+            border-radius: 9999px; /* full rounded */
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #10b981; /* emerald-500 */
+            border-radius: 9999px; /* full rounded */
+            text-align: center;
+            color: white;
+            font-size: 0.75rem; /* text-xs */
+            line-height: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+        .dark .bg-slate-50 { background-color: #1a202c; } /* dark background */
+        .dark .text-slate-800 { color: #e2e8f0; } /* light text */
+        .dark .bg-white { background-color: #2d3748; } /* dark card background */
+        .dark .text-slate-900 { color: #e2e8f0; } /* dark mode heading */
+        .dark .text-slate-600 { color: #a0aec0; } /* dark mode secondary text */
+        .dark .text-slate-500 { color: #a0aec0; } /* dark mode placeholder text */
+        .dark .text-slate-700 { color: #cbd5e0; } /* dark mode body text */
+        .dark .border-slate-300 { border-color: #4a5568; } /* dark mode border */
+        .dark .border-slate-200 { border-color: #4a5568; } /* dark mode list border */
+        .dark .text-green-600 { color: #68d391; } /* dark mode positive green */
+        .dark .text-red-600 { color: #fc8181; } /* dark mode negative red */
+        .dark .focus\:ring-amber-500:focus { --tw-ring-color: #f6ad55; } /* dark mode focus ring */
+        .dark .bg-slate-200 { background-color: #4a5568; } /* dark mode slider track */
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Perencana Keuangan Interaktif</h1>
+            <p class="text-slate-600 mt-2">Anggaran Bulanan Rp 2.000.000 untuk Hidup di Jogja</p>
+            <button id="darkModeToggle" class="absolute top-4 right-4 p-2 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-md">
+                💡
+            </button>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <h2 class="text-xl font-bold mb-4 text-center">Alokasi Anggaran</h2>
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+                 <p class="text-center text-sm text-slate-500 mt-4">Klik pada segmen bagan untuk melihat detail.</p>
+                 <div class="mt-6">
+                    <h3 class="text-lg font-bold mb-3 text-slate-800">Tetapkan Anggaran Bulanan</h3>
+                    <div id="budgetInputs" class="space-y-3">
+                        <!-- Budget input fields will be dynamically generated here -->
+                    </div>
+                 </div>
+            </div>
+
+            <div class="space-y-8">
+                <div id="detailsCard" class="bg-white p-6 rounded-2xl shadow-sm min-h-[220px] flex flex-col justify-center">
+                    <div class="text-center">
+                        <svg class="w-12 h-12 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <h3 class="text-lg font-semibold mt-4 text-slate-700">Detail Alokasi</h3>
+                        <p class="text-slate-500">Pilih salah satu kategori dari bagan di samping untuk melihat rincian dan tipsnya.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-1">Atur Dana Fleksibel Anda</h2>
+                    <p class="text-slate-500 mb-4">Anda memiliki <strong class="text-green-600">Rp 300.000</strong> dana sisa. Alokasikan untuk menambah tabungan atau hiburan.</p>
+                    
+                    <div class="space-y-4">
+                         <div>
+                            <div class="flex justify-between font-medium">
+                                <span><span class="text-amber-500">●</span> Hiburan</span>
+                                <span id="hiburanValue">Rp 200.000</span>
+                            </div>
+                            <div class="flex justify-between font-medium mt-1">
+                                <span><span class="text-indigo-500">●</span> Tabungan</span>
+                                <span id="tabunganValue">Rp 300.000</span>
+                            </div>
+                        </div>
+
+                        <input id="flexibleSlider" type="range" min="0" max="300000" step="10000" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>100% untuk Hiburan</span>
+                            <span>100% untuk Tabungan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm">
+                    <h2 class="text-xl font-bold mb-1">Ringkasan Saldo Saat Ini</h2>
+                    <p class="text-slate-500 mb-4">Lihat berapa dana yang tersisa dari anggaran bulanan Anda setelah pengeluaran dan pemasukan.</p>
+                    <div class="flex items-center justify-between mt-4">
+                        <span class="text-lg font-semibold text-slate-700">Saldo Tersedia:</span>
+                        <span id="currentBalance" class="text-3xl font-bold text-green-600">Rp 2.000.000</span>
+                    </div>
+                     <p class="text-sm text-slate-500 mt-2">ID Pengguna Anda (untuk akses data): <span id="displayUserId" class="font-medium">Memuat...</span></p>
+                </div>
+            </div>
+        </main>
+        
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-slate-900">Catat Pemasukan Anda</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <form id="incomeForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="incomeDate" class="block text-sm font-medium text-slate-700 mb-1">Tanggal</label>
+                        <input type="date" id="incomeDate" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                    </div>
+                    <div>
+                        <label for="incomeAmount" class="block text-sm font-medium text-slate-700 mb-1">Jumlah (Rp)</label>
+                        <input type="number" id="incomeAmount" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., 5000000" required min="0">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="incomeSource" class="block text-sm font-medium text-slate-700 mb-1">Sumber (Opsional)</label>
+                        <input type="text" id="incomeSource" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., Gaji bulanan">
+                    </div>
+                    <div class="md:col-span-2 text-center">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Tambah Pemasukan
+                        </button>
+                    </div>
+                </form>
+                <h3 class="text-lg font-bold mb-3 text-slate-800">Daftar Pemasukan Anda</h3>
+                <div id="incomesList" class="max-h-80 overflow-y-auto border border-slate-200 rounded-lg">
+                    <p class="p-4 text-slate-500 text-center" id="noIncomesMessage">Belum ada pemasukan dicatat.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-slate-900">Catat Pengeluaran Anda</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <form id="expenseForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="expenseDate" class="block text-sm font-medium text-slate-700 mb-1">Tanggal</label>
+                        <input type="date" id="expenseDate" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                    </div>
+                    <div>
+                        <label for="expenseAmount" class="block text-sm font-medium text-slate-700 mb-1">Jumlah (Rp)</label>
+                        <input type="number" id="expenseAmount" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., 50000" required min="0">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="expenseCategory" class="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
+                        <select id="expenseCategory" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            <option value="">Pilih Kategori</option>
+                            <option value="Makan">Makan</option>
+                            <option value="Transportasi">Transportasi</option>
+                            <option value="Hiburan">Hiburan</option>
+                            <option value="Belanja">Belanja</option>
+                            <option value="Pulsa & Data">Pulsa & Data</option>
+                            <option value="Keperluan Pribadi">Keperluan Pribadi</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="expenseDescription" class="block text-sm font-medium text-slate-700 mb-1">Deskripsi (Opsional)</label>
+                        <input type="text" id="expenseDescription" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., Makan siang di angkringan">
+                    </div>
+                    <div class="md:col-span-2 text-center">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Tambah Pengeluaran
+                        </button>
+                    </div>
+                </form>
+
+                <h3 class="text-lg font-bold mb-3 text-slate-800">Daftar Pengeluaran Anda</h3>
+                <div id="expensesList" class="max-h-80 overflow-y-auto border border-slate-200 rounded-lg">
+                    <p class="p-4 text-slate-500 text-center" id="noExpensesMessage">Belum ada pengeluaran dicatat.</p>
+                </div>
+
+                <h3 class="text-lg font-bold mb-3 mt-6 text-slate-800">Ringkasan Pengeluaran per Kategori</h3>
+                <div class="expense-chart-container">
+                    <canvas id="expenseSummaryChart"></canvas>
+                </div>
+
+                <h3 class="text-lg font-bold mb-3 mt-6 text-slate-800">Anggaran vs. Realisasi Pengeluaran</h3>
+                <div class="budget-vs-actual-chart-container">
+                    <canvas id="budgetVsActualChart"></canvas>
+                </div>
+
+                <h3 class="text-lg font-bold mb-3 mt-6 text-slate-800">Tren Pengeluaran Bulanan</h3>
+                <div class="flex items-center space-x-2 mb-4">
+                    <label for="trendYearSelect" class="text-sm font-medium text-slate-700">Tahun:</label>
+                    <select id="trendYearSelect" class="p-1 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 w-24"></select>
+                </div>
+                <div class="monthly-trend-chart-container">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-slate-900">Tujuan Keuangan Anda</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <form id="goalForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="goalName" class="block text-sm font-medium text-slate-700 mb-1">Nama Tujuan</label>
+                        <input type="text" id="goalName" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., Beli Laptop Baru" required>
+                    </div>
+                    <div>
+                        <label for="goalTarget" class="block text-sm font-medium text-slate-700 mb-1">Target Dana (Rp)</label>
+                        <input type="number" id="goalTarget" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., 10000000" required min="1">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="goalCurrent" class="block text-sm font-medium text-slate-700 mb-1">Dana Saat Ini (Rp)</label>
+                        <input type="number" id="goalCurrent" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="e.g., 2000000" required min="0">
+                    </div>
+                    <div class="md:col-span-2 text-center">
+                        <button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Tambah Tujuan
+                        </button>
+                    </div>
+                </form>
+
+                <h3 class="text-lg font-bold mb-3 text-slate-800">Daftar Tujuan Anda</h3>
+                <div id="goalsList" class="max-h-80 overflow-y-auto border border-slate-200 rounded-lg">
+                    <p class="p-4 text-slate-500 text-center" id="noGoalsMessage">Belum ada tujuan dicatat.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-slate-900">Laporan Keuangan Bulanan</h2>
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="reportMonth" class="block text-sm font-medium text-slate-700 mb-1">Pilih Bulan</label>
+                        <input type="month" id="reportMonth" class="w-full p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div class="flex items-end justify-center">
+                        <button id="generateReportButton" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 w-full">
+                            Generate Laporan
+                        </button>
+                    </div>
+                </div>
+                <div id="monthlyReportOutput" class="mt-4 text-slate-700">
+                    <p class="text-center text-slate-500">Pilih bulan dan klik 'Generate Laporan' untuk melihat ringkasan keuangan.</p>
+                    <div id="reportLoadingIndicator" class="mt-4 text-center hidden">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Menganalisis laporan...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-slate-900">Fitur Interaktif Gemini</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center">
+                    <button id="nongkrongButton" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Ide Nongkrong Hemat
+                    </button>
+                    <div id="nongkrongResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Memuat ide...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center">
+                    <button id="optimasiButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Saran Optimalisasi Anggaran
+                    </button>
+                    <div id="optimasiResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Menganalisis anggaran...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center">
+                    <button id="resepButton" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Ide Resep Hemat Harian
+                    </button>
+                    <div id="resepResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Mencari resep...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center">
+                    <button id="penghasilanButton" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Ide Penghasilan Tambahan
+                    </button>
+                    <div id="penghasilanResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Mencari ide...</span>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center col-span-1 md:col-span-2 lg:col-span-1">
+                    <button id="analisaPengeluaranButton" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Analisa Pengeluaran Anda
+                    </button>
+                    <div id="analisaPengeluaranResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Menganalisis data...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center">
+                    <button id="goalPlanButton" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Rencana Aksi Tujuan Keuangan
+                    </button>
+                    <div id="goalPlanResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Membuat rencana...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center justify-center">
+                    <button id="dailyTipButton" class="bg-lime-500 hover:bg-lime-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Tips Hemat Harian
+                    </button>
+                    <div id="dailyTipResult" class="mt-4 text-center text-slate-700 text-sm hidden w-full">
+                        <div class="flex justify-center items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                            <span class="ml-3">Memuat tips...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="llmResponseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+                <div class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full relative">
+                    <button id="closeModal" class="absolute top-3 right-3 text-slate-500 hover:text-slate-800 text-2xl font-bold">&times;</button>
+                    <h3 id="modalTitle" class="text-xl font-bold mb-4 text-slate-900"></h3>
+                    <div id="modalContent" class="max-h-96 overflow-y-auto text-slate-700"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-center mb-6 text-slate-900">Tips Tambahan untuk Hidup Hemat</h2>
+            <div id="tipsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Default initial budget data
+        const defaultInitialBudget = {
+            labels: ['Makan', 'Bensin', 'Tabungan', 'Nongkrong & Hiburan', 'Pulsa & Data', 'Keperluan Pribadi', 'Dana Darurat'],
+            values: [600000, 300000, 300000, 200000, 75000, 75000, 150000]
+        };
+        const totalInitialBudgetFixed = 2000000; // This is the fixed total budget, not the sum of currentValues
+
+        let currentValues = [...defaultInitialBudget.values]; // This will be the editable budget
+        let initialDataLabels = [...defaultInitialBudget.labels]; // Labels remain fixed for now
+
+        // FIX: Moved 'tips' array declaration to the top of the script
+        const tips = [
+            { icon: '📍', title: 'Lokasi Strategis', desc: 'Cari kost/kontrakan yang dekat dengan tempat kerja atau aktivitas utama untuk menghemat pengeluaran bensin.' },
+            { icon: '🍚', title: 'Manfaatkan Angkringan', desc: 'Angkringan adalah sahabat anak kost. Pilihan makanannya banyak, murah, dan tersedia hingga larut malam.' },
+            { icon: '🍳', title: 'Masak Sendiri', desc: 'Cara paling efektif untuk mengontrol dan menekan pengeluaran makan. Belanja bahan di pasar tradisional lebih murah.' },
+            { icon: '⚖️', title: 'Disiplin Anggaran', desc: 'Kunci utama dari keberhasilan rencana keuangan adalah komitmen untuk mematuhi anggaran yang telah dibuat.' },
+            { icon: '📝', title: 'Catat Pengeluaran', desc: 'Pantau setiap rupiah yang keluar untuk mengetahui kebiasaan belanja Anda dan area mana yang bisa dihemat.' },
+            { icon: '💻', title: 'Cari Penghasilan Tambahan', desc: 'Pertimbangkan untuk mengambil pekerjaan lepas (freelance) atau proyek sampingan sesuai keahlian Anda untuk menambah pemasukan.' }
+        ];
+
+        const flexibleFundTotal = 300000;
+        const ctx = document.getElementById('budgetChart').getContext('2d');
+        let budgetChart;
+
+        let expenses = []; // Array to store expense objects fetched from Firestore
+        let incomes = []; // Array to store income objects fetched from Firestore
+        let goals = []; // Array to store goal objects fetched from Firestore
+        let userBudgetTargets = {}; // Object to store user-defined budget targets per category
+
+        // Chart variables now attached to window object to prevent redeclaration errors
+        window.expenseSummaryChart = null; 
+        window.budgetVsActualChart = null; 
+        window.monthlyTrendChart = null; // New chart for monthly trend
+
+        const currentBalanceDisplay = document.getElementById('currentBalance');
+        const displayUserId = document.getElementById('displayUserId');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const budgetInputsContainer = document.getElementById('budgetInputs');
+
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+
+        // --- Budget Chart and Dynamic Budgeting ---
+        function createBudgetChart() {
+            if (budgetChart) {
+                budgetChart.destroy();
+            }
+            budgetChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: initialDataLabels,
+                    datasets: [{
+                        data: initialDataLabels.map(label => userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)]), // Use user targets or default
+                        backgroundColor: ['#ef4444', '#f97316', '#3b82f6', '#f59e0b', '#8b5cf6', '#14b8a6', '#64748b'],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 16
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatRupiah(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const chartElement = elements[0];
+                            const index = chartElement.index;
+                            updateDetailsCard(index);
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Dynamically create input fields for budget targets
+        function populateBudgetInputs() {
+            budgetInputsContainer.innerHTML = '';
+            initialDataLabels.forEach(label => {
+                const inputId = `budget-${label.replace(/\s+/g, '-')}`;
+                const currentValue = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)];
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'flex items-center justify-between space-x-2';
+                inputGroup.innerHTML = `
+                    <label for="${inputId}" class="text-sm font-medium text-slate-700 w-1/2">${label}:</label>
+                    <input type="number" id="${inputId}" class="w-1/2 p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" value="${currentValue}" min="0">
+                `;
+                budgetInputsContainer.appendChild(inputGroup);
+
+                document.getElementById(inputId).addEventListener('change', (e) => {
+                    userBudgetTargets[label] = parseInt(e.target.value) || 0;
+                    window.saveUserBudgetTargets(); // Save to Firestore
+                    createBudgetChart(); // Re-render donut chart with new targets
+                    updateBudgetVsActualChart(); // Update budget vs actual chart
+                });
+            });
+        }
+
+        // Load and Save User Budget Targets from Firestore
+        window.loadUserBudgetTargets = async () => {
+            if (!window.userId || !window.db) {
+                console.warn("Firestore not ready for user budget targets. Using defaults.");
+                userBudgetTargets = {}; // Reset to empty, fallback to defaults
+                populateBudgetInputs();
+                createBudgetChart();
+                return;
+            }
+            const docRef = window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/settings/budget_targets`);
+            window.onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    userBudgetTargets = docSnap.data();
+                    console.log("User budget targets loaded:", userBudgetTargets);
+                } else {
+                    console.log("No user budget targets found, using defaults.");
+                    userBudgetTargets = {}; // Reset to empty, fallback to defaults
+                }
+                populateBudgetInputs(); // Always populate after loading/defaults
+                createBudgetChart(); // Re-render donut chart
+                updateBudgetVsActualChart(); // Update budget vs actual chart
+            }, (error) => {
+                console.error("Error loading user budget targets:", error);
+                userBudgetTargets = {}; // Fallback to defaults on error
+                populateBudgetInputs();
+                createBudgetChart();
+            });
+        };
+
+        window.saveUserBudgetTargets = async () => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot save user budget targets.");
+                return;
+            }
+            try {
+                const docRef = window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/settings/budget_targets`);
+                await window.setDoc(docRef, userBudgetTargets, { merge: true });
+                console.log("User budget targets saved successfully!");
+            } catch (e) {
+                console.error("Error saving user budget targets: ", e);
+            }
+        };
+
+        // --- End Budget Chart and Dynamic Budgeting ---
+
+        function updateDetailsCard(index) {
+            const label = initialDataLabels[index]; // Use initialDataLabels for consistent lookup
+            const value = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)]; // Use user target or default
+            const detail = details[label];
+            const card = document.getElementById('detailsCard');
+
+            card.innerHTML = `
+                <div class="flex items-start space-x-4">
+                    <div class="text-4xl">${detail.icon}</div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">${label}</h3>
+                        <p class="text-2xl font-bold text-amber-500 mb-2">${formatRupiah(value)}</p>
+                        <p class="text-slate-600">${detail.desc}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function populateTips() {
+            const container = document.getElementById('tipsContainer');
+            tips.forEach(tip => {
+                const tipEl = document.createElement('div');
+                tipEl.className = "bg-white p-5 rounded-xl shadow-sm flex items-start space-x-4";
+                tipEl.innerHTML = `
+                    <div class="text-3xl">${tip.icon}</div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">${tip.title}</h3>
+                        <p class="text-slate-500 text-sm">${tip.desc}</p>
+                    </div>
+                `;
+                container.appendChild(tipEl);
+            });
+        }
+
+        const slider = document.getElementById('flexibleSlider');
+        const hiburanValueEl = document.getElementById('hiburanValue');
+        const tabunganValueEl = document.getElementById('tabunganValue');
+
+        slider.addEventListener('input', (event) => {
+            const sliderValue = parseInt(event.target.value);
+            
+            const forHiburan = flexibleFundTotal - sliderValue;
+            const forTabungan = sliderValue;
+
+            const hiburanLabel = 'Nongkrong & Hiburan';
+            const tabunganLabel = 'Tabungan';
+            
+            // Adjust based on current user budget targets if they exist, otherwise default
+            const currentHiburanBudget = userBudgetTargets[hiburanLabel] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(hiburanLabel)];
+            const currentTabunganBudget = userBudgetTargets[tabunganLabel] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(tabunganLabel)];
+
+            const newHiburanTotal = currentHiburanBudget + forHiburan;
+            const newTabunganTotal = currentTabunganBudget + forTabungan;
+
+            hiburanValueEl.textContent = formatRupiah(newHiburanTotal);
+            tabunganValueEl.textContent = formatRupiah(newTabunganTotal);
+
+            // Update userBudgetTargets for the display, but this slider only impacts this display, not saved budget directly
+            // If the user *changes* the flexible fund, it's usually a one-time allocation.
+            // For persistence, the flexible fund itself would need to be budgetable and tracked
+            // For now, this just visually re-allocates the fixed flexible fund.
+            // If the goal is for the slider to PERMANENTLY reallocate, it would need to update userBudgetTargets
+            // and trigger saveUserBudgetTargets(). But flexible fund is usually temporary.
+            // Sticking to visual representation for the flexible fund for now, as it's an "extra" fund.
+        });
+        
+        const nongkrongButton = document.getElementById('nongkrongButton');
+        const optimasiButton = document.getElementById('optimasiButton');
+        const resepButton = document.getElementById('resepButton');
+        const penghasilanButton = document.getElementById('penghasilanButton');
+        const analisaPengeluaranButton = document.getElementById('analisaPengeluaranButton');
+        const goalPlanButton = document.getElementById('goalPlanButton');
+        const dailyTipButton = document.getElementById('dailyTipButton');
+
+        const nongkrongResult = document.getElementById('nongkrongResult');
+        const optimasiResult = document.getElementById('optimasiResult');
+        const resepResult = document.getElementById('resepResult');
+        const penghasilanResult = document.getElementById('penghasilanResult');
+        const analisaPengeluaranResult = document.getElementById('analisaPengeluaranResult');
+        const goalPlanResult = document.getElementById('goalPlanResult');
+        const dailyTipResult = document.getElementById('dailyTipResult');
+
+        const llmResponseModal = document.getElementById('llmResponseModal');
+        const closeModalButton = document.getElementById('closeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+
+        closeModalButton.addEventListener('click', () => {
+            llmResponseModal.classList.add('hidden');
+        });
+
+        async function callGeminiAPI(prompt, targetElement) {
+            targetElement.classList.remove('hidden');
+            targetElement.innerHTML = `
+                <div class="flex justify-center items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-500"></div>
+                    <span class="ml-3">Memuat...</span>
+                </div>
+            `;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // API key is provided by Canvas runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    modalContent.innerHTML = text.replace(/\n/g, '<br>');
+                    llmResponseModal.classList.remove('hidden');
+                } else {
+                    modalContent.textContent = 'Maaf, tidak dapat menghasilkan saran saat ini. Coba lagi.';
+                    llmResponseModal.classList.remove('hidden');
+                }
+            } catch (error) {
+                modalContent.textContent = `Terjadi kesalahan: ${error.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            } finally {
+                targetElement.classList.add('hidden');
+            }
+        }
+
+        nongkrongButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Ide Nongkrong Hemat di Jogja ✨';
+            const prompt = "Berikan 3 ide nongkrong yang hemat biaya dan menarik di Jogja untuk anak muda, cocok untuk anggaran terbatas. Sertakan detail singkat mengapa ide tersebut hemat dan menarik.";
+            callGeminiAPI(prompt, nongkrongResult);
+        });
+
+        optimasiButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Saran Optimalisasi Anggaran ✨';
+            let budgetSummary = "Anggaran saya saat ini untuk kebutuhan bulanan di Jogja adalah:\n";
+            initialDataLabels.forEach(label => {
+                const value = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)];
+                budgetSummary += `- ${label}: ${formatRupiah(value)}\n`;
+            });
+            const prompt = `Berikan 3 saran konkret dan realistis untuk mengoptimalkan anggaran bulanan saya di Jogja dengan total Rp 2.000.000. Fokus pada pengeluaran saat ini: ${budgetSummary} Jangan terlalu mendikte, berikan ide kreatif dan praktis.`;
+            callGeminiAPI(prompt, optimasiResult);
+        });
+
+        resepButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Ide Resep Hemat Harian ✨';
+            const prompt = "Berikan 3 ide resep masakan sederhana dan hemat untuk makan 3x sehari (sarapan, makan siang, makan malam) yang cocok untuk budget di Jogja, dengan fokus pada bahan-bahan lokal seperti tempe, tahu, sayuran, dan telur. Jelaskan singkat mengapa resep tersebut hemat dan lezat.";
+            callGeminiAPI(prompt, resepResult);
+        });
+
+        penghasilanButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Ide Penghasilan Tambahan ✨';
+            const prompt = "Sebagai seorang programmer atau Machine Learning Engineer yang tinggal di Jogja dengan anggaran terbatas, berikan 3 ide realistis untuk mendapatkan penghasilan tambahan (part-time/freelance) yang bisa dilakukan tanpa mengganggu pekerjaan utama. Fokus pada peluang yang relevan dengan kota Jogja atau bisa dilakukan secara remote.";
+            callGeminiAPI(prompt, penghasilanResult);
+        });
+
+        // --- Income Tracking ---
+        const incomeForm = document.getElementById('incomeForm');
+        const incomeDateInput = document.getElementById('incomeDate');
+        const incomeAmountInput = document.getElementById('incomeAmount');
+        const incomeSourceInput = document.getElementById('incomeSource');
+        const incomesListDiv = document.getElementById('incomesList');
+        const noIncomesMessage = document.getElementById('noIncomesMessage');
+
+        window.loadIncomes = async () => {
+            if (!window.userId || !window.db) {
+                console.warn("Firestore not ready for incomes. Data not loaded.");
+                return;
+            }
+            const q = window.query(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/incomes`), window.orderBy("date", "desc"));
+            window.onSnapshot(q, (snapshot) => {
+                incomes = [];
+                snapshot.forEach((doc) => {
+                    incomes.push({ id: doc.id, ...doc.data() });
+                });
+                renderIncomesList();
+                updateCurrentBalance();
+            }, (error) => {
+                console.error("Error fetching incomes:", error);
+            });
+        };
+
+        window.saveIncome = async (newIncome) => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot save income.");
+                modalTitle.textContent = 'Error Koneksi';
+                modalContent.textContent = 'Tidak dapat menyimpan pemasukan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/incomes`), newIncome);
+                console.log("Income saved successfully!");
+            } catch (e) {
+                console.error("Error adding income: ", e);
+                modalTitle.textContent = 'Gagal Menyimpan';
+                modalContent.textContent = `Gagal menyimpan pemasukan: ${e.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            }
+        };
+
+        window.deleteIncome = async (id) => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot delete income.");
+                modalTitle.textContent = 'Error Koneksi';
+                modalContent.textContent = 'Tidak dapat menghapus pemasukan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                await window.deleteDoc(window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/incomes`, id));
+                console.log("Income deleted successfully!");
+            } catch (e) {
+                console.error("Error deleting income: ", e);
+                modalTitle.textContent = 'Gagal Menghapus';
+                modalContent.textContent = `Gagal menghapus pemasukan: ${e.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            }
+        };
+
+        function renderIncomesList() {
+            incomesListDiv.innerHTML = '';
+            if (incomes.length === 0) {
+                incomesListDiv.appendChild(noIncomesMessage);
+                noIncomesMessage.classList.remove('hidden');
+                return;
+            } else {
+                noIncomesMessage.classList.add('hidden');
+            }
+
+            incomes.forEach((income) => {
+                const incomeItem = document.createElement('div');
+                incomeItem.className = 'income-item bg-white';
+                incomeItem.innerHTML = `
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-slate-800">${income.source || 'Pemasukan'} - ${formatRupiah(income.amount)}</p>
+                        <p class="text-xs text-slate-500">${income.date}</p>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-id="${income.id}">
+                        &times;
+                    </button>
+                `;
+                incomesListDiv.appendChild(incomeItem);
+            });
+
+            incomesListDiv.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const idToDelete = e.target.dataset.id;
+                    window.deleteIncome(idToDelete);
+                });
+            });
+        }
+
+        incomeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const date = incomeDateInput.value;
+            const amount = parseInt(incomeAmountInput.value);
+            const source = incomeSourceInput.value;
+
+            if (!date || isNaN(amount) || amount <= 0) {
+                modalTitle.textContent = 'Input Error';
+                modalContent.textContent = 'Mohon lengkapi Tanggal dan Jumlah Pemasukan.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+
+            const newIncome = { date, amount, source };
+            window.saveIncome(newIncome);
+            incomeForm.reset();
+            incomeDateInput.valueAsDate = new Date();
+        });
+
+        incomeDateInput.valueAsDate = new Date(); // Set initial date for income form
+        // --- End Income Tracking ---
+
+        // --- Expense Tracking ---
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseDateInput = document.getElementById('expenseDate');
+        const expenseAmountInput = document.getElementById('expenseAmount');
+        const expenseCategorySelect = document.getElementById('expenseCategory');
+        const expenseDescriptionInput = document.getElementById('expenseDescription');
+        const expensesListDiv = document.getElementById('expensesList');
+        const noExpensesMessage = document.getElementById('noExpensesMessage');
+        const expenseSummaryChartCanvas = document.getElementById('expenseSummaryChart').getContext('2d');
+        const budgetVsActualChartCanvas = document.getElementById('budgetVsActualChart').getContext('2d');
+        const monthlyTrendChartCanvas = document.getElementById('monthlyTrendChart').getContext('2d');
+        const trendYearSelect = document.getElementById('trendYearSelect');
+
+        // Functions to be exposed to global scope
+        window.loadExpenses = async () => {
+            if (!window.userId || !window.db) {
+                console.warn("Firestore not ready for expenses. Data not loaded.");
+                return;
+            }
+            const q = window.query(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/expenses`), window.orderBy("date", "desc"));
+            window.onSnapshot(q, (snapshot) => {
+                expenses = [];
+                snapshot.forEach((doc) => {
+                    expenses.push({ id: doc.id, ...doc.data() });
+                });
+                renderExpensesList();
+                updateExpenseSummaryChart();
+                updateBudgetVsActualChart();
+                populateTrendYears();
+                updateMonthlyTrendChart(); // Update trend chart after loading expenses
+                updateCurrentBalance();
+                checkBudgetAlerts(); // Check for budget alerts after expense update
+            }, (error) => {
+                console.error("Error fetching expenses:", error);
+            });
+        };
+
+        window.saveExpense = async (newExpense) => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot save expense.");
+                modalTitle.textContent = 'Error Koneksi';
+                modalContent.textContent = 'Tidak dapat menyimpan pengeluaran. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/expenses`), newExpense);
+                console.log("Expense saved successfully!");
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                modalTitle.textContent = 'Gagal Menyimpan';
+                modalContent.textContent = `Gagal menyimpan pengeluaran: ${e.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            }
+        };
+
+        window.deleteExpense = async (id) => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot delete expense.");
+                 modalTitle.textContent = 'Error Koneksi';
+                modalContent.textContent = 'Tidak dapat menghapus pengeluaran. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                await window.deleteDoc(window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/expenses`, id));
+                console.log("Expense deleted successfully!");
+            } catch (e) {
+                console.error("Error deleting document: ", e);
+                modalTitle.textContent = 'Gagal Menghapus';
+                modalContent.textContent = `Gagal menghapus pengeluaran: ${e.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            }
+        };
+
+        function renderExpensesList() {
+            expensesListDiv.innerHTML = '';
+            if (expenses.length === 0) {
+                expensesListDiv.appendChild(noExpensesMessage);
+                noExpensesMessage.classList.remove('hidden');
+                return;
+            } else {
+                 noExpensesMessage.classList.add('hidden');
+            }
+
+            expenses.forEach((expense) => {
+                const expenseItem = document.createElement('div');
+                expenseItem.className = 'expense-item bg-white';
+                expenseItem.innerHTML = `
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-slate-800">${expense.category} - ${formatRupiah(expense.amount)}</p>
+                        <p class="text-xs text-slate-500">${expense.date} ${expense.description ? '(' + expense.description + ')' : ''}</p>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-id="${expense.id}">
+                        &times;
+                    </button>
+                `;
+                expensesListDiv.appendChild(expenseItem);
+            });
+
+            expensesListDiv.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const idToDelete = e.target.dataset.id;
+                    window.deleteExpense(idToDelete);
+                });
+            });
+        }
+
+        expenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const date = expenseDateInput.value;
+            const amount = parseInt(expenseAmountInput.value);
+            const category = expenseCategorySelect.value;
+            const description = expenseDescriptionInput.value;
+
+            if (!date || isNaN(amount) || amount <= 0 || !category) {
+                modalTitle.textContent = 'Input Error';
+                modalContent.textContent = 'Mohon lengkapi Tanggal, Jumlah, dan Kategori.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+
+            const newExpense = { date, amount, category, description };
+            window.saveExpense(newExpense); // Use Firestore save
+            expenseForm.reset();
+            expenseDateInput.valueAsDate = new Date();
+        });
+
+        function updateExpenseSummaryChart() {
+            const categoryTotals = {};
+            expenses.forEach(expense => {
+                if (categoryTotals[expense.category]) {
+                    categoryTotals[expense.category] += expense.amount;
+                } else {
+                    categoryTotals[expense.category] = expense.amount;
+                }
+            });
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+            const backgroundColors = labels.map((_, i) => `hsl(${i * 60}, 70%, 60%)`);
+
+            if (window.expenseSummaryChart) { 
+                window.expenseSummaryChart.destroy();
+            }
+
+            window.expenseSummaryChart = new Chart(expenseSummaryChartCanvas, { 
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Pengeluaran',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatRupiah(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateBudgetVsActualChart() {
+            const budgetCategories = initialDataLabels; // Use dynamic labels
+            const budgetAmounts = budgetCategories.map(label => userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)]); // Use user targets or default
+            const actualExpenses = {};
+
+            expenses.forEach(expense => {
+                const category = expense.category;
+                const amount = expense.amount;
+                // Map expense categories to budget categories if needed, or ignore if not in budget
+                if (budgetCategories.includes(category)) {
+                    actualExpenses[category] = (actualExpenses[category] || 0) + amount;
+                }
+            });
+
+            const actualAmounts = budgetCategories.map(cat => actualExpenses[cat] || 0);
+
+            const ctxBudgetVsActual = document.getElementById('budgetVsActualChart').getContext('2d');
+
+            if (window.budgetVsActualChart) {
+                window.budgetVsActualChart.destroy();
+            }
+
+            window.budgetVsActualChart = new Chart(ctxBudgetVsActual, {
+                type: 'bar',
+                data: {
+                    labels: budgetCategories,
+                    datasets: [
+                        {
+                            label: 'Anggaran',
+                            data: budgetAmounts,
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)', // blue-500
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Realisasi',
+                            data: actualAmounts,
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)', // emerald-500
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatRupiah(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateTrendYears() {
+            const years = new Set(expenses.map(exp => new Date(exp.date).getFullYear()));
+            const currentYear = new Date().getFullYear();
+            if (!years.has(currentYear)) years.add(currentYear); // Ensure current year is an option
+            
+            trendYearSelect.innerHTML = '';
+            Array.from(years).sort((a,b) => b - a).forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                trendYearSelect.appendChild(option);
+            });
+            trendYearSelect.value = currentYear; // Set default to current year
+            trendYearSelect.addEventListener('change', updateMonthlyTrendChart);
+        }
+
+        function updateMonthlyTrendChart() {
+            const selectedYear = parseInt(trendYearSelect.value);
+            const months = Array.from({ length: 12 }, (_, i) => new Date(selectedYear, i).toLocaleString('id-ID', { month: 'short' }));
+            const monthlyTotals = {};
+
+            initialDataLabels.forEach(label => { // Initialize all categories for all months
+                monthlyTotals[label] = Array(12).fill(0);
+            });
+
+            expenses.filter(exp => new Date(exp.date).getFullYear() === selectedYear)
+                    .forEach(exp => {
+                        const monthIndex = new Date(exp.date).getMonth();
+                        if (monthlyTotals[exp.category]) {
+                            monthlyTotals[exp.category][monthIndex] += exp.amount;
+                        }
+                    });
+
+            const datasets = Object.keys(monthlyTotals).map((category, i) => ({
+                label: category,
+                data: monthlyTotals[category],
+                borderColor: `hsl(${i * 60}, 70%, 60%)`, // Consistent colors
+                backgroundColor: `hsla(${i * 60}, 70%, 60%, 0.2)`,
+                fill: false,
+                tension: 0.1
+            }));
+
+            if (window.monthlyTrendChart) {
+                window.monthlyTrendChart.destroy();
+            }
+
+            window.monthlyTrendChart = new Chart(monthlyTrendChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatRupiah(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Jumlah Pengeluaran (Rp)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return formatRupiah(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        // --- End Expense Tracking ---
+
+        function updateCurrentBalance() {
+            const totalExpensesAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const totalIncomesAmount = incomes.reduce((sum, inc) => sum + inc.amount, 0);
+            const remainingBalance = totalInitialBudgetFixed + totalIncomesAmount - totalExpensesAmount;
+            currentBalanceDisplay.textContent = formatRupiah(remainingBalance);
+            currentBalanceDisplay.className = `text-3xl font-bold ${remainingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`;
+        }
+
+
+        expenseDateInput.valueAsDate = new Date(); // Set initial date for expense form
+
+
+        analisaPengeluaranButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Analisa Pengeluaran Anda ✨';
+            if (expenses.length === 0) {
+                modalContent.textContent = 'Anda belum mencatat pengeluaran apa pun. Silakan catat beberapa pengeluaran terlebih dahulu untuk mendapatkan analisis.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+
+            let expenseSummary = "Berikut adalah daftar pengeluaran saya per kategori (berdasarkan data aktual yang dicatat):\n";
+            const categoryTotals = {};
+            expenses.forEach(exp => {
+                if (categoryTotals[exp.category]) {
+                    categoryTotals[exp.category] += exp.amount;
+                } else {
+                    categoryTotals[exp.category] = exp.amount;
+                }
+            });
+
+            for (const category in categoryTotals) {
+                expenseSummary += `- ${category}: ${formatRupiah(categoryTotals[category])}\n`;
+            }
+            
+            expenseSummary += "\nBerikut adalah anggaran awal bulanan saya:\n";
+            initialDataLabels.forEach(label => { // Use initialDataLabels for consistent lookup
+                const value = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)];
+                expenseSummary += `- ${label}: ${formatRupiah(value)}\n`;
+            });
+
+
+            expenseSummary += "\nBerdasarkan data pengeluaran aktual yang dicatat dan anggaran awal saya, berikan analisis singkat tentang pola pengeluaran saya. Kemudian, berikan 3 saran konkret untuk mengelola atau mengurangi pengeluaran, terutama di kategori-kategori yang paling banyak saya keluarkan atau yang melebihi anggaran. Tekankan saran yang praktis dan relevan untuk hidup hemat di Jogja.";
+            callGeminiAPI(expenseSummary, analisaPengeluaranResult);
+        });
+
+        // --- Goal Tracking functionality ---
+        const goalForm = document.getElementById('goalForm');
+        const goalNameInput = document.getElementById('goalName');
+        const goalTargetInput = document.getElementById('goalTarget');
+        const goalCurrentInput = document.getElementById('goalCurrent');
+        const goalsListDiv = document.getElementById('goalsList');
+        const noGoalsMessage = document.getElementById('noGoalsMessage');
+
+        // Functions to be exposed for goals
+        window.loadGoals = async () => {
+            if (!window.userId || !window.db) {
+                console.warn("Firestore not ready for goals. Data not loaded.");
+                return;
+            }
+            const q = window.query(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/goals`));
+            window.onSnapshot(q, (snapshot) => {
+                goals = [];
+                snapshot.forEach((doc) => {
+                    goals.push({ id: doc.id, ...doc.data() });
+                });
+                renderGoalsList();
+                checkGoalAlerts(); // Check for goal alerts after loading/updating goals
+            }, (error) => {
+                console.error("Error fetching goals:", error);
+            });
+        };
+
+        window.saveGoal = async (newGoal) => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot save goal.");
+                modalTitle.textContent = 'Error Koneksi';
+                modalContent.textContent = 'Tidak dapat menyimpan tujuan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                await window.addDoc(window.collection(window.db, `artifacts/${window.appId}/users/${window.userId}/goals`), newGoal);
+                console.log("Goal saved successfully!");
+            } catch (e) {
+                console.error("Error adding goal: ", e);
+                modalTitle.textContent = 'Gagal Menyimpan';
+                modalContent.textContent = `Gagal menyimpan tujuan: ${e.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            }
+        };
+
+        window.deleteGoal = async (id) => {
+            if (!window.userId || !window.db) {
+                console.error("Firestore not ready. Cannot delete goal.");
+                modalTitle.textContent = 'Error Koneksi';
+                modalContent.textContent = 'Tidak dapat menghapus tujuan. Harap pastikan koneksi internet Anda stabil dan coba lagi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                await window.deleteDoc(window.doc(window.db, `artifacts/${window.appId}/users/${window.userId}/goals`, id));
+                console.log("Goal deleted successfully!");
+            } catch (e) {
+                console.error("Error deleting goal: ", e);
+                modalTitle.textContent = 'Gagal Menghapus';
+                modalContent.textContent = `Gagal menghapus tujuan: ${e.message}. Coba lagi.`;
+                llmResponseModal.classList.remove('hidden');
+            }
+        };
+
+        function renderGoalsList() {
+            goalsListDiv.innerHTML = '';
+            if (goals.length === 0) {
+                goalsListDiv.appendChild(noGoalsMessage);
+                noGoalsMessage.classList.remove('hidden');
+                return;
+            } else {
+                noGoalsMessage.classList.add('hidden');
+            }
+
+            goals.forEach((goal) => {
+                const progress = (goal.current / goal.target) * 100;
+                const progressWidth = Math.min(progress, 100);
+                const remaining = goal.target - goal.current;
+
+                const goalItem = document.createElement('div');
+                goalItem.className = 'goal-item bg-white flex-col items-start';
+                goalItem.innerHTML = `
+                    <div class="flex justify-between w-full mb-1">
+                        <span class="font-semibold text-slate-800">${goal.name}</span>
+                        <button class="text-red-500 hover:text-red-700 font-bold ml-2" data-id="${goal.id}">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="flex justify-between w-full text-sm text-slate-600 mb-1">
+                        <span>Target: ${formatRupiah(goal.target)}</span>
+                        <span>Saat Ini: ${formatRupiah(goal.current)}</span>
+                    </div>
+                    <div class="progress-bar-container w-full">
+                        <div class="progress-bar" style="width: ${progressWidth}%;"></div>
+                    </div>
+                    <div class="w-full text-xs text-slate-500 mt-1">
+                        Progres: ${progress.toFixed(1)}% ${progress < 100 ? `(Sisa: ${formatRupiah(remaining)})` : '(Tercapai!)'}
+                    </div>
+                `;
+                goalsListDiv.appendChild(goalItem);
+            });
+
+            goalsListDiv.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const idToDelete = e.target.dataset.id;
+                    window.deleteGoal(idToDelete);
+                });
+            });
+        }
+
+        goalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = goalNameInput.value;
+            const target = parseInt(goalTargetInput.value);
+            const current = parseInt(goalCurrentInput.value);
+
+            if (!name || isNaN(target) || target <= 0 || isNaN(current) || current < 0) {
+                modalTitle.textContent = 'Input Error';
+                modalContent.textContent = 'Mohon lengkapi Nama Tujuan, Target Dana (minimal 1), dan Dana Saat Ini (minimal 0).';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+
+            const newGoal = { name, target, current };
+            window.saveGoal(newGoal); // Use Firestore save
+            goalForm.reset();
+        });
+        // --- End Goal Tracking ---
+
+        // Monthly Report Functionality
+        const reportMonthInput = document.getElementById('reportMonth');
+        const generateReportButton = document.getElementById('generateReportButton');
+        const monthlyReportOutput = document.getElementById('monthlyReportOutput');
+        const reportLoadingIndicator = document.getElementById('reportLoadingIndicator');
+
+        generateReportButton.addEventListener('click', async () => {
+            const selectedMonthYear = reportMonthInput.value; // Format:YYYY-MM
+            if (!selectedMonthYear) {
+                modalTitle.textContent = 'Peringatan';
+                modalContent.textContent = 'Mohon pilih bulan dan tahun untuk membuat laporan.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+
+            reportLoadingIndicator.classList.remove('hidden');
+            monthlyReportOutput.innerHTML = ''; // Clear previous report content
+
+            const [year, month] = selectedMonthYear.split('-');
+            const filteredExpenses = expenses.filter(exp => {
+                const expenseDate = new Date(exp.date);
+                return expenseDate.getFullYear() === parseInt(year) && (expenseDate.getMonth() + 1) === parseInt(month);
+            });
+
+            if (filteredExpenses.length === 0) {
+                monthlyReportOutput.innerHTML = `<p class="text-center text-slate-500">Tidak ada pengeluaran dicatat untuk bulan ${selectedMonthYear}.</p>`;
+                reportLoadingIndicator.classList.add('hidden');
+                return;
+            }
+
+            let reportPrompt = `Saya ingin laporan keuangan untuk bulan ${selectedMonthYear}. Berikut adalah pengeluaran yang saya catat:\n\n`;
+            let totalReportExpense = 0;
+            const reportCategoryTotals = {};
+
+            filteredExpenses.forEach(exp => {
+                totalReportExpense += exp.amount;
+                if (reportCategoryTotals[exp.category]) {
+                    reportCategoryTotals[exp.category] += exp.amount;
+                } else {
+                    reportCategoryTotals[exp.category] = exp.amount;
+                }
+            });
+
+            reportPrompt += `Total Pengeluaran Bulan Ini: ${formatRupiah(totalReportExpense)}\n\n`;
+            reportPrompt += `Rincian Pengeluaran per Kategori:\n`;
+            for (const category in reportCategoryTotals) {
+                reportPrompt += `- ${category}: ${formatRupiah(reportCategoryTotals[category])}\n`;
+            }
+
+            reportPrompt += `\nAnggaran bulanan saya adalah ${formatRupiah(totalInitialBudgetFixed)}. Berikan saya ringkasan laporan keuangan ini, termasuk perbandingan dengan anggaran, area pengeluaran terbesar, dan 2-3 saran singkat yang relevan untuk bulan berikutnya berdasarkan pola ini. Buat ringkasan dalam format yang mudah dibaca dengan poin-poin penting.`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: reportPrompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    monthlyReportOutput.innerHTML = `<h3 class="text-xl font-bold mb-2">Laporan Bulan ${selectedMonthYear}</h3>` + text.replace(/\n/g, '<br>');
+                } else {
+                    monthlyReportOutput.innerHTML = `<p class="text-red-500">Maaf, tidak dapat menghasilkan laporan. Coba lagi.</p>`;
+                }
+            } catch (error) {
+                monthlyReportOutput.innerHTML = `<p class="text-red-500">Terjadi kesalahan saat membuat laporan: ${error.message}</p>`;
+            } finally {
+                reportLoadingIndicator.classList.add('hidden');
+            }
+        });
+
+        // New Feature: Rencana Aksi Tujuan Keuangan
+        goalPlanButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Rencana Aksi Tujuan Keuangan ✨';
+            if (goals.length === 0) {
+                modalContent.textContent = 'Anda belum memiliki tujuan keuangan. Silakan tambahkan tujuan Anda terlebih dahulu untuk mendapatkan rencana aksi.';
+                llmResponseModal.classList.remove('hidden');
+                return;
+            }
+
+            // For simplicity, take the first goal to generate a plan
+            const targetGoal = goals[0];
+            let prompt = `Saya memiliki tujuan keuangan bernama "${targetGoal.name}". Target dana yang ingin saya kumpulkan adalah ${formatRupiah(targetGoal.target)}, dan saat ini saya sudah memiliki ${formatRupiah(targetGoal.current)}. Berikan saya rencana aksi yang realistis dan terukur untuk mencapai tujuan ini. Sertakan langkah-langkah, perkiraan waktu (jika memungkinkan dengan asumsi kontribusi rutin), dan tips motivasi. Berikan 3-5 poin aksi utama.`;
+            callGeminiAPI(prompt, goalPlanResult);
+        });
+
+        // New Feature: Tips Hemat Harian
+        dailyTipButton.addEventListener('click', () => {
+            modalTitle.textContent = 'Tips Hemat Harian ✨';
+            const prompt = "Berikan 1 tips hemat keuangan harian yang sangat praktis dan mudah diterapkan, cocok untuk orang yang tinggal di Jogja dengan anggaran terbatas.";
+            callGeminiAPI(prompt, dailyTipResult);
+        });
+
+        // --- Proactive Notifications (Simulated) ---
+        function showNotification(title, message) {
+            modalTitle.textContent = title;
+            modalContent.innerHTML = message;
+            llmResponseModal.classList.remove('hidden');
+        }
+
+        function checkBudgetAlerts() {
+            const currentMonthYear = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+            const currentMonthExpenses = expenses.filter(exp => exp.date.startsWith(currentMonthYear));
+            const currentMonthTotals = {};
+
+            currentMonthExpenses.forEach(exp => {
+                if (currentMonthTotals[exp.category]) {
+                    currentMonthTotals[exp.category] += exp.amount;
+                } else {
+                    currentMonthTotals[exp.category] = exp.amount;
+                }
+            });
+
+            // Check if any category exceeds 80% of its budget
+            initialDataLabels.forEach(label => {
+                const budget = userBudgetTargets[label] || defaultInitialBudget.values[defaultInitialBudget.labels.indexOf(label)];
+                const spent = currentMonthTotals[label] || 0;
+                if (budget > 0 && spent / budget >= 0.8 && spent / budget < 1.0) { // Between 80% and 100%
+                    showNotification('Peringatan Anggaran! 🔔', `Anda sudah menghabiskan ${((spent / budget) * 100).toFixed(0)}% dari anggaran "${label}" bulan ini (${formatRupiah(spent)} dari ${formatRupiah(budget)}).`);
+                } else if (budget > 0 && spent / budget >= 1.0) { // Over 100%
+                    showNotification('Anggaran Terlampaui! ⚠️', `Anggaran "${label}" bulan ini sudah terlampaui! Anda sudah menghabiskan ${formatRupiah(spent)} dari ${formatRupiah(budget)}.`);
+                }
+            });
+        }
+
+        function checkGoalAlerts() {
+            goals.forEach(goal => {
+                if (goal.target > 0 && goal.current / goal.target >= 0.9 && goal.current / goal.target < 1.0) { // 90% achieved
+                    showNotification('Tujuan Hampir Tercapai! 🎉', `Tujuan "${goal.name}" Anda hampir tercapai! Anda sudah mengumpulkan ${((goal.current / goal.target) * 100).toFixed(0)}% dari target. Tetap semangat!`);
+                } else if (goal.target > 0 && goal.current / goal.target >= 1.0) { // Goal achieved
+                    showNotification('Tujuan Tercapai! ✅', `Selamat! Tujuan "${goal.name}" Anda telah tercapai!`);
+                }
+            });
+        }
+
+        // --- Dark Mode Toggle ---
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                applyTheme('light');
+            } else {
+                applyTheme('dark');
+            }
+        });
+
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+
+        // Initial setup calls
+        window.onload = () => {
+            slider.value = flexibleFundTotal;
+            slider.dispatchEvent(new Event('input'));
+            
+            createBudgetChart(); // Use the new createBudgetChart
+            populateTips();
+            
+            // Set userId display placeholder until Firebase auth is ready
+            displayUserId.textContent = "Memuat...";
+
+            // Auth state listener moved inside window.onload to ensure window.auth is defined
+            window.auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    window.userId = user.uid;
+                    console.log("Firebase authenticated. User ID:", window.userId);
+                    displayUserId.textContent = window.userId; // Update display here
+                    // Load data after authentication is confirmed
+                    window.loadUserBudgetTargets(); // Load user specific budget targets first
+                    window.loadExpenses();
+                    window.loadIncomes(); // Load incomes
+                    window.loadGoals();
+                } else {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await window.signInWithCustomToken(window.auth, __initial_auth_token);
+                        } else {
+                            await window.signInAnonymously(window.auth);
+                        }
+                    } catch (error) {
+                        console.error("Firebase authentication failed:", error);
+                        window.userId = crypto.randomUUID();
+                        displayUserId.textContent = window.userId + " (Anonim)"; // Indicate anonymous
+                        // Even without full auth, try to load data, but it might fail due to permissions
+                        window.loadUserBudgetTargets(); 
+                        window.loadExpenses();
+                        window.loadIncomes();
+                        window.loadGoals();
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
