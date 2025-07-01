@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faiq Hammam | IT Engineer & AI Enthusiast</title>
     
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="Portfolio of Faiq Hammam Mutaqin, an IT Engineer and AI Enthusiast with expertise in Machine Learning and Web Development.">
+    <meta name="description" content="Portofolio Faiq Hammam Mutaqin, seorang IT Engineer dan AI Enthusiast dengan keahlian di bidang Machine Learning dan Web Development.">
     <meta name="author" content="Faiq Hammam Mutaqin">
-    <meta name="keywords" content="Faiq Hammam, Portfolio, Web Developer, UI/UX Designer, IT Engineer, AI Enthusiast, Machine Learning, Programmer">
+    <meta name="keywords" content="Faiq Hammam, Faiq Hammam Mutaqin, Fa'iq Hammam, Fa'iq Hammam Mutaqin, Portfolio, Web Developer, UI/UX Designer, IT Engineer, AI Enthusiast, Machine Learning, Programmer">
     <meta name="robots" content="index, follow">
 
-    <!-- Favicon with F.H. initials -->
+    <!-- Favicon dengan inisial F.H. -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F97316'></rect><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='50' font-family='Sora, sans-serif' font-weight='bold' fill='white'>F.H.</text></svg>">
 
     <!-- Tailwind CSS -->
@@ -26,21 +26,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* Core font and color settings */
+        /* Pengaturan font utama dan warna dasar */
         body {
             font-family: 'Sora', sans-serif;
             background-color: #121212;
             color: #E0E0E0;
-            /* Hiding the default cursor */
-            cursor: none;
         }
 
-        /* Ensuring the custom cursor is visible over links and buttons */
-        a, button {
-            cursor: none;
-        }
-
-        /* Canvas for particle animation */
+        /* Canvas untuk animasi partikel */
         #particle-canvas {
             position: fixed;
             top: 0;
@@ -50,8 +43,18 @@
             z-index: 0;
         }
 
-        /* Custom Cursor Styling */
+        /* Logika baru untuk custom cursor */
+        /* Sembunyikan kursor standar jika body memiliki class 'has-mouse' */
+        body.has-mouse {
+            cursor: none;
+        }
+        body.has-mouse a,
+        body.has-mouse button {
+            cursor: none;
+        }
+
         .cursor-dot, .cursor-outline {
+            display: none; /* Sembunyikan secara default */
             position: fixed;
             top: 0;
             left: 0;
@@ -61,6 +64,13 @@
             z-index: 10000;
             transition: opacity 0.3s, transform 0.3s;
         }
+
+        /* Tampilkan cursor hanya jika body memiliki class 'has-mouse' */
+        body.has-mouse .cursor-dot,
+        body.has-mouse .cursor-outline {
+            display: block;
+        }
+
         .cursor-dot {
             width: 8px;
             height: 8px;
@@ -73,18 +83,18 @@
             transition: transform 0.1s;
         }
         
-        /* Cursor hover effect */
+        /* Efek hover pada cursor */
         .cursor-hover {
             transform: translate(-50%, -50%) scale(1.5);
             opacity: 0.5;
         }
         
-        /* Accent color (orange) settings */
+        /* Pengaturan warna aksen (oranye) */
         .accent-color {
             color: #F97316; /* Tailwind orange-500 */
         }
 
-        /* Main button with glow effect */
+        /* Tombol utama dengan efek glow */
         .glow-button-orange {
             background-color: #F97316;
             color: #121212;
@@ -96,22 +106,22 @@
             transform: scale(1.05);
         }
         
-        /* Glassmorphism effect for cards */
+        /* Kartu dengan efek Glassmorphism */
         .content-card {
-            background: rgba(30, 30, 30, 0.5); /* #1E1E1E with transparency */
+            background: rgba(30, 30, 30, 0.5); /* #1E1E1E dengan transparansi */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(249, 115, 22, 0.2); /* Transparent orange border */
+            border: 1px solid rgba(249, 115, 22, 0.2); /* Border oranye transparan */
             border-radius: 1rem;
             transition: all 0.3s ease;
         }
         .content-card:hover {
             transform: translateY(-8px);
-            border-color: rgba(249, 115, 22, 0.5); /* Brighter orange border on hover */
+            border-color: rgba(249, 115, 22, 0.5); /* Border oranye lebih terang saat hover */
             background: rgba(30, 30, 30, 0.7);
         }
 
-        /* Fade-in animation on scroll */
+        /* Animasi fade-in saat scroll */
         .reveal-on-scroll {
             opacity: 0;
             transform: translateY(40px);
@@ -122,9 +132,9 @@
             transform: translateY(0);
         }
         
-        /* Glassmorphism effect for navbar on scroll */
+        /* Navbar dengan efek Glassmorphism saat scroll */
         .scrolled-nav {
-            background-color: rgba(18, 18, 18, 0.7); /* #121212 with transparency */
+            background-color: rgba(18, 18, 18, 0.7); /* #121212 dengan transparansi */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(45, 45, 45, 0.5);
@@ -137,7 +147,7 @@
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
 
-    <!-- Particle Animation Background -->
+    <!-- Latar Belakang Animasi Partikel -->
     <canvas id="particle-canvas"></canvas>
 
     <!-- Header / Navbar -->
@@ -145,10 +155,10 @@
         <div class="container mx-auto px-6 py-5 flex justify-between items-center relative z-10">
             <a href="#" class="text-2xl font-bold text-white">F.H.</a>
             <nav class="hidden md:flex items-center space-x-8 text-sm">
-                <a href="#about" class="hover:text-orange-500 transition-colors duration-300">About Me</a>
-                <a href="#skills" class="hover:text-orange-500 transition-colors duration-300">Skills</a>
-                <a href="#projects" class="hover:text-orange-500 transition-colors duration-300">Projects</a>
-                <a href="#contact" class="hover:text-orange-500 transition-colors duration-300">Contact</a>
+                <a href="#about" class="hover:text-orange-500 transition-colors duration-300">Tentang Saya</a>
+                <a href="#skills" class="hover:text-orange-500 transition-colors duration-300">Keahlian</a>
+                <a href="#projects" class="hover:text-orange-500 transition-colors duration-300">Projek</a>
+                <a href="#contact" class="hover:text-orange-500 transition-colors duration-300">Kontak</a>
             </nav>
             <div class="flex items-center space-x-4">
                  <a href="https://github.com/cyclocerine" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-lg"><i class="fab fa-github"></i></a>
@@ -168,10 +178,10 @@
                     IT Engineer & AI Enthusiast
                 </p>
                 <p class="mt-6 text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
-                    I transform complex ideas into elegant and efficient technological solutions.
+                    Saya mengubah ide kompleks menjadi solusi teknologi yang elegan dan efisien.
                 </p>
                 <a href="#projects" class="glow-button-orange mt-10 inline-block font-bold py-3 px-8 rounded-full text-lg">
-                    View My Projects
+                    Lihat Projek Saya
                 </a>
             </div>
         </section>
@@ -183,13 +193,13 @@
                     <div class="lg:col-span-2 flex justify-center">
                         <!-- Circular profile picture -->
                         <div class="w-60 h-60 lg:w-72 lg:h-72 rounded-full overflow-hidden border-2 border-orange-500/50 p-2 bg-black/20">
-                            <img src="https://c.top4top.io/p_3410g7mf11.jpg" alt="Photo of Faiq Hammam" class="w-full h-full object-cover rounded-full">
+                            <img src="https://c.top4top.io/p_3410g7mf11.jpg" alt="Foto Faiq Hammam" class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
                     <div class="lg:col-span-3">
-                        <h2 class="text-3xl font-bold text-white mb-4">A Little More About Me</h2>
+                        <h2 class="text-3xl font-bold text-white mb-4">Mengenal Saya Lebih Dekat</h2>
                         <p class="text-gray-300 leading-relaxed">
-                           An IT Engineer with a passion for tech, tinkering, and turning coffee into code. From building IoT projects to crafting smart solutions, I’m always exploring ways to bring ideas to life (sometimes with a soldering iron in one hand and a coffee mug in the other).
+                           Seorang IT Engineer dengan gairah untuk teknologi, bereksperimen, dan mengubah kopi menjadi kode. Dari membangun projek IoT hingga merancang solusi cerdas, saya selalu mengeksplorasi cara untuk mewujudkan ide (kadang-kadang dengan solder di satu tangan dan secangkir kopi di tangan lainnya).
                         </p>
                     </div>
                 </div>
@@ -199,7 +209,7 @@
         <!-- Skills Section -->
         <section id="skills" class="py-24">
             <div class="container mx-auto px-6 reveal-on-scroll">
-                <h2 class="text-3xl font-bold text-center text-white mb-12">Core Skills</h2>
+                <h2 class="text-3xl font-bold text-center text-white mb-12">Keahlian Utama</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- AI / ML Card -->
                     <div class="content-card p-8">
@@ -207,8 +217,8 @@
                         <ul class="space-y-3 text-gray-300">
                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Python</li>
                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Tensorflow & Keras</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Data Handling (Pandas)</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Math & Statistics</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Penanganan Data (Pandas)</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Matematika & Statistika</li>
                         </ul>
                     </div>
                     <!-- Web Development Card -->
@@ -216,7 +226,7 @@
                         <h3 class="text-2xl font-bold text-white mb-6">Web Development</h3>
                         <ul class="space-y-3 text-gray-300">
                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> HTML, CSS, JavaScript</li>
-                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> UI/UX Design</li>
+                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Desain UI/UX</li>
                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> PHP</li>
                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> React.js</li>
                         </ul>
@@ -225,10 +235,10 @@
                     <div class="content-card p-8">
                         <h3 class="text-2xl font-bold text-white mb-6">Soft Skills</h3>
                         <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Team Collaboration</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Technical Communication</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Problem Solving</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Project Management</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Kerja Sama Tim</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Komunikasi Teknis</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Pemecahan Masalah</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Manajemen Proyek</li>
                         </ul>
                     </div>
                 </div>
@@ -238,7 +248,7 @@
         <!-- Projects Section -->
         <section id="projects" class="py-24">
             <div class="container mx-auto px-6 reveal-on-scroll">
-                <h2 class="text-3xl font-bold text-center text-white mb-12">Featured Projects</h2>
+                <h2 class="text-3xl font-bold text-center text-white mb-12">Projek Unggulan</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Project 1 -->
                     <a href="https://github.com/cyclocerine/HedgeFund" target="_blank" class="block group content-card overflow-hidden">
@@ -271,12 +281,12 @@
         <!-- Contact Section -->
         <section id="contact" class="py-24">
             <div class="container mx-auto px-6 text-center reveal-on-scroll">
-                 <h2 class="text-3xl font-bold text-white mb-4">Interested in Working Together?</h2>
+                 <h2 class="text-3xl font-bold text-white mb-4">Tertarik Bekerja Sama?</h2>
                 <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-                    Let's discuss your next project. I'm ready to help bring your vision to life.
+                    Mari berdiskusi tentang projek Anda berikutnya. Saya siap membantu mewujudkan visi Anda menjadi kenyataan.
                 </p>
                 <a href="mailto:hammamfaiq@protonmail.com" class="glow-button-orange inline-block font-bold py-4 px-10 rounded-full text-xl">
-                    Contact Me
+                    Hubungi Saya
                 </a>
             </div>
         </section>
@@ -290,24 +300,16 @@
                  <a href="https://www.linkedin.com/in/faiq-hammam-mutaqin-9a3733217/" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i class="fab fa-linkedin"></i></a>
                  <a href="mailto:hammamfaiq@protonmail.com" class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i class="fas fa-envelope"></i></a>
             </div>
-            <p>&copy; 2025 Faiq Hammam Mutaqin. Crafted with passion and code.</p>
+            <p>&copy; 2025 Faiq Hammam Mutaqin. Dibuat dengan semangat dan kode.</p>
         </div>
     </footer>
-<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-<script>
-  kofiWidgetOverlay.draw('cyclocerine', {
-    'type': 'floating-chat',
-    'floating-chat.donateButton.text': 'Support me',
-    'floating-chat.donateButton.background-color': '#f45d22',
-    'floating-chat.donateButton.text-color': '#fff'
-  });
-</script>
+
     <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <!-- JavaScript for Animations -->
+    <!-- JavaScript untuk Animasi -->
     <script>
-        // --- Navbar scroll effect ---
+        // --- Efek Latar Belakang pada Navbar saat scroll ---
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -317,7 +319,7 @@
             }
         });
         
-        // --- Fade-in animation on scroll ---
+        // --- Animasi Fade-in pada saat Scroll ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -331,7 +333,7 @@
         const elementsToReveal = document.querySelectorAll('.reveal-on-scroll');
         elementsToReveal.forEach(el => observer.observe(el));
         
-        // --- Particle background animation with Three.js ---
+        // --- Animasi Latar Belakang Partikel dengan Three.js ---
         let scene, camera, renderer, particles, lines;
         const canvas = document.getElementById('particle-canvas');
         const particleCount = 200;
@@ -339,7 +341,7 @@
         const initialCameraZ = 70;
         const finalCameraZ = 45;
 
-        // Function to create a solid circle texture
+        // Fungsi untuk membuat tekstur lingkaran solid
         function createCircleTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 32;
@@ -455,34 +457,43 @@
         }
 
         // --- Custom Cursor Logic ---
-        const cursorDot = document.querySelector('.cursor-dot');
-        const cursorOutline = document.querySelector('.cursor-outline');
+        // Cek apakah perangkat memiliki pointer halus (mouse)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            // Tambahkan class ke body jika ada mouse
+            document.body.classList.add('has-mouse');
+            
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorOutline = document.querySelector('.cursor-outline');
 
-        window.addEventListener('mousemove', (e) => {
-            const posX = e.clientX;
-            const posY = e.clientY;
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
 
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
 
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 300, fill: 'forwards' });
-        });
-
-        const interactiveElements = document.querySelectorAll('a, button');
-        interactiveElements.forEach(el => {
-            el.addEventListener('mouseover', () => {
-                cursorOutline.classList.add('cursor-hover');
+                cursorOutline.animate({
+                    left: `${posX}px`,
+                    top: `${posY}px`
+                }, { duration: 300, fill: 'forwards' });
             });
-            el.addEventListener('mouseleave', () => {
-                cursorOutline.classList.remove('cursor-hover');
-            });
-        });
 
-        init();
-        animate();
+            const interactiveElements = document.querySelectorAll('a, button');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseover', () => {
+                    cursorOutline.classList.add('cursor-hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursorOutline.classList.remove('cursor-hover');
+                });
+            });
+        }
+
+        // Membungkus pemanggilan init() dan animate() dalam window.onload
+        window.onload = function() {
+            init();
+            animate();
+        };
     </script>
 </body>
 </html>
