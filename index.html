@@ -94,6 +94,16 @@
             color: #F97316; /* Tailwind orange-500 */
         }
 
+        /* Kursor untuk efek mengetik */
+        .typed-cursor {
+            color: #F97316;
+            opacity: 1;
+            animation: typedjsBlink 0.7s infinite;
+        }
+        @keyframes typedjsBlink {
+            50% { opacity: 0.0; }
+        }
+        
         /* Tombol utama dengan efek glow */
         .glow-button-orange {
             background-color: #F97316;
@@ -174,8 +184,9 @@
                 <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight">
                     Faiq Hammam
                 </h1>
+                <!-- Elemen untuk efek mengetik -->
                 <p class="mt-4 text-xl md:text-3xl accent-color font-semibold">
-                    IT Engineer & AI Enthusiast
+                    <span id="typing-effect"></span>
                 </p>
                 <p class="mt-6 text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
                     Saya mengubah ide kompleks menjadi solusi teknologi yang elegan dan efisien.
@@ -306,6 +317,8 @@
 
     <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Typed.js Library for Typing Effect -->
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
 
     <!-- JavaScript untuk Animasi -->
     <script>
@@ -457,9 +470,7 @@
         }
 
         // --- Custom Cursor Logic ---
-        // Cek apakah perangkat memiliki pointer halus (mouse)
         if (window.matchMedia("(pointer: fine)").matches) {
-            // Tambahkan class ke body jika ada mouse
             document.body.classList.add('has-mouse');
             
             const cursorDot = document.querySelector('.cursor-dot');
@@ -489,8 +500,18 @@
             });
         }
 
-        // Membungkus pemanggilan init() dan animate() dalam window.onload
+        // --- Inisialisasi semua skrip setelah halaman dimuat ---
         window.onload = function() {
+            // Inisialisasi Typed.js
+            new Typed('#typing-effect', {
+                strings: ['IT Engineer', 'AI Enthusiast', 'Programmer', 'Economic Observer'],
+                typeSpeed: 50,
+                backSpeed: 30,
+                backDelay: 2000,
+                loop: true
+            });
+
+            // Inisialisasi animasi partikel
             init();
             animate();
         };
