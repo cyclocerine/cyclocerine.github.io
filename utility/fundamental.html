@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Analisis Fundamental</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for Inter font and general body */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Hide number input arrows */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Styles for the custom message box */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .message-box.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .message-box.error {
+            background-color: #ef4444; /* Red-500 */
+        }
+        .message-box.info {
+            background-color: #3b82f6; /* Blue-500 */
+        }
+        .message-box .icon {
+            font-size: 1.5em;
+        }
+
+        /* Styles for the info tooltip/modal */
+        .info-tooltip-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+        }
+        .info-tooltip-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .info-tooltip-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out;
+            position: relative;
+        }
+        .info-tooltip-overlay.show .info-tooltip-content {
+            transform: translateY(0);
+        }
+        .info-tooltip-content h3 {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        .info-tooltip-content p {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #374151;
+        }
+        .info-tooltip-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+        .info-tooltip-close:hover {
+            color: #1f2937;
+        }
+
+        /* Info icon styling */
+        .info-icon {
+            cursor: pointer;
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-left: 8px;
+            transition: color 0.2s ease;
+        }
+        .info-icon:hover {
+            color: #3b82f6; /* Blue-500 */
+        }
+
+        /* Print specific styles */
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            header, footer, .calculator-card, .message-box, #calculateBtn, .info-tooltip-overlay, .info-icon {
+                display: none;
+            }
+            main {
+                padding: 0;
+                margin: 0;
+                align-items: flex-start;
+            }
+            .results-card {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                max-width: none;
+                padding: 20px;
+            }
+            .results-card h2 {
+                text-align: left;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-2">Kalkulator Analisis Fundamental</h1>
+            <p class="text-lg opacity-90">Hitung rasio-rasio penting untuk valuasi saham.</p>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
+        <!-- Calculator Card -->
+        <section class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mb-8 border border-gray-200">
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Input Data Keuangan</h2>
+
+            <form id="fundamentalForm">
+                <div class="mb-6">
+                    <label for="netIncome" class="block text-gray-700 text-lg font-semibold mb-2">Laba Bersih (Net Income):</label>
+                    <input type="number" id="netIncome" placeholder="Contoh: 1.000.000.000" min="0" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="equity" class="block text-gray-700 text-lg font-semibold mb-2">Ekuitas (Equity):</label>
+                    <input type="number" id="equity" placeholder="Contoh: 5.000.000.000" min="0" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="assets" class="block text-gray-700 text-lg font-semibold mb-2">Total Aset:</label>
+                    <input type="number" id="assets" placeholder="Contoh: 8.000.000.000" min="0" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="liabilities" class="block text-gray-700 text-lg font-semibold mb-2">Total Liabilitas:</label>
+                    <input type="number" id="liabilities" placeholder="Contoh: 3.000.000.000" min="0" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="revenue" class="block text-gray-700 text-lg font-semibold mb-2">Pendapatan (Revenue):</label>
+                    <input type="number" id="revenue" placeholder="Contoh: 12.000.000.000" min="0" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="shares" class="block text-gray-700 text-lg font-semibold mb-2">Saham Beredar:</label>
+                    <input type="number" id="shares" placeholder="Contoh: 100.000.000" min="1" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="dividend" class="block text-gray-700 text-lg font-semibold mb-2">Total Dividen:</label>
+                    <input type="number" id="dividend" placeholder="Contoh: 50.000.000" min="0" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="currentPrice" class="block text-gray-700 text-lg font-semibold mb-2">Harga Saham Saat Ini:</label>
+                    <input type="number" id="currentPrice" placeholder="Contoh: 1200" min="0" step="0.01" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-6">
+                    <label for="epsGrowth" class="block text-gray-700 text-lg font-semibold mb-2">Pertumbuhan EPS (%):</label>
+                    <input type="number" id="epsGrowth" placeholder="Contoh: 10" step="0.1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <div class="mb-8">
+                    <label for="fcf" class="block text-gray-700 text-lg font-semibold mb-2">Free Cash Flow (opsional):</label>
+                    <input type="number" id="fcf" placeholder="Contoh: 800.000.000" min="0" step="1"
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                </div>
+                <button type="submit" id="calculateBtn"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
+                    Hitung
+                </button>
+            </form>
+        </section>
+
+        <!-- Results Card (initially hidden) -->
+        <section id="resultsCard" class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg border border-gray-200 mt-8" style="display: none;">
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Hasil Analisis Fundamental</h2>
+
+            <div class="space-y-4 text-lg">
+                <h3 class="font-bold text-gray-800 text-xl mb-4">Rasio Keuangan</h3>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">EPS (Earning Per Share):</span>
+                    <span class="flex items-center">
+                        <span id="outputEPS" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="eps">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">BVPS (Book Value Per Share):</span>
+                    <span class="flex items-center">
+                        <span id="outputBVPS" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="bvps">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">ROE (Return on Equity):</span>
+                    <span class="flex items-center">
+                        <span id="outputROE" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="roe">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">ROA (Return on Assets):</span>
+                    <span class="flex items-center">
+                        <span id="outputROA" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="roa">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">DER (Debt to Equity Ratio):</span>
+                    <span class="flex items-center">
+                        <span id="outputDER" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="der">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">NPM (Net Profit Margin):</span>
+                    <span class="flex items-center">
+                        <span id="outputNPM" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="npm">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Dividend Yield:</span>
+                    <span class="flex items-center">
+                        <span id="outputDivYield" class="text-blue-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="divyield">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+
+                <h3 class="font-bold text-gray-800 text-xl mt-8 mb-4">Valuasi</h3>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Harga Wajar (Graham):</span>
+                    <span class="flex items-center">
+                        <span id="outputGrahamFairPrice" class="text-green-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="graham">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">PER Saat Ini:</span>
+                    <span class="flex items-center">
+                        <span id="outputCurrentPER" class="text-purple-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="per">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">PBV Saat Ini:</span>
+                    <span class="flex items-center">
+                        <span id="outputCurrentPBV" class="text-purple-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="pbv">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Estimasi Nilai Wajar (DCF Sederhana):</span>
+                    <span class="flex items-center">
+                        <span id="outputDcfFairValue" class="text-green-600 font-bold"></span>
+                        <span class="info-icon" data-info-key="dcf">&#x1F6C8;</span> <!-- Info icon -->
+                    </span>
+                </p>
+            </div>
+
+            <p class="text-sm text-gray-500 mt-8 text-center italic">
+                *Perhitungan ini adalah estimasi dan hanya sebagai alat bantu analisis. Selalu lakukan riset mendalam sebelum membuat keputusan investasi.
+            </p>
+        </section>
+    </main>
+
+    <!-- Info Tooltip/Modal Overlay -->
+    <div id="infoTooltipOverlay" class="info-tooltip-overlay">
+        <div class="info-tooltip-content">
+            <button id="infoTooltipClose" class="info-tooltip-close">&times;</button>
+            <h3 id="infoTooltipTitle"></h3>
+            <p id="infoTooltipDescription"></p>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-4 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2025 Kalkulator analisis Fundamental. <a href="https://cyclocerine.github.io" style="color: #3b82f6;">cyclocerine</a></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fundamentalForm = document.getElementById('fundamentalForm');
+            const resultsCard = document.getElementById('resultsCard');
+            const calculateBtn = document.getElementById('calculateBtn');
+
+            // Output elements
+            const outputEPS = document.getElementById('outputEPS');
+            const outputBVPS = document.getElementById('outputBVPS');
+            const outputROE = document.getElementById('outputROE');
+            const outputROA = document.getElementById('outputROA');
+            const outputDER = document.getElementById('outputDER');
+            const outputNPM = document.getElementById('outputNPM');
+            const outputDivYield = document.getElementById('outputDivYield');
+            const outputGrahamFairPrice = document.getElementById('outputGrahamFairPrice');
+            const outputCurrentPER = document.getElementById('outputCurrentPER');
+            const outputCurrentPBV = document.getElementById('outputCurrentPBV');
+            const outputDcfFairValue = document.getElementById('outputDcfFairValue');
+
+            // Info tooltip elements
+            const infoTooltipOverlay = document.getElementById('infoTooltipOverlay');
+            const infoTooltipCloseBtn = document.getElementById('infoTooltipClose');
+            const infoTooltipTitle = document.getElementById('infoTooltipTitle');
+            const infoTooltipDescription = document.getElementById('infoTooltipDescription');
+            const infoIcons = document.querySelectorAll('.info-icon');
+
+            // Definitions for each ratio
+            const definitions = {
+                eps: {
+                    title: 'EPS (Earning Per Share)',
+                    description: 'Laba bersih perusahaan dibagi dengan jumlah saham beredar. EPS mengukur berapa banyak keuntungan yang dihasilkan perusahaan untuk setiap saham yang dimiliki investor. Angka EPS yang lebih tinggi umumnya menunjukkan profitabilitas yang lebih baik.'
+                },
+                bvps: {
+                    title: 'BVPS (Book Value Per Share)',
+                    description: 'Total ekuitas perusahaan dibagi dengan jumlah saham beredar. BVPS menunjukkan nilai buku perusahaan per saham, yaitu nilai aset bersih yang akan diterima pemegang saham jika perusahaan dilikuidasi.'
+                },
+                roe: {
+                    title: 'ROE (Return on Equity)',
+                    description: 'Laba bersih dibagi ekuitas, dikalikan 100%. ROE mengukur seberapa efisien perusahaan menggunakan uang yang diinvestasikan oleh pemegang saham untuk menghasilkan keuntungan. ROE yang tinggi menunjukkan manajemen yang baik.'
+                },
+                roa: {
+                    title: 'ROA (Return on Assets)',
+                    description: 'Laba bersih dibagi total aset, dikalikan 100%. ROA mengukur seberapa efisien perusahaan menggunakan total asetnya untuk menghasilkan keuntungan. ROA yang lebih tinggi menunjukkan efisiensi operasional yang baik.'
+                },
+                der: {
+                    title: 'DER (Debt to Equity Ratio)',
+                    description: 'Total liabilitas dibagi ekuitas. DER mengukur proporsi utang yang digunakan untuk membiayai aset perusahaan relatif terhadap ekuitas pemegang saham. Rasio yang lebih tinggi menunjukkan ketergantungan yang lebih besar pada utang.'
+                },
+                npm: {
+                    title: 'NPM (Net Profit Margin)',
+                    description: 'Laba bersih dibagi pendapatan, dikalikan 100%. NPM mengukur berapa banyak keuntungan yang tersisa dari setiap rupiah pendapatan setelah semua biaya (termasuk pajak) dibayarkan. Semakin tinggi NPM, semakin efisien perusahaan mengelola biayanya.'
+                },
+                divyield: {
+                    title: 'Dividend Yield',
+                    description: 'Total dividen yang dibayarkan per saham dibagi harga saham saat ini, dikalikan 100%. Dividend Yield mengukur pengembalian investasi dalam bentuk dividen relatif terhadap harga saham.'
+                },
+                graham: {
+                    title: 'Harga Wajar (Graham)',
+                    description: 'Estimasi nilai intrinsik saham berdasarkan formula Benjamin Graham, yang memperhitungkan Earning Per Share (EPS) dan pertumbuhan EPS. Formula ini bertujuan untuk menemukan saham yang undervalued.'
+                },
+                per: {
+                    title: 'PER Saat Ini (Price-to-Earnings Ratio)',
+                    description: 'Harga saham saat ini dibagi EPS. PER mengukur berapa kali investor bersedia membayar untuk setiap rupiah laba yang dihasilkan perusahaan. Rasio yang lebih tinggi bisa berarti investor mengharapkan pertumbuhan di masa depan, atau saham overvalued.'
+                },
+                pbv: {
+                    title: 'PBV Saat Ini (Price-to-Book Value Ratio)',
+                    description: 'Harga saham saat ini dibagi BVPS. PBV membandingkan harga pasar saham dengan nilai buku per sahamnya. Rasio di bawah 1 dapat menunjukkan saham undervalued, sementara di atas 1 bisa berarti overvalued atau perusahaan memiliki aset tak berwujud yang kuat.'
+                },
+                dcf: {
+                    title: 'Estimasi Nilai Wajar (DCF Sederhana)',
+                    description: 'Estimasi nilai intrinsik saham berdasarkan Free Cash Flow (FCF) yang didiskon. Metode ini memproyeksikan FCF di masa depan dan mendiskonnya kembali ke nilai sekarang untuk mendapatkan nilai wajar perusahaan.'
+                }
+            };
+
+            fundamentalForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const getVal = id => {
+                    const inputElement = document.getElementById(id);
+                    const value = parseFloat(inputElement.value);
+                    if (inputElement.hasAttribute('required') && (isNaN(value) || value < 0)) {
+                        displayMessage(`Mohon masukkan nilai positif yang valid untuk ${inputElement.previousElementSibling.textContent.replace(':', '')}.`, 'error', inputElement);
+                        resultsCard.style.display = 'none';
+                        return null; // Indicate invalid input
+                    }
+                    if (id === 'shares' && value <= 0) {
+                        displayMessage('Saham Beredar harus lebih besar dari nol.', 'error', inputElement);
+                        resultsCard.style.display = 'none';
+                        return null;
+                    }
+                    return value || 0; // Return 0 for optional fields if empty/invalid
+                };
+
+                const netIncome = getVal('netIncome');
+                const equity = getVal('equity');
+                const assets = getVal('assets');
+                const liabilities = getVal('liabilities');
+                const revenue = getVal('revenue');
+                const shares = getVal('shares');
+                const dividend = getVal('dividend');
+                const currentPrice = getVal('currentPrice');
+                const epsGrowth = getVal('epsGrowth'); // epsGrowth can be negative, so no min=0 check here.
+                const fcf = getVal('fcf');
+
+                // Check if any required field returned null (invalid)
+                if (netIncome === null || equity === null || assets === null || liabilities === null ||
+                    revenue === null || shares === null || dividend === null || currentPrice === null || epsGrowth === null) {
+                    return; // Stop calculation if any required input is invalid
+                }
+
+                // --- Perhitungan Rasio Keuangan ---
+                const EPS = shares > 0 ? netIncome / shares : 0;
+                const BVPS = shares > 0 ? equity / shares : 0;
+                const ROE = equity > 0 ? (netIncome / equity) * 100 : 0;
+                const ROA = assets > 0 ? (netIncome / assets) * 100 : 0;
+                const DER = equity > 0 ? liabilities / equity : (liabilities > 0 ? Infinity : 0); // Handle equity = 0
+                const NPM = revenue > 0 ? (netIncome / revenue) * 100 : 0;
+                const DivYield = (shares * currentPrice > 0) ? (dividend / (shares * currentPrice)) * 100 : 0;
+
+                // --- Perhitungan Valuasi ---
+                // Graham Fair Price: EPS * (8.5 + 2 * growthRate)
+                // Note: Graham formula is typically for companies with positive EPS and growth.
+                const grahamFairPrice = EPS > 0 ? EPS * (8.5 + 2 * epsGrowth) : 0;
+
+                const currentPER = EPS !== 0 ? currentPrice / EPS : (currentPrice > 0 ? Infinity : 0); // Handle EPS = 0
+                const currentPBV = BVPS !== 0 ? currentPrice / BVPS : (currentPrice > 0 ? Infinity : 0); // Handle BVPS = 0
+
+                // DCF Sederhana: Asumsi pertumbuhan konstan 10 tahun, diskon rate 10%
+                // Ini adalah formula DCF yang sangat disederhanakan.
+                const dcfFairValue = fcf ? (fcf * 10 / shares) : 0; // Simplified DCF, needs more complex logic for real use.
+
+                // --- Tampilkan Hasil ---
+                outputEPS.textContent = EPS.toFixed(2);
+                outputBVPS.textContent = BVPS.toFixed(2);
+                outputROE.textContent = `${ROE.toFixed(2)}%`;
+                outputROA.textContent = `${ROA.toFixed(2)}%`;
+                outputDER.textContent = DER === Infinity ? 'Tidak Terdefinisi' : DER.toFixed(2);
+                outputNPM.textContent = `${NPM.toFixed(2)}%`;
+                outputDivYield.textContent = `${DivYield.toFixed(2)}%`;
+
+                outputGrahamFairPrice.textContent = `Rp${grahamFairPrice.toFixed(2)}`;
+                outputCurrentPER.textContent = currentPER === Infinity ? 'Tidak Terdefinisi' : currentPER.toFixed(2);
+                outputCurrentPBV.textContent = currentPBV === Infinity ? 'Tidak Terdefinisi' : currentPBV.toFixed(2);
+                outputDcfFairValue.textContent = `Rp${dcfFairValue.toFixed(2)}`;
+
+                resultsCard.style.display = 'block'; // Show results
+                displayMessage('Perhitungan berhasil!', 'info');
+            });
+
+            // Event listeners for info icons
+            infoIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const infoKey = icon.dataset.infoKey;
+                    const definition = definitions[infoKey];
+                    if (definition) {
+                        infoTooltipTitle.textContent = definition.title;
+                        infoTooltipDescription.textContent = definition.description;
+                        infoTooltipOverlay.classList.add('show');
+                    }
+                });
+            });
+
+            // Close info tooltip
+            infoTooltipCloseBtn.addEventListener('click', () => {
+                infoTooltipOverlay.classList.remove('show');
+            });
+
+            // Close tooltip if clicked outside content
+            infoTooltipOverlay.addEventListener('click', (event) => {
+                if (event.target === infoTooltipOverlay) {
+                    infoTooltipOverlay.classList.remove('show');
+                }
+            });
+
+
+            // Function to display messages (custom modal/toast)
+            function displayMessage(message, type, inputElement = null) {
+                let msgDiv = document.getElementById('appMessage');
+                if (!msgDiv) {
+                    msgDiv = document.createElement('div');
+                    msgDiv.id = 'appMessage';
+                    msgDiv.className = 'message-box';
+                    document.body.appendChild(msgDiv);
+                }
+                
+                let icon = '';
+                if (type === 'error') {
+                    icon = '&#x26A0;'; // Warning sign
+                    msgDiv.classList.add('error');
+                    msgDiv.classList.remove('info');
+                    if (inputElement) {
+                        inputElement.focus(); // Auto-focus on error
+                    }
+                } else {
+                    icon = '&#x2713;'; // Checkmark
+                    msgDiv.classList.add('info');
+                    msgDiv.classList.remove('error');
+                }
+                msgDiv.innerHTML = `<span class="icon">${icon}</span><span>${message}</span>`;
+
+                msgDiv.classList.add('show');
+                
+                setTimeout(() => {
+                    msgDiv.classList.remove('show');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

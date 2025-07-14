@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Money Management Trading</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for Inter font and general body */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Hide number input arrows */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Styles for the custom message box */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .message-box.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .message-box.error {
+            background-color: #ef4444; /* Red-500 */
+        }
+        .message-box.info {
+            background-color: #3b82f6; /* Blue-500 */
+        }
+        .message-box .icon {
+            font-size: 1.5em;
+        }
+
+        /* Print specific styles */
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            header, footer, .calculator-card, .message-box, #calculateBtn, #printBtn {
+                display: none;
+            }
+            main {
+                padding: 0;
+                margin: 0;
+                align-items: flex-start;
+            }
+            .results-card {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                max-width: none;
+                padding: 20px;
+            }
+            .results-card h2 {
+                text-align: left;
+                margin-bottom: 20px;
+            }
+            /* #chartCanvas { Removed } */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-2">Kalkulator Money Management</h1>
+            <p class="text-lg opacity-90">Atur risiko Anda dalam trading saham, kripto, atau derivatif.</p>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
+        <!-- Calculator Card -->
+        <section class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mb-8 border border-gray-200">
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Input Data Trading</h2>
+
+            <!-- Mode Selection Toggle -->
+            <div class="mb-6 flex justify-center gap-4">
+                <label class="inline-flex items-center">
+                    <input type="radio" name="calculationMode" value="slPercentage" class="form-radio h-5 w-5 text-blue-600" checked>
+                    <span class="ml-2 text-lg font-semibold text-gray-700">Mode: SL Persentase</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="calculationMode" value="riskPercentage" class="form-radio h-5 w-5 text-blue-600">
+                    <span class="ml-2 text-lg font-semibold text-gray-700">Mode: Risk Persentase (PRO)</span>
+                </label>
+            </div>
+
+            <!-- Position Type Toggle -->
+            <div class="mb-6 flex justify-center gap-4">
+                <label class="inline-flex items-center">
+                    <input type="radio" name="positionType" value="long" class="form-radio h-5 w-5 text-green-600" checked>
+                    <span class="ml-2 text-lg font-semibold text-gray-700">Posisi: Long</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="positionType" value="short" class="form-radio h-5 w-5 text-red-600">
+                    <span class="ml-2 text-lg font-semibold text-gray-700">Posisi: Short</span>
+                </label>
+            </div>
+
+            <!-- Input Group: Harga Entry -->
+            <div class="mb-6">
+                <label for="entryPrice" class="block text-gray-700 text-lg font-semibold mb-2">Harga Entry (per lembar/unit):</label>
+                <input type="number" id="entryPrice" placeholder="Contoh: 1000" min="0" step="0.01" required
+                       class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+            </div>
+
+            <!-- Input Group: Modal Akun -->
+            <div class="mb-6">
+                <label for="accountBalance" class="block text-gray-700 text-lg font-semibold mb-2">Modal Akun (IDR):</label>
+                <input type="number" id="accountBalance" placeholder="Contoh: 10.000.000" min="0" step="1000" required
+                       class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+            </div>
+
+            <!-- Mode 1: SL Persentase Inputs -->
+            <div id="slPercentageModeInputs">
+                <!-- Input Group: Persentase Jarak Stop Loss dari Entry -->
+                <div class="mb-6">
+                    <label for="slPercentageFromEntry" class="block text-gray-700 text-lg font-semibold mb-2">Persentase Jarak Stop Loss dari Entry (%):</label>
+                    <input type="number" id="slPercentageFromEntry" placeholder="Contoh: 2 (biasanya 1-5%)" min="0.1" max="10" step="0.1" value="2" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                    <p class="text-sm text-gray-500 mt-1">Ini adalah jarak Stop Loss yang Anda inginkan dari harga entry.</p>
+                </div>
+
+                <!-- Input Group: Jumlah Lot/Unit (Mandatory for SL Percentage Mode) -->
+                <div class="mb-6">
+                    <label for="jumlahLot" class="block text-gray-700 text-lg font-semibold mb-2">Jumlah Lot/Unit:</label>
+                    <input type="number" id="jumlahLot" placeholder="Contoh: 100" min="1" step="1" required
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                    <p class="text-sm text-gray-500 mt-1">Jumlah unit saham/kripto yang ingin Anda perdagangkan.</p>
+                </div>
+            </div>
+
+            <!-- Mode 2: Risk Persentase Inputs (Initially Hidden) -->
+            <div id="riskPercentageModeInputs" class="hidden">
+                <!-- Input Group: Harga Stop Loss (Manual) -->
+                <div class="mb-6">
+                    <label for="manualStopLossPrice" class="block text-gray-700 text-lg font-semibold mb-2">Harga Stop Loss:</label>
+                    <input type="number" id="manualStopLossPrice" placeholder="Contoh: 980" min="0" step="0.01"
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                    <p class="text-sm text-gray-500 mt-1">Harga Stop Loss yang Anda tentukan secara manual.</p>
+                </div>
+
+                <!-- Input Group: Risiko per Trade (% Modal) -->
+                <div class="mb-6">
+                    <label for="riskPerTradePercent" class="block text-gray-700 text-lg font-semibold mb-2">Risiko per Trade (% Modal):</label>
+                    <input type="number" id="riskPerTradePercent" placeholder="Contoh: 1 (max 2%)" min="0.1" max="2" step="0.1" value="1"
+                           class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out">
+                    <p class="text-sm text-gray-500 mt-1">Persentase modal yang bersedia Anda risikokan.</p>
+                </div>
+            </div>
+
+            <!-- Input Group: Risk-Reward Ratio (Common for both modes) -->
+            <div class="mb-8">
+                <label for="riskRewardRatio" class="block text-gray-700 text-lg font-semibold mb-2">Pilih Risk-Reward Ratio Target (untuk TP1):</label>
+                <select id="riskRewardRatio"
+                        class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition duration-200 ease-in-out bg-white appearance-none pr-8">
+                    <option value="1">1:1</option>
+                    <option value="1.5">1:1.5</option>
+                    <option value="2" selected>1:2</option>
+                    <option value="2.5">1:2.5</option>
+                    <option value="3">1:3</option>
+                    <option value="4">1:4</option>
+                    <option value="5">1:5</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-1">TP1 akan dihitung berdasarkan rasio ini dari jarak Stop Loss.</p>
+            </div>
+
+            <!-- Calculate Button -->
+            <button id="calculateBtn"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
+                Hitung Money Management
+            </button>
+        </section>
+
+        <!-- Results Card (initially hidden) -->
+        <section id="resultsCard" class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg border border-gray-200" style="display: none;">
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-8 text-center">Hasil Perhitungan</h2>
+
+            <div class="space-y-4 text-lg">
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Potensi Risiko Trade (IDR):</span>
+                    <span id="calculatedRiskValue" class="text-red-600 font-bold text-xl"></span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Harga Stop Loss:</span>
+                    <span id="stopLossPrice" class="text-blue-600 font-bold text-xl"></span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Harga Take Profit 1 (sesuai RR pilihan):</span>
+                    <span id="takeProfitPrice1" class="text-green-600 font-bold text-xl"></span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Harga Take Profit 2 (TP1 + 2%):</span>
+                    <span id="takeProfitPrice2" class="text-green-600 font-bold text-xl"></span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold">Harga Take Profit 3 (TP2 + 2%):</span>
+                    <span id="takeProfitPrice3" class="text-green-600 font-bold text-xl"></span>
+                </p>
+                <p class="flex justify-between items-center">
+                    <span class="text-gray-700 font-semibold"><span id="unitsLabel">Jumlah Lot/Unit yang Digunakan:</span></span>
+                    <span id="unitsToBuy" class="text-purple-600 font-bold text-xl"></span>
+                </p>
+            </div>
+
+            <p class="text-sm text-gray-500 mt-8 text-center italic">
+                *Perhitungan ini adalah estimasi. Selalu lakukan analisis Anda sendiri dan sesuaikan dengan kondisi pasar.
+                <span id="positionDisclaimer">Posisi diasumsikan LONG.</span>
+            </p>
+            <div class="mt-6 text-center">
+                <button id="printBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
+                    Cetak Hasil
+                </button>
+            </div>
+
+            <!-- Chart Section - REMOVED -->
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-4 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>&copy; 2025 Kalkulator Money Management. <a href="https://cyclocerine.github.io" style="color: #3b82f6;">cyclocerine</a></p>
+        </div>
+    </footer>
+
+    <!-- Chart.js CDN - REMOVED -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to input elements
+            const entryPriceInput = document.getElementById('entryPrice');
+            const accountBalanceInput = document.getElementById('accountBalance');
+            const slPercentageFromEntryInput = document.getElementById('slPercentageFromEntry');
+            const jumlahLotInput = document.getElementById('jumlahLot');
+            const manualStopLossPriceInput = document.getElementById('manualStopLossPrice');
+            const riskPerTradePercentInput = document.getElementById('riskPerTradePercent');
+            const riskRewardRatioSelect = document.getElementById('riskRewardRatio');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultsCard = document.getElementById('resultsCard');
+            const printBtn = document.getElementById('printBtn');
+
+            // Mode selection elements
+            const calculationModeRadios = document.querySelectorAll('input[name="calculationMode"]');
+            const slPercentageModeInputsDiv = document.getElementById('slPercentageModeInputs');
+            const riskPercentageModeInputsDiv = document.getElementById('riskPercentageModeInputs');
+            const unitsLabel = document.getElementById('unitsLabel');
+
+            // Position type elements
+            const positionTypeRadios = document.querySelectorAll('input[name="positionType"]');
+            const positionDisclaimerSpan = document.getElementById('positionDisclaimer');
+
+            // Get references to output elements
+            const calculatedRiskValueSpan = document.getElementById('calculatedRiskValue');
+            const stopLossPriceSpan = document.getElementById('stopLossPrice');
+            const takeProfitPrice1Span = document.getElementById('takeProfitPrice1');
+            const takeProfitPrice2Span = document.getElementById('takeProfitPrice2');
+            const takeProfitPrice3Span = document.getElementById('takeProfitPrice3');
+            const unitsToBuySpan = document.getElementById('unitsToBuy');
+
+            let currentMode = 'slPercentage'; // Default mode
+            let currentPosition = 'long'; // Default position
+
+            // Chart.js instance - REMOVED
+            // let priceChart;
+
+            // Function to update UI based on selected mode
+            function updateUIForMode() {
+                if (currentMode === 'slPercentage') {
+                    slPercentageModeInputsDiv.classList.remove('hidden');
+                    riskPercentageModeInputsDiv.classList.add('hidden');
+
+                    // Set required attributes for SL Percentage Mode
+                    slPercentageFromEntryInput.setAttribute('required', 'true');
+                    jumlahLotInput.setAttribute('required', 'true');
+                    manualStopLossPriceInput.removeAttribute('required');
+                    riskPerTradePercentInput.removeAttribute('required');
+
+                    // Clear values from hidden inputs
+                    manualStopLossPriceInput.value = '';
+                    riskPerTradePercentInput.value = '';
+
+                    unitsLabel.textContent = 'Jumlah Lot/Unit yang Digunakan:';
+
+                } else { // riskPercentage mode
+                    slPercentageModeInputsDiv.classList.add('hidden');
+                    riskPercentageModeInputsDiv.classList.remove('hidden');
+
+                    // Set required attributes for Risk Percentage Mode
+                    slPercentageFromEntryInput.removeAttribute('required');
+                    jumlahLotInput.removeAttribute('required');
+                    manualStopLossPriceInput.setAttribute('required', 'true');
+                    riskPerTradePercentInput.setAttribute('required', 'true');
+
+                    // Clear values from hidden inputs
+                    slPercentageFromEntryInput.value = '';
+                    jumlahLotInput.value = '';
+
+                    unitsLabel.textContent = 'Jumlah Lot/Unit yang Direkomendasikan:';
+                }
+                resultsCard.style.display = 'none'; // Hide results when changing mode
+            }
+
+            // Function to update disclaimer based on position type
+            function updatePositionDisclaimer() {
+                if (currentPosition === 'long') {
+                    positionDisclaimerSpan.textContent = 'Posisi diasumsikan LONG.';
+                } else {
+                    positionDisclaimerSpan.textContent = 'Posisi diasumsikan SHORT.';
+                }
+                resultsCard.style.display = 'none'; // Hide results when changing position
+            }
+
+            // Event listeners for mode selection
+            calculationModeRadios.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    currentMode = event.target.value;
+                    updateUIForMode();
+                });
+            });
+
+            // Event listeners for position type selection
+            positionTypeRadios.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    currentPosition = event.target.value;
+                    updatePositionDisclaimer();
+                });
+            });
+
+            // Initial UI update on page load
+            updateUIForMode();
+            updatePositionDisclaimer();
+
+            // Function to draw/update the chart - REMOVED
+            /*
+            function drawChart(entry, sl, tp1, tp2, tp3) {
+                const ctx = document.getElementById('priceChart').getContext('2d');
+                const labels = ['SL', 'Entry', 'TP1', 'TP2', 'TP3'];
+                const dataPoints = [sl, entry, tp1, tp2, tp3];
+
+                // Sort data points to ensure correct display on chart, but keep labels ordered
+                const sortedData = [...dataPoints].sort((a, b) => a - b);
+                const minPrice = sortedData[0] * 0.95; // 5% buffer below min
+                const maxPrice = sortedData[sortedData.length - 1] * 1.05; // 5% buffer above max
+
+                const datasets = [{
+                    label: 'Harga',
+                    data: dataPoints,
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.6)', // Red for SL
+                        'rgba(59, 130, 246, 0.6)', // Blue for Entry
+                        'rgba(34, 197, 94, 0.6)', // Green for TP1
+                        'rgba(34, 197, 94, 0.6)', // Green for TP2
+                        'rgba(34, 197, 94, 0.6)'  // Green for TP3
+                    ],
+                    borderColor: [
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(34, 197, 94, 1)'
+                    ],
+                    borderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    type: 'bar' // Use bar chart for distinct points
+                }];
+
+                // Add a line for Entry Price for better visual reference
+                datasets.push({
+                    label: 'Garis Harga',
+                    data: [{x: 'SL', y: entry}, {x: 'Entry', y: entry}, {x: 'TP1', y: entry}, {x: 'TP2', y: entry}, {x: 'TP3', y: entry}],
+                    borderColor: 'rgba(59, 130, 246, 0.8)', // Blue line
+                    borderWidth: 2,
+                    fill: false,
+                    type: 'line',
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    tension: 0 // Straight line
+                });
+
+
+                if (priceChart) {
+                    priceChart.destroy(); // Destroy previous chart instance
+                }
+
+                priceChart = new Chart(ctx, {
+                    type: 'bar', // Default type, but datasets override
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'x', // Ensure x-axis for labels
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: minPrice,
+                                max: maxPrice,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + value.toLocaleString('id-ID');
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false // Hide legend for cleaner look
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': Rp ' + context.parsed.y.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            */
+
+            // Add event listener to the calculate button
+            calculateBtn.addEventListener('click', () => {
+                // Parse common input values
+                const entryPrice = parseFloat(entryPriceInput.value);
+                const accountBalance = parseFloat(accountBalanceInput.value);
+                const riskRewardRatio = parseFloat(riskRewardRatioSelect.value);
+
+                // Common validation for mandatory fields
+                if (isNaN(entryPrice) || isNaN(accountBalance) || entryPrice <= 0 || accountBalance <= 0) {
+                    displayMessage('Mohon masukkan Harga Entry dan Modal Akun yang valid (angka positif).', 'error', entryPriceInput);
+                    resultsCard.style.display = 'none';
+                    return;
+                }
+
+                let stopLossAbsoluteDistance;
+                let stopLossPrice;
+                let calculatedRiskValueIDR;
+                let unitsToDisplay;
+
+                if (currentMode === 'slPercentage') {
+                    // Mode 1: SL Persentase
+                    const slPercentageFromEntry = parseFloat(slPercentageFromEntryInput.value);
+                    const jumlahLot = parseInt(jumlahLotInput.value);
+
+                    if (isNaN(slPercentageFromEntry) || isNaN(jumlahLot) || slPercentageFromEntry <= 0 || jumlahLot <= 0) {
+                        displayMessage('Mohon masukkan Persentase Jarak Stop Loss dan Jumlah Lot/Unit yang valid (angka positif).', 'error', isNaN(slPercentageFromEntry) ? slPercentageFromEntryInput : jumlahLotInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+                    // Warning for large SL percentage
+                    if (slPercentageFromEntry > 5) {
+                        displayMessage('Peringatan: Persentase Jarak Stop Loss (SL %) Anda cukup besar (>5%). Ini mungkin terlalu ketat untuk beberapa aset/strategi.', 'info', slPercentageFromEntryInput);
+                    }
+
+                    // 1. Calculate Stop Loss Absolute Distance
+                    stopLossAbsoluteDistance = entryPrice * (slPercentageFromEntry / 100);
+
+                    // 2. Calculate Stop Loss Price based on position type
+                    if (currentPosition === 'long') {
+                        stopLossPrice = entryPrice - stopLossAbsoluteDistance;
+                    } else { // short
+                        stopLossPrice = entryPrice + stopLossAbsoluteDistance;
+                    }
+
+                    // Validate SL price (different for long/short)
+                    if (currentPosition === 'long' && stopLossPrice < 0) {
+                        displayMessage('Harga Stop Loss di bawah nol untuk posisi LONG. Mohon sesuaikan: (1) Naikkan Harga Entry, ATAU (2) Kurangi Persentase Jarak Stop Loss (%).', 'error', slPercentageFromEntryInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+                     if (currentPosition === 'short' && stopLossPrice <= entryPrice) {
+                        displayMessage('Harga Stop Loss harus lebih TINGGI dari Harga Entry untuk posisi SHORT.', 'error', slPercentageFromEntryInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+
+                    // 3. Calculate Potential Risk Value in IDR
+                    calculatedRiskValueIDR = stopLossAbsoluteDistance * jumlahLot;
+
+                    // Validate if potential risk exceeds account balance (simple check, not exact margin)
+                    if (calculatedRiskValueIDR > accountBalance) {
+                        displayMessage('Potensi Risiko Trade (IDR) melebihi Modal Akun Anda. Mohon sesuaikan Jumlah Lot/Unit atau Persentase Jarak Stop Loss.', 'error', calculatedRiskValueIDR > accountBalance ? jumlahLotInput : slPercentageFromEntryInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+                    unitsToDisplay = jumlahLot;
+
+                } else { // currentMode === 'riskPercentage'
+                    // Mode 2: Risk Persentase (PRO MODE)
+                    const manualStopLossPrice = parseFloat(manualStopLossPriceInput.value);
+                    const riskPerTradePercent = parseFloat(riskPerTradePercentInput.value);
+
+                    if (isNaN(manualStopLossPrice) || isNaN(riskPerTradePercent) || manualStopLossPrice < 0 || riskPerTradePercent <= 0) {
+                        displayMessage('Mohon masukkan Harga Stop Loss dan Risiko per Trade (% Modal) yang valid (angka positif).', 'error', isNaN(manualStopLossPrice) ? manualStopLossPriceInput : riskPerTradePercentInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+                    // Validate SL vs Entry based on position type
+                    if (currentPosition === 'long' && manualStopLossPrice >= entryPrice) {
+                        displayMessage('Harga Stop Loss harus lebih RENDAH dari Harga Entry untuk posisi LONG.', 'error', manualStopLossPriceInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+                    if (currentPosition === 'short' && manualStopLossPrice <= entryPrice) {
+                        displayMessage('Harga Stop Loss harus lebih TINGGI dari Harga Entry untuk posisi SHORT.', 'error', manualStopLossPriceInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+                    // 1. Calculate Risk Nominal (IDR)
+                    calculatedRiskValueIDR = accountBalance * (riskPerTradePercent / 100);
+
+                    // 2. Calculate Jarak SL (Absolute Distance)
+                    stopLossAbsoluteDistance = Math.abs(entryPrice - manualStopLossPrice); // Always positive
+
+                    // Validate if jarakSL is too small (approaching zero)
+                    if (stopLossAbsoluteDistance <= 0.0001) { // Use a small threshold to avoid near-zero division
+                        displayMessage('Jarak Stop Loss terlalu kecil. Mohon sesuaikan Harga Entry atau Harga Stop Loss.', 'error', manualStopLossPriceInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+                    // 3. Calculate Units Automatically
+                    unitsToDisplay = Math.floor(calculatedRiskValueIDR / stopLossAbsoluteDistance);
+
+                    // Validate calculated units
+                    if (unitsToDisplay <= 0) {
+                        displayMessage('Tidak dapat menghitung jumlah lot/unit yang valid. Mohon sesuaikan: (1) Naikkan Risiko per Trade (%), ATAU (2) Kurangi Jarak Stop Loss (perbesar perbedaan Entry dan SL).', 'error', riskPerTradePercentInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Validate if calculated units require more capital than available
+                    if (unitsToDisplay * entryPrice > accountBalance) {
+                        displayMessage('Dana tidak cukup untuk membeli unit tersebut dengan harga entry. Mohon sesuaikan risiko, SL, atau modal.', 'error', entryPriceInput);
+                        resultsCard.style.display = 'none';
+                        return;
+                    }
+
+                    stopLossPrice = manualStopLossPrice; // Use the manual input SL price
+                }
+
+                // Calculate Take Profit Prices (Common for both modes, based on position)
+                const percentageIncreaseTP = 0.02; // 2% increase
+
+                let takeProfitPrice1, takeProfitPrice2, takeProfitPrice3;
+
+                if (currentPosition === 'long') {
+                    takeProfitPrice1 = entryPrice + (stopLossAbsoluteDistance * riskRewardRatio);
+                    takeProfitPrice2 = takeProfitPrice1 * (1 + percentageIncreaseTP);
+                    takeProfitPrice3 = takeProfitPrice2 * (1 + percentageIncreaseTP);
+                } else { // short
+                    takeProfitPrice1 = entryPrice - (stopLossAbsoluteDistance * riskRewardRatio);
+                    takeProfitPrice2 = takeProfitPrice1 * (1 - percentageIncreaseTP); // Decrease for short
+                    takeProfitPrice3 = takeProfitPrice2 * (1 - percentageIncreaseTP); // Decrease for short
+                }
+
+
+                // Display results
+                calculatedRiskValueSpan.textContent = `Rp ${calculatedRiskValueIDR.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                stopLossPriceSpan.textContent = `Rp ${stopLossPrice.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                takeProfitPrice1Span.textContent = `Rp ${takeProfitPrice1.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                takeProfitPrice2Span.textContent = `Rp ${takeProfitPrice2.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                takeProfitPrice3Span.textContent = `Rp ${takeProfitPrice3.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                unitsToBuySpan.textContent = `${unitsToDisplay.toLocaleString('id-ID')} Unit`;
+
+                resultsCard.style.display = 'block';
+                displayMessage('Perhitungan berhasil!', 'info');
+
+                // Draw chart - REMOVED
+                // drawChart(entryPrice, stopLossPrice, takeProfitPrice1, takeProfitPrice2, takeProfitPrice3);
+            });
+
+            // Print button functionality
+            printBtn.addEventListener('click', () => {
+                window.print();
+            });
+
+            // Function to display messages (custom modal/toast)
+            function displayMessage(message, type, inputElement = null) {
+                let msgDiv = document.getElementById('appMessage');
+                if (!msgDiv) {
+                    msgDiv = document.createElement('div');
+                    msgDiv.id = 'appMessage';
+                    msgDiv.className = 'message-box';
+                    document.body.appendChild(msgDiv);
+                }
+                
+                let icon = '';
+                if (type === 'error') {
+                    icon = '&#x26A0;'; // Warning sign
+                    msgDiv.classList.add('error');
+                    msgDiv.classList.remove('info');
+                    if (inputElement) {
+                        inputElement.focus(); // Auto-focus on error
+                    }
+                } else {
+                    icon = '&#x2713;'; // Checkmark
+                    msgDiv.classList.add('info');
+                    msgDiv.classList.remove('error');
+                }
+                msgDiv.innerHTML = `<span class="icon">${icon}</span><span>${message}</span>`;
+
+                msgDiv.classList.add('show');
+                
+                setTimeout(() => {
+                    msgDiv.classList.remove('show');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
