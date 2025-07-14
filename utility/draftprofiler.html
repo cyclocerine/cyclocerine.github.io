@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Profil Risiko Investor</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        /* Custom slider styling for better appearance */
+        input[type="range"] {
+            -webkit-appearance: none; /* Hides the slider track in Chrome/Safari/Opera */
+            width: 100%; /* Full-width */
+            height: 8px; /* Specify a height for the slider track */
+            background: #d1d5db; /* bg-gray-300 */
+            outline: none; /* Remove outline */
+            opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+            -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+            transition: opacity .2s;
+            border-radius: 4px;
+        }
+
+        /* Mouse-over effects */
+        input[type="range"]:hover {
+            opacity: 1; /* Fully shown on mouse-over */
+        }
+
+        /* The slider handle (thumb) */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Override default look */
+            appearance: none;
+            width: 24px; /* Set a specific slider handle width */
+            height: 24px; /* Slider handle height */
+            background: #2563eb; /* bg-blue-600 */
+            cursor: pointer; /* Cursor on hover */
+            border-radius: 50%; /* Make it circular */
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px; /* Set a specific slider handle width */
+            height: 24px; /* Slider handle height */
+            background: #2563eb; /* bg-blue-600 */
+            cursor: pointer; /* Cursor on hover */
+            border-radius: 50%; /* Make it circular */
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        /* Custom styles for the dummy doughnut chart */
+        .doughnut-chart-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#34d399 0% 40%, #fcd34d 40% 70%, #ef4444 70% 100%); /* Example slices */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .doughnut-chart-container::after {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div id="quiz-container" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Kuis Profil Risiko Investor</h1>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out" style="width: 0%;"></div>
+        </div>
+
+        <!-- Question Section -->
+        <div id="question-section" class="text-center">
+            <p id="question-text" class="text-xl text-gray-700 mb-8 font-medium"></p>
+            <div class="relative mb-10 px-4">
+                <input type="range" id="answer-slider" min="1" max="5" value="3" class="w-full">
+                <div class="flex justify-between text-sm text-gray-500 mt-2">
+                    <span>Sangat<br>Tidak Setuju</span>
+                    <span>Tidak<br>Setuju</span>
+                    <span>Netral</span>
+                    <span>Setuju</span>
+                    <span>Sangat<br>Setuju</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div id="navigation-buttons" class="flex justify-between mt-8">
+            <button id="prev-btn" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors duration-200 font-semibold shadow-md">Sebelumnya</button>
+            <button id="next-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold shadow-md">Selanjutnya</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Hasil Analisis Profil Risiko Anda</h2>
+            <div class="doughnut-chart-container mb-6"></div>
+            <p class="text-lg font-semibold text-gray-700 mb-2">Profil Risiko: <span id="profile-name" class="text-blue-600"></span></p>
+            <p id="explanation" class="text-gray-600 mb-4 text-left"></p>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">Tips Investasi:</h3>
+            <ul id="investment-tips" class="list-disc list-inside text-gray-600 mb-4 text-left"></ul>
+            <p id="neutral-warning" class="text-red-500 font-medium hidden mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1 -mt-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.542 2.765-1.542 3.53 0L12.53 4.88c.347.694-.166 1.52-.924 1.52H8.391c-.758 0-1.271-.826-.924-1.52l1.24-1.781zM10 12a1 1 0 100-2 1 1 0 000 2zm-1 4a1 1 0 102 0 1 1 0 00-2 0z" clip-rule="evenodd" />
+                </svg>
+                Perhatian: Banyak jawaban 'Netral' dapat mengurangi akurasi profil risiko. Pertimbangkan untuk merefleksikan lebih lanjut preferensi Anda.
+            </p>
+
+            <button id="generate-strategy-btn" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200 font-semibold mt-6 shadow-md flex items-center justify-center mx-auto">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" id="strategy-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                ✨ Dapatkan Strategi Investasi ✨
+            </button>
+
+            <div id="investment-strategy-section" class="hidden text-left mt-8 p-4 bg-gray-50 rounded-lg shadow-inner">
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Strategi Investasi Personal: <span id="strategy-title" class="text-purple-600"></span></h3>
+                <h4 class="text-lg font-medium text-gray-700 mb-1">Alokasi Aset yang Direkomendasikan:</h4>
+                <ul id="asset-allocation" class="list-disc list-inside text-gray-600 mb-3"></ul>
+                <h4 class="text-lg font-medium text-gray-700 mb-1">Jenis Instrumen Investasi:</h4>
+                <ul id="investment-vehicles" class="list-disc list-inside text-gray-600 mb-3"></ul>
+                <h4 class="text-lg font-medium text-gray-700 mb-1">Pertimbangan Utama:</h4>
+                <ul id="key-considerations" class="list-disc list-inside text-gray-600 mb-3"></ul>
+            </div>
+
+            <button id="reset-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold mt-6 shadow-md">Mulai Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        // Data pertanyaan kuis
+        const questions = [
+            { id: 1, text: "Saya merasa nyaman mengambil risiko tinggi demi potensi keuntungan besar.", isNegative: false, weight: 0.04 },
+            { id: 2, text: "Kehilangan sebagian besar investasi saya akan sangat mengganggu tidur saya.", isNegative: true, weight: 0.045 },
+            { id: 3, text: "Saya panik jika nilai investasi saya turun drastis (>20%).", isNegative: true, weight: 0.045 },
+            { id: 4, text: "Saya lebih memilih investasi yang stabil dengan pengembalian rendah daripada yang bergejolak dengan pengembalian tinggi.", isNegative: true, weight: 0.04 },
+            { id: 5, text: "Saya bersedia menahan investasi yang merugi untuk waktu yang lama, berharap pemulihan.", isNegative: false, weight: 0.04 },
+            { id: 6, text: "Saya memiliki dana darurat yang cukup untuk menutupi pengeluaran 6-12 bulan.", isNegative: false, weight: 0.035 },
+            { id: 7, text: "Saya akan menjual investasi saya segera setelah melihat penurunan signifikan.", isNegative: true, weight: 0.04 },
+            { id: 8, text: "Saya percaya bahwa volatilitas pasar adalah peluang, bukan ancaman.", isNegative: false, weight: 0.04 },
+            { id: 9, text: "Saya berinvestasi untuk tujuan jangka pendek (kurang dari 3 tahun).", isNegative: true, weight: 0.035 },
+            { id: 10, text: "Saya memiliki pengetahuan yang baik tentang berbagai jenis instrumen investasi.", isNegative: false, weight: 0.04 },
+            { id: 11, text: "Saya merasa tidak nyaman dengan fluktuasi harga harian di pasar saham.", isNegative: true, weight: 0.04 },
+            { id: 12, text: "Saya berinvestasi untuk tujuan jangka panjang (lebih dari 5 tahun).", isNegative: false, weight: 0.035 },
+            { id: 13, text: "Saya akan menambah investasi saya saat pasar sedang turun.", isNegative: false, weight: 0.045 },
+            { id: 14, text: "Saya lebih suka berinvestasi pada aset yang saya pahami sepenuhnya, meskipun pengembaliannya lebih rendah.", isNegative: true, weight: 0.035 },
+            { id: 15, text: "Saya mencari keuntungan yang lebih tinggi dari rata-rata pasar, meskipun risikonya lebih besar.", isNegative: false, weight: 0.04 },
+            { id: 16, text: "Saya akan menyesal jika tidak mengambil risiko dan melewatkan potensi keuntungan besar.", "isNegative": false, "weight": 0.04 },
+            { id: 17, text: "Saya cenderung menghindari utang, bahkan untuk investasi.", isNegative: true, weight: 0.035 },
+            { id: 18, text: "Saya bersedia kehilangan seluruh investasi saya jika itu berarti ada peluang untuk menjadi sangat kaya.", isNegative: false, weight: 0.045 },
+            { id: 19, text: "Saya lebih suka menyimpan uang saya di bank daripada berinvestasi di pasar modal.", isNegative: true, weight: 0.04 },
+            { id: 20, text: "Saya merasa percaya diri dalam membuat keputusan investasi sendiri.", isNegative: false, weight: 0.035 },
+            { id: 21, text: "Saya akan mencari nasihat profesional sebelum membuat keputusan investasi penting.", isNegative: false, weight: 0.03 },
+            { id: 22, text: "Saya sering memantau kinerja investasi saya setiap hari.", isNegative: true, weight: 0.03 },
+            { id: 23, text: "Saya memiliki tujuan keuangan yang jelas dan terukur.", isNegative: false, weight: 0.03 },
+            { id: 24, text: "Saya merasa cemas tentang masa depan ekonomi.", isNegative: true, weight: 0.035 },
+            { id: 25, text: "Saya bersedia untuk mendiversifikasi portofolio saya ke berbagai jenis aset.", isNegative: false, weight: 0.03 }
+        ];
+
+        // Elemen DOM
+        const questionText = document.getElementById('question-text');
+        const answerSlider = document.getElementById('answer-slider');
+        const progressBar = document.getElementById('progress-bar');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const questionSection = document.getElementById('question-section');
+        const navigationButtons = document.getElementById('navigation-buttons');
+        const resultsSection = document.getElementById('results-section');
+        const profileName = document.getElementById('profile-name');
+        const explanation = document.getElementById('explanation');
+        const investmentTips = document.getElementById('investment-tips');
+        const neutralWarning = document.getElementById('neutral-warning');
+        const resetBtn = document.getElementById('reset-btn');
+        const generateStrategyBtn = document.getElementById('generate-strategy-btn');
+        const strategySpinner = document.getElementById('strategy-spinner');
+        const investmentStrategySection = document.getElementById('investment-strategy-section');
+        const strategyTitle = document.getElementById('strategy-title');
+        const assetAllocationList = document.getElementById('asset-allocation');
+        const investmentVehiclesList = document.getElementById('investment-vehicles');
+        const keyConsiderationsList = document.getElementById('key-considerations');
+
+        // Variabel state
+        let currentQuestionIndex = 0;
+        let answers = []; // Array untuk menyimpan jawaban (indeks sesuai id pertanyaan - 1)
+        let currentProfile = {}; // Menyimpan hasil profil risiko dari Gemini
+
+        // Fungsi untuk memuat state dari localStorage
+        function loadState() {
+            const savedIndex = localStorage.getItem('currentQuestionIndex');
+            const savedAnswers = localStorage.getItem('answers');
+            const savedProfile = localStorage.getItem('currentProfile');
+
+            if (savedIndex !== null) {
+                currentQuestionIndex = parseInt(savedIndex);
+            }
+            if (savedAnswers !== null) {
+                answers = JSON.parse(savedAnswers);
+            } else {
+                // Inisialisasi jawaban jika belum ada di localStorage
+                answers = new Array(questions.length).fill(3); // Default ke netral
+            }
+            if (savedProfile !== null) {
+                currentProfile = JSON.parse(savedProfile);
+                // Jika profil sudah ada, langsung tampilkan hasil
+                if (Object.keys(currentProfile).length > 0) {
+                    displayResults(currentProfile);
+                }
+            }
+        }
+
+        // Fungsi untuk menyimpan state ke localStorage
+        function saveState() {
+            localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
+            localStorage.setItem('answers', JSON.stringify(answers));
+            localStorage.setItem('currentProfile', JSON.stringify(currentProfile));
+        }
+
+        // Fungsi untuk menampilkan pertanyaan saat ini
+        function displayQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                questionSection.classList.remove('hidden');
+                navigationButtons.classList.remove('hidden');
+                resultsSection.classList.add('hidden');
+                neutralWarning.classList.add('hidden'); // Sembunyikan peringatan netral saat kembali ke kuis
+                investmentStrategySection.classList.add('hidden'); // Sembunyikan strategi saat kembali ke kuis
+
+                const question = questions[currentQuestionIndex];
+                questionText.textContent = `${currentQuestionIndex + 1}. ${question.text}`;
+                answerSlider.value = answers[currentQuestionIndex] || 3; // Gunakan jawaban tersimpan atau default 3
+
+                // Update progress bar
+                const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+
+                // Atur visibilitas tombol
+                prevBtn.style.display = currentQuestionIndex === 0 ? 'none' : 'inline-block';
+                nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Submit' : 'Selanjutnya';
+            } else {
+                // Jika sudah melewati pertanyaan terakhir, tampilkan hasil
+                submitQuiz();
+            }
+            saveState(); // Simpan state setiap kali pertanyaan ditampilkan
+        }
+
+        // Event listener untuk slider
+        answerSlider.addEventListener('input', (e) => {
+            answers[currentQuestionIndex] = parseInt(e.target.value);
+            saveState(); // Simpan jawaban saat slider diubah
+        });
+
+        // Event listener untuk tombol 'Sebelumnya'
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        });
+
+        // Event listener untuk tombol 'Selanjutnya' / 'Submit'
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                // Ini adalah pertanyaan terakhir, submit kuis
+                submitQuiz();
+            }
+        });
+
+        // Fungsi untuk mengirim data kuis ke API Gemini untuk analisis profil risiko
+        async function callGeminiApiForProfile(data) {
+            const apiKey = "AIzaSyA24p_t-OrtybS1EMo-a12ZUNGDWxYByGs"; // Kunci API Gemini Anda
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            // Buat prompt untuk Gemini
+            const prompt = `Analisis profil risiko investor berdasarkan data kuis berikut.
+            Pertanyaan: ${JSON.stringify(data.questions)}
+            Jawaban: ${JSON.stringify(data.answers)}
+
+            Berikan output dalam format JSON dengan properti berikut:
+            - profileName: (string) Profil risiko investor (misal: Konservatif, Moderat, Agresif)
+            - explanation: (string) Penjelasan rinci mengapa profil tersebut cocok.
+            - investmentTips: (array of string) Daftar tips investasi personal berdasarkan jawaban.
+            - neutralCount: (number) Jumlah jawaban 'Netral' (nilai 3).`; // Tambahkan neutralCount untuk perhitungan warning
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "profileName": { "type": "STRING" },
+                            "explanation": { "type": "STRING" },
+                            "investmentTips": {
+                                "type": "ARRAY",
+                                "items": { "type": "STRING" }
+                            },
+                            "neutralCount": { "type": "NUMBER" }
+                        },
+                        "propertyOrdering": ["profileName", "explanation", "investmentTips", "neutralCount"]
+                    }
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Gemini API Error (Profile):", errorData);
+                throw new Error(`Gemini API request failed: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const parsedResult = JSON.parse(jsonText);
+                // Tambahkan properti neutralWarning berdasarkan neutralCount
+                parsedResult.neutralWarning = parsedResult.neutralCount >= questions.length * 0.3;
+                return parsedResult;
+            } else {
+                throw new Error("Unexpected response structure from Gemini API (Profile).");
+            }
+        }
+
+        // Fungsi untuk mengirim data ke API Gemini untuk menghasilkan strategi investasi
+        async function callGeminiApiForStrategy(profileData, quizData) {
+            const apiKey = "AIzaSyA24p_t-OrtybS1EMo-a12ZUNGDWxYByGs"; // Kunci API Gemini Anda
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const prompt = `Berdasarkan profil risiko investor berikut:
+            Profil Risiko: ${profileData.profileName}
+            Penjelasan Profil: ${profileData.explanation}
+            Tips Awal: ${profileData.investmentTips.join(', ')}
+            Jawaban Kuis Asli: ${JSON.stringify(quizData.answers)}
+
+            Buatlah strategi investasi personal yang lebih rinci dalam format JSON. Strategi harus mencakup:
+            - strategyTitle: (string) Judul singkat strategi (misal: "Strategi Konservatif Jangka Panjang")
+            - assetAllocation: (array of objects) Rekomendasi alokasi aset. Setiap objek memiliki "assetType" (string, misal: "Saham", "Obligasi", "Properti", "Emas", "Kas") dan "percentage" (string, misal: "60%", "30%", "10%"). Total persentase harus 100%.
+            - investmentVehicles: (array of string) Jenis instrumen investasi yang spesifik (misal: "Reksa Dana Indeks S&P 500", "Obligasi Pemerintah Indonesia", "ETF Pasar Berkembang").
+            - keyConsiderations: (array of string) Poin-poin penting atau pertimbangan tambahan untuk strategi ini (misal: "Diversifikasi portofolio secara berkala", "Tinjau strategi setiap tahun").`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "strategyTitle": { "type": "STRING" },
+                            "assetAllocation": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "assetType": { "type": "STRING" },
+                                        "percentage": { "type": "STRING" }
+                                    }
+                                }
+                            },
+                            "investmentVehicles": {
+                                "type": "ARRAY",
+                                "items": { "type": "STRING" }
+                            },
+                            "keyConsiderations": {
+                                "type": "ARRAY",
+                                "items": { "type": "STRING" }
+                            }
+                        },
+                        "propertyOrdering": ["strategyTitle", "assetAllocation", "investmentVehicles", "keyConsiderations"]
+                    }
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Gemini API Error (Strategy):", errorData);
+                throw new Error(`Gemini API request failed: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                return JSON.parse(jsonText);
+            } else {
+                throw new Error("Unexpected response structure from Gemini API (Strategy).");
+            }
+        }
+
+
+        // Fungsi untuk menampilkan hasil kuis
+        function displayResults(result) {
+            questionSection.classList.add('hidden');
+            navigationButtons.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+
+            profileName.textContent = result.profileName;
+            explanation.textContent = result.explanation;
+            investmentTips.innerHTML = ''; // Bersihkan daftar sebelum menambahkan
+            result.investmentTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                investmentTips.appendChild(li);
+            });
+
+            if (result.neutralWarning) {
+                neutralWarning.classList.remove('hidden');
+            } else {
+                neutralWarning.classList.add('hidden');
+            }
+
+            // Sembunyikan strategi jika belum digenerate
+            investmentStrategySection.classList.add('hidden');
+            generateStrategyBtn.classList.remove('hidden'); // Pastikan tombol terlihat
+            strategySpinner.classList.add('hidden'); // Sembunyikan spinner
+            generateStrategyBtn.disabled = false; // Aktifkan tombol
+        }
+
+        async function submitQuiz() {
+            // Tampilkan loading indicator
+            profileName.textContent = "Menganalisis...";
+            explanation.textContent = "";
+            investmentTips.innerHTML = "";
+            neutralWarning.classList.add('hidden');
+            generateStrategyBtn.classList.add('hidden'); // Sembunyikan tombol strategi sementara
+            investmentStrategySection.classList.add('hidden'); // Sembunyikan strategi
+
+            try {
+                const quizData = {
+                    questions: questions,
+                    answers: answers
+                };
+
+                currentProfile = await callGeminiApiForProfile(quizData); // Panggil API Gemini asli untuk profil
+                saveState(); // Simpan profil yang baru didapatkan
+                displayResults(currentProfile);
+
+            } catch (error) {
+                console.error("Error fetching results from Gemini API:", error);
+                profileName.textContent = "Terjadi Kesalahan";
+                explanation.textContent = "Maaf, tidak dapat menganalisis profil risiko Anda saat ini. Silakan coba lagi. Detail: " + error.message;
+                generateStrategyBtn.classList.add('hidden'); // Pastikan tombol strategi tetap tersembunyi jika ada error
+            }
+        }
+
+        // Event listener untuk tombol 'Dapatkan Strategi Investasi'
+        generateStrategyBtn.addEventListener('click', async () => {
+            generateStrategyBtn.disabled = true;
+            strategySpinner.classList.remove('hidden');
+            generateStrategyBtn.textContent = "Menganalisis Strategi...";
+
+            try {
+                const quizData = {
+                    questions: questions,
+                    answers: answers
+                };
+                const strategyResult = await callGeminiApiForStrategy(currentProfile, quizData);
+
+                strategyTitle.textContent = strategyResult.strategyTitle;
+
+                assetAllocationList.innerHTML = '';
+                strategyResult.assetAllocation.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.assetType}: ${item.percentage}`;
+                    assetAllocationList.appendChild(li);
+                });
+
+                investmentVehiclesList.innerHTML = '';
+                strategyResult.investmentVehicles.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    investmentVehiclesList.appendChild(li);
+                });
+
+                keyConsiderationsList.innerHTML = '';
+                strategyResult.keyConsiderations.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    keyConsiderationsList.appendChild(li);
+                });
+
+                investmentStrategySection.classList.remove('hidden');
+            } catch (error) {
+                console.error("Error generating investment strategy:", error);
+                investmentStrategySection.classList.remove('hidden'); // Tampilkan bagian strategi
+                strategyTitle.textContent = "Gagal Menghasilkan Strategi";
+                assetAllocationList.innerHTML = `<li>Terjadi kesalahan saat menghasilkan strategi. Silakan coba lagi. Detail: ${error.message}</li>`;
+                investmentVehiclesList.innerHTML = '';
+                keyConsiderationsList.innerHTML = '';
+            } finally {
+                generateStrategyBtn.disabled = false;
+                strategySpinner.classList.add('hidden');
+                generateStrategyBtn.innerHTML = '✨ Dapatkan Strategi Investasi ✨';
+            }
+        });
+
+
+        // Event listener untuk tombol 'Mulai Lagi'
+        resetBtn.addEventListener('click', () => {
+            localStorage.clear(); // Hapus semua data dari localStorage
+            currentQuestionIndex = 0;
+            answers = new Array(questions.length).fill(3); // Reset jawaban ke default
+            currentProfile = {}; // Reset profil
+            displayQuestion(); // Mulai kuis dari awal
+        });
+
+        // Inisialisasi kuis saat halaman dimuat
+        window.onload = () => {
+            loadState();
+            if (Object.keys(currentProfile).length === 0) { // Hanya tampilkan pertanyaan jika belum ada profil
+                displayQuestion();
+            }
+        };
+    </script>
+</body>
+</html>
