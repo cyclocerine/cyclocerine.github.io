@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Laporan Keuangan </title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            /* Removed transition for blur as modal is removed */
+        }
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* indigo-600 */
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        .input-file {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.5rem;
+            background-color: #f9fafb; /* gray-50 */
+            cursor: pointer;
+        }
+        .input-file:focus {
+            outline: none;
+            border-color: #6366f1; /* indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4f46e5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Popover icon */
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #6366f1; /* indigo-500 */
+            color: white;
+            font-size: 0.75rem; /* text-xs */
+            font-weight: bold;
+            margin-left: 0.5rem;
+            cursor: help; /* Changed to help cursor for hover */
+        }
+
+        /* Popover container */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex; /* Use inline-flex to keep icon with text */
+            align-items: center;
+        }
+
+        /* Popover text */
+        .tooltip-text {
+            visibility: hidden;
+            width: 400px; /* Adjusted width for popover */
+            background-color: #333;
+            color: #fff;
+            text-align: left; /* Aligned left */
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1000;
+            left: 100%; /* Position to the right of the icon */
+            top: 50%;
+            transform: translateY(-50%); /* Center vertically */
+            margin-left: 10px; /* Space from the icon */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            white-space: normal; /* Ensure text wraps */
+        }
+
+        /* Popover arrow */
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 100%; /* Arrow points left */
+            margin-top: -5px; /* Center arrow vertically */
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent #333 transparent transparent;
+        }
+
+        /* Show popover on hover */
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Removed modal specific styles */
+        body.blurry-background {
+            filter: none; /* Ensure no blur on body */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+    <div class="container bg-gray-50 p-6 rounded-xl shadow-lg w-full max-w-4xl" id="mainContent">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">Analisis Laporan Keuangan</h1>
+        <p class="text-center text-gray-600 mb-8">Unggah laporan keuangan perusahaan Anda (format PDF).</p>
+
+        <div class="card">
+            <label for="pdfUpload" class="block text-lg font-medium text-gray-700 mb-3">Pilih File Laporan Keuangan (PDF):</label>
+            <input type="file" id="pdfUpload" accept="application/pdf" class="input-file">
+            <p class="text-sm text-gray-500 mt-2">Ukuran file maksimum: 10MB.</p>
+            
+            <div id="stockPriceInputSection" class="mt-6">
+                <label for="currentStockPrice" class="block text-lg font-medium text-gray-700 mb-3">Harga Saham Saat Ini (dalam Rupiah):</label>
+                <input type="number" id="currentStockPrice" placeholder="Contoh: 2500" class="input-file">
+            </div>
+
+            <button id="analyzeBtn" class="btn btn-primary mt-6 w-full">
+                <span id="buttonText">Mulai Analisis</span>
+                <div id="loadingSpinner" class="loading-spinner hidden"></div>
+            </button>
+        </div>
+
+        <div id="messageContainer" class="card hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">Pesan:</h2>
+            <p id="messageText" class="text-gray-700 flex items-center justify-center"></p>
+        </div>
+
+        <div id="analysisResult" class="card hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Hasil Analisis Fundamental:</h2>
+            <div id="resultContent" class="space-y-4">
+                <!-- Analysis results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Removed Modal Structure -->
+    <!-- <div id="metricModal" class="modal-overlay">...</div> -->
+
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js"></script>
+
+    <script>
+        // Set workerSrc for pdf.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+        const pdfUpload = document.getElementById('pdfUpload');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const messageContainer = document.getElementById('messageContainer');
+        const messageText = document.getElementById('messageText');
+        const analysisResult = document.getElementById('analysisResult');
+        const resultContent = document.getElementById('resultContent');
+        const currentStockPriceInput = document.getElementById('currentStockPrice');
+
+        // Removed Modal elements and functions
+        // const metricModal = document.getElementById('metricModal');
+        // const modalTitle = document.getElementById('modalTitle');
+        // const modalDescription = document.getElementById('modalDescription');
+        const body = document.body; // Still needed for blur, but blur is removed now
+
+        // Definitions for tooltips
+        const metricDefinitions = {
+            "Total Aset": "Jumlah semua sumber daya ekonomi yang dimiliki perusahaan. Semakin tinggi nilainya, semakin besar potensi kapasitas operasional dan pertumbuhan perusahaan, namun juga bisa berarti perusahaan memiliki banyak aset yang tidak produktif jika tidak dikelola dengan baik. **Baiknya:** Nilai tinggi yang produktif. **Buruknya:** Nilai tinggi yang tidak produktif.",
+            "Total Liabilitas": "Jumlah semua kewajiban keuangan perusahaan kepada pihak eksternal. Semakin tinggi nilainya relatif terhadap aset atau ekuitas, semakin besar risiko keuangan perusahaan karena ketergantungan pada utang. **Baiknya:** Nilai rendah menunjukkan stabilitas keuangan yang lebih baik. **Buruknya:** Nilai tinggi menunjukkan risiko keuangan.",
+            "Ekuitas": "Total nilai kepemilikan bersih pemegang saham dalam perusahaan (aset dikurangi liabilitas). Semakin tinggi ekuitas, semakin kuat posisi keuangan perusahaan dan semakin besar bantalan terhadap kerugian. **Baiknya:** Nilai tinggi menunjukkan posisi keuangan yang kuat. **Buruknya:** Nilai rendah bisa menunjukkan risiko keuangan.",
+            "Pendapatan": "Jumlah total penjualan atau jasa yang dihasilkan perusahaan sebelum dikurangi beban. Semakin tinggi pendapatan, semakin besar aktivitas bisnis perusahaan. **Baiknya:** Pertumbuhan pendapatan yang konsisten adalah indikator positif. **Buruknya:** Pendapatan stagnan atau menurun bisa menunjukkan masalah pertumbuhan.",
+            "Laba Bersih": "Keuntungan akhir yang tersisa setelah semua beban (termasuk pajak) dikurangi dari pendapatan. Semakin tinggi laba bersih, semakin menguntungkan perusahaan. **Baiknya:** Pertumbuhan laba bersih yang konsisten sangat diinginkan. **Buruknya:** Laba bersih yang rendah atau negatif menunjukkan perusahaan tidak efisien atau merugi.",
+            "Saham Beredar": "Jumlah total saham perusahaan yang saat ini dimiliki oleh investor. Penting untuk menghitung metrik per saham. **Baiknya:** Jumlah yang stabil atau berkurang (buyback) bisa meningkatkan nilai per saham. **Buruknya:** Jumlah yang terlalu banyak bisa mengencerkan laba per saham.",
+            "EPS Saat Ini": "Laba bersih yang diatribusikan per saham biasa yang beredar. Mengukur profitabilitas perusahaan per saham. **Baiknya:** Semakin tinggi EPS, semakin baik profitabilitas perusahaan bagi pemegang saham. **Buruknya:** EPS rendah atau negatif menunjukkan perusahaan kurang menguntungkan.",
+            "Book Value Per Share": "Nilai buku ekuitas perusahaan dibagi dengan jumlah saham beredar. Mengukur nilai aset bersih perusahaan per saham. **Baiknya:** Nilai yang terus bertumbuh. Rasio P/B (Harga/Nilai Buku) sering digunakan untuk menilai apakah saham undervalued atau overvalued. **Buruknya:** Nilai yang stagnan atau menurun.",
+            "Revenue Per Share": "Total pendapatan perusahaan dibagi dengan jumlah saham beredar. Mengukur pendapatan yang dihasilkan per saham. **Baiknya:** Peningkatan RPS menunjukkan pertumbuhan penjualan yang menguntungkan per saham. **Buruknya:** RPS yang stagnan atau menurun.",
+            "Dividend Per Share": "Jumlah total dividen tunai yang dibayarkan kepada pemegang saham per saham biasa yang beredar. **Baiknya:** Semakin tinggi DPS, semakin besar pengembalian langsung kepada pemegang saham, menunjukkan kesehatan keuangan dan komitmen perusahaan untuk berbagi keuntungan. **Buruknya:** DPS rendah atau tidak ada, atau pemotongan dividen.",
+            "Rasio Utang terhadap Ekuitas": "Mengukur proporsi utang yang digunakan untuk membiayai aset perusahaan relatif terhadap ekuitas pemegang saham. **Baiknya:** Rasio yang rendah lebih disukai karena menunjukkan stabilitas keuangan. **Buruknya:** Rasio yang tinggi (misal >1) menunjukkan ketergantungan besar pada utang dan risiko keuangan lebih tinggi.",
+            "Rasio Lancar": "Mengukur kemampuan perusahaan untuk memenuhi kewajiban jangka pendeknya dengan aset lancarnya. Dihitung sebagai Aset Lancar / Liabilitas Lancar. **Baiknya:** Rasio di atas 1,0 (ideal 1.5-2.0) umumnya dianggap sehat, menunjukkan likuiditas yang baik. **Buruknya:** Rasio terlalu rendah berarti risiko gagal bayar jangka pendek. Terlalu tinggi bisa berarti aset tidak produktif.",
+            "Quick Ratio": "Mirip dengan rasio lancar, tetapi tidak menyertakan persediaan (aset yang kurang likuid). Mengukur kemampuan perusahaan membayar kewajiban jangka pendeknya dengan aset yang paling likuid. Dihitung sebagai (Aset Lancar - Persediaan) / Liabilitas Lancar. **Baiknya:** Rasio di atas 1,0 umumnya dianggap sangat baik untuk likuiditas instan. **Buruknya:** Rasio yang rendah menunjukkan masalah likuiditas.",
+            "Margin Laba Bruto": "Persentase pendapatan yang tersisa setelah dikurangi biaya pokok penjualan. Mengukur efisiensi operasional inti perusahaan dalam memproduksi barang/jasa. **Baiknya:** Semakin tinggi margin, semakin efisien produksi. **Buruknya:** Margin yang rendah menunjukkan biaya produksi yang tinggi atau harga jual yang rendah.",
+            "Margin Laba Bersih": "Persentase pendapatan yang tersisa setelah semua beban (termasuk pajak) dikurangi. Mengukur profitabilitas keseluruhan perusahaan. **Baiknya:** Semakin tinggi margin, semakin besar keuntungan yang dihasilkan dari setiap rupiah pendapatan. **Buruknya:** Margin yang rendah menunjukkan perusahaan kurang efisien dalam mengelola biaya.",
+            "Operating Margin": "Persentase pendapatan yang tersisa setelah dikurangi biaya operasional (tetapi sebelum bunga dan pajak). Mengukur efisiensi manajemen operasional perusahaan dalam mengendalikan biaya. **Baiknya:** Semakin tinggi margin, semakin baik kinerja operasional inti. **Buruknya:** Margin yang rendah menunjukkan biaya operasional yang tinggi.",
+            "ROA": "Return on Assets. Mengukur seberapa efisien perusahaan menggunakan asetnya untuk menghasilkan laba. Dihitung sebagai Laba Bersih / Total Aset. **Baiknya:** Semakin tinggi ROA, semakin baik perusahaan dalam mengubah investasi aset menjadi keuntungan. **Buruknya:** ROA yang rendah menunjukkan penggunaan aset yang tidak efisien.",
+            "ROE": "Return on Equity. Mengukur seberapa efisien perusahaan menggunakan investasi ekuitas pemegang saham untuk menghasilkan laba. Dihitung sebagai Laba Bersih / Ekuitas. **Baiknya:** Semakin tinggi ROE, semakin efektif perusahaan menghasilkan laba dari dana yang diinvestasikan pemegang saham. **Buruknya:** ROE yang rendah menunjukkan perusahaan kurang efisien dalam menghasilkan laba dari ekuitas.",
+            "Rasio P/E": "Price-to-Earnings Ratio. Mengukur harga saham relatif terhadap laba per saham. Dihitung sebagai Harga Saham / EPS. **Baiknya:** Rasio P/E yang rendah mungkin menunjukkan saham undervalued. **Buruknya:** Rasio P/E yang tinggi dapat menunjukkan investor mengharapkan pertumbuhan laba di masa depan (overvalued jika terlalu tinggi tanpa pertumbuhan).",
+            "Rasio P/B": "Price-to-Book Ratio. Membandingkan harga pasar saham perusahaan dengan nilai buku per sahamnya. Dihitung sebagai Harga Saham / Book Value Per Share. **Baiknya:** Rasio di bawah 1,0 mungkin menunjukkan saham undervalued. **Buruknya:** Rasio tinggi berarti investor bersedia membayar lebih untuk aset perusahaan, sering karena potensi pertumbuhan.",
+            "Rasio P/S": "Price-to-Sales Ratio. Mengukur harga saham relatif terhadap pendapatan per saham. Dihitung sebagai Harga Saham / Revenue Per Share. Berguna untuk perusahaan yang belum menghasilkan laba. **Baiknya:** Rasio rendah mungkin menunjukkan undervalued. **Buruknya:** Rasio tinggi menunjukkan ekspektasi pertumbuhan penjualan yang sangat agresif.",
+            "Dividend Yield": "Dividen tahunan per saham dibagi dengan harga saham. Mengukur pengembalian dividen sebagai persentase dari harga saham. Dihitung sebagai (DPS / Harga Saham) * 100%. **Baiknya:** Semakin tinggi yield, semakin besar pengembalian dividen. **Buruknya:** Yield yang sangat tinggi bisa berarti harga saham turun atau dividen tidak berkelanjutan."
+        };
+
+        // Function to show messages
+        function showMessage(msg, isError = false, isLoading = false) {
+            messageText.innerHTML = msg; // Use innerHTML to allow for spinner
+            if (isLoading) {
+                messageText.innerHTML = `<div class="flex items-center"><div class="loading-spinner"></div><span class="ml-2">${msg}</span></div>`; // Adjusted flex for spinner and margin
+            } else {
+                messageText.textContent = msg;
+            }
+            messageContainer.classList.remove('hidden');
+            if (isError) {
+                messageContainer.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+                messageContainer.classList.remove('bg-green-100', 'border-green-400', 'text-green-700');
+            } else {
+                messageContainer.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
+                messageContainer.classList.remove('bg-red-100', 'border-red-400', 'text-red-700');
+            }
+        }
+
+        // Function to hide messages
+        function hideMessage() {
+            messageContainer.classList.add('hidden');
+        }
+
+        // Function to toggle loading state
+        function setLoading(isLoading) {
+            analyzeBtn.disabled = isLoading;
+            if (isLoading) {
+                buttonText.textContent = 'Menganalisis...';
+                loadingSpinner.classList.remove('hidden');
+                analyzeBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            } else {
+                buttonText.textContent = 'Mulai Analisis';
+                loadingSpinner.classList.add('hidden');
+                analyzeBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
+        // Function to extract text from PDF
+        async function extractTextFromPdf(file) {
+            const reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = async (event) => {
+                    try {
+                        const typedarray = new Uint8Array(event.target.result);
+                        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+                        let fullText = '';
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => item.str).join(' ');
+                            fullText += pageText + '\n';
+                        }
+                        resolve(fullText);
+                    } catch (error) {
+                        reject(new Error('Gagal membaca PDF: ' + error.message));
+                    }
+                };
+                reader.onerror = (error) => reject(new Error('Gagal membaca file: ' + error.message));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Function to create a table for displaying results
+        const createTable = (headers, rows, type = 'financials') => {
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'overflow-x-auto';
+            const table = document.createElement('table');
+            table.className = 'min-w-full bg-white border border-gray-200 rounded-md';
+            
+            let headerHtml = `<thead><tr class="bg-indigo-100">`;
+            headers.forEach(header => {
+                headerHtml += `<th class="py-2 px-4 border-b text-left text-sm font-semibold text-indigo-700">${header}</th>`;
+            });
+            headerHtml += `</tr></thead>`;
+
+            let bodyHtml = `<tbody>`;
+            rows.forEach(row => {
+                bodyHtml += `<tr>`;
+                let metricName = '';
+                let tooltipContent = '';
+
+                if (type === 'financials' || type === 'stats') {
+                    metricName = row.metric;
+                    tooltipContent = metricDefinitions[metricName] || 'Tidak ada deskripsi.';
+                    bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">
+                                    <div class="tooltip-container">
+                                        ${metricName}
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">${tooltipContent}</span>
+                                    </div>
+                                 </td>`;
+                    bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">${row.value}</td>`;
+                    bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">${row.period || 'Tidak Tersedia'}</td>`;
+                } else if (type === 'ratios' || type === 'valuation_ratios') {
+                    metricName = row.ratio;
+                    tooltipContent = metricDefinitions[metricName] || 'Tidak ada deskripsi.';
+                    bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">
+                                    <div class="tooltip-container">
+                                        ${metricName}
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">${tooltipContent}</span>
+                                    </div>
+                                 </td>`;
+                    bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">${row.value}</td>`;
+                    if (row.period) { 
+                         bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">${row.period}</td>`;
+                    } else if (type === 'ratios') { 
+                         bodyHtml += `<td class="py-2 px-4 border-b text-gray-800">Tidak Tersedia</td>`;
+                    }
+                }
+                bodyHtml += `</tr>`;
+            });
+            bodyHtml += `</tbody>`;
+
+            table.innerHTML = headerHtml + bodyHtml;
+            tableContainer.appendChild(table);
+            
+            // No need for explicit event listeners here due to CSS hover
+            return tableContainer;
+        };
+
+        // Removed Modal functions
+        // function openModal(metricName) { ... }
+        // function closeModal() { ... }
+
+        // Removed event delegation for tooltip icons, now CSS driven
+        // resultContent.addEventListener('click', (event) => { ... });
+
+
+        // Function to call Gemini API for financial analysis
+        const callGeminiAPI = async (promptText, currentStockPrice) => { // Changed to const function expression
+            const prompt = `Berikut adalah laporan keuangan perusahaan dalam format teks. Harga saham saat ini adalah Rp${currentStockPrice}.
+            Mohon analisis laporan ini untuk memberikan ringkasan fundamental perusahaan, termasuk:
+            1.  **Metrik Keuangan Utama (Key Financials)**: Total Aset, Total Liabilitas, Ekuitas, Pendapatan, Laba Bersih.
+            2.  **Statistik Kunci (Key Stats)**: Saham Beredar, EPS Saat Ini, Book Value Per Share, Revenue Per Share, Dividend Per Share.
+            3.  **Rasio-Rasio Penting (Key Ratios)**: Rasio Utang terhadap Ekuitas, Rasio Lancar, Quick Ratio, Margin Laba Bruto, Margin Laba Bersih, Operating Margin, ROA, ROE.
+            4.  **Rasio Valuasi (Valuation Ratios)**: Rasio P/E (Price-to-Earnings), Rasio P/B (Price-to-Book), Rasio P/S (Price-to-Sales), dan Dividend Yield. Hitung rasio ini menggunakan harga saham saat ini yang diberikan.
+            5.  **Ringkasan Arus Kas (dari Aktivitas Operasi)**.
+            6.  **Pertumbuhan EPS (%)**: Bandingkan 31 Maret 2025 dengan 31 Maret 2024.
+            7.  **Ringkasan Liabilitas**: Berikan ringkasan liabilitas secara **singkat dan padat**, menyoroti poin-poin penting.
+            8.  **Penilaian Harga Wajar Saham (Fair Value Assessment)**: Berikan penilaian kualitatif harga wajar saham secara **ringkas dan jelas ke inti**, berdasarkan data yang tersedia. Jelaskan secara singkat konsep Discounted Cash Flow (DCF) sebagai metode penilaian dan diskusikan apakah data yang tersedia cukup untuk perhitungan DCF yang akurat, atau faktor apa yang akan dibutuhkan.
+            9.  **Saran/Insight**: Berikan saran/insight secara **singkat dan terfokus**.
+
+            Sajikan hasilnya dalam format JSON yang terstruktur. Jika ada data yang tidak tersedia atau tidak dapat dihitung, sebutkan sebagai 'Tidak Tersedia'.
+
+            Contoh format JSON yang diharapkan:
+            {
+              "companyName": "Nama Perusahaan",
+              "analysisSummary": "Ringkasan analisis fundamental...",
+              "keyFinancials": [
+                { "metric": "Total Aset", "value": "RpX Juta", "period": "31 Maret 2025" }
+              ],
+              "keyStats": [
+                { "metric": "Saham Beredar", "value": "X lembar", "period": "31 Maret 2025" },
+                { "metric": "EPS Saat Ini", "value": "RpY", "period": "31 Maret 2025" }
+              ],
+              "keyRatios": [
+                { "ratio": "Rasio Utang terhadap Ekuitas", "value": "X.Y", "period": "31 Maret 2025" }
+              ],
+              "valuationRatios": [
+                { "ratio": "Rasio P/E", "value": "X.Y" },
+                { "ratio": "Rasio P/B", "value": "X.Y" }
+              ],
+              "cashFlowSummary": "Ringkasan arus kas dari aktivitas operasi...",
+              "epsGrowthPercentage": "+XX.YY%",
+              "liabilitiesSummary": "Ringkasan liabilitas...",
+              "fairValueAssessment": "Penilaian kualitatif harga wajar saham...",
+              "recommendations": "Saran/Insight..."
+            }
+
+            Berikut adalah teks laporan keuangan:
+            ${promptText}`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "companyName": { "type": "STRING" },
+                            "analysisSummary": { "type": "STRING" },
+                            "keyFinancials": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "metric": { "type": "STRING" },
+                                        "value": { "type": "STRING" },
+                                        "period": { "type": "STRING" }
+                                    },
+                                    "required": ["metric", "value", "period"]
+                                }
+                            },
+                            "keyStats": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "metric": { "type": "STRING" },
+                                        "value": { "type": "STRING" },
+                                        "period": { "type": "STRING" }
+                                    },
+                                    "required": ["metric", "value", "period"]
+                                }
+                            },
+                            "keyRatios": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "ratio": { "type": "STRING" },
+                                        "value": { "type": "STRING" },
+                                        "period": { "type": "STRING" }
+                                    },
+                                    "required": ["ratio", "value"]
+                                }
+                            },
+                            "valuationRatios": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "ratio": { "type": "STRING" },
+                                        "value": { "type": "STRING" }
+                                    },
+                                    "required": ["ratio", "value"]
+                                }
+                            },
+                            "cashFlowSummary": { "type": "STRING" },
+                            "epsGrowthPercentage": { "type": "STRING" },
+                            "liabilitiesSummary": { "type": "STRING" },
+                            "fairValueAssessment": { "type": "STRING" },
+                            "recommendations": { "type": "STRING" }
+                        },
+                        "required": ["companyName", "analysisSummary", "keyFinancials", "keyStats", "keyRatios", "valuationRatios", "cashFlowSummary", "epsGrowthPercentage", "liabilitiesSummary", "fairValueAssessment"]
+                    }
+                }
+            };
+
+            const apiKey = ""; // Canvas will automatically provide it in runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`API Error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+            }
+
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const jsonString = result.candidates[0].content.parts[0].text;
+                // Log the raw JSON string for debugging
+                console.log("Raw JSON string from:", jsonString);
+                try {
+                    return JSON.parse(jsonString);
+                } catch (e) {
+                    // More informative error message for JSON parsing failure
+                    throw new Error(`Gagal mengurai respons JSON . Pastikan format JSON valid. Detail: ${e.message}. Respons mentah: ${jsonString.substring(0, 200)}...`);
+                }
+            } else {
+                throw new Error('Respons tidak memiliki format yang diharapkan (candidates/content/parts kosong).');
+            }
+        }; // End of callGeminiAPI function expression
+
+        // Function to display analysis results
+        const displayResults = (data) => { // Changed to const function expression
+            resultContent.innerHTML = ''; // Clear previous results
+            analysisResult.classList.remove('hidden');
+
+            const createSection = (title, content) => {
+                const section = document.createElement('div');
+                section.className = 'bg-indigo-50 p-4 rounded-md shadow-sm';
+                section.innerHTML = `<h3 class="text-lg font-semibold text-indigo-800 mb-2">${title}</h3><p class="text-gray-700">${content}</p>`;
+                return section;
+            };
+
+            resultContent.appendChild(createSection('Nama Perusahaan', data.companyName || 'Tidak Tersedia'));
+            resultContent.appendChild(createSection('Ringkasan Analisis', data.analysisSummary || 'Tidak Tersedia'));
+
+            // Key Financials
+            const financialsSection = document.createElement('div');
+            financialsSection.className = 'bg-indigo-50 p-4 rounded-md shadow-sm';
+            financialsSection.innerHTML = `<h3 class="text-lg font-semibold text-indigo-800 mb-2">Metrik Keuangan Utama</h3>`;
+            if (data.keyFinancials && data.keyFinancials.length > 0) {
+                financialsSection.appendChild(createTable(['Metrik', 'Nilai', 'Periode'], data.keyFinancials, 'financials'));
+            } else {
+                financialsSection.innerHTML += `<p class="text-gray-700">Tidak ada metrik keuangan utama yang tersedia.</p>`;
+            }
+            resultContent.appendChild(financialsSection);
+
+            // Key Stats
+            const statsSection = document.createElement('div');
+            statsSection.className = 'bg-indigo-50 p-4 rounded-md shadow-sm';
+            statsSection.innerHTML = `<h3 class="text-lg font-semibold text-indigo-800 mb-2">Statistik Kunci</h3>`;
+            if (data.keyStats && data.keyStats.length > 0) {
+                statsSection.appendChild(createTable(['Metrik', 'Nilai', 'Periode'], data.keyStats, 'stats'));
+            } else {
+                statsSection.innerHTML += `<p class="text-gray-700">Tidak ada statistik kunci yang tersedia.</p>`;
+            }
+            resultContent.appendChild(statsSection);
+
+            // Key Ratios
+            const ratiosSection = document.createElement('div');
+            ratiosSection.className = 'bg-indigo-50 p-4 rounded-md shadow-sm';
+            ratiosSection.innerHTML = `<h3 class="text-lg font-semibold text-indigo-800 mb-2">Rasio-Rasio Penting</h3>`;
+            if (data.keyRatios && data.keyRatios.length > 0) {
+                ratiosSection.appendChild(createTable(['Rasio', 'Nilai', 'Periode'], data.keyRatios, 'ratios'));
+            } else {
+                ratiosSection.innerHTML += `<p class="text-gray-700">Tidak ada rasio penting yang tersedia.</p>`;
+            }
+            resultContent.appendChild(ratiosSection);
+
+            // Valuation Ratios
+            const valuationRatiosSection = document.createElement('div');
+            valuationRatiosSection.className = 'bg-indigo-50 p-4 rounded-md shadow-sm';
+            valuationRatiosSection.innerHTML = `<h3 class="text-lg font-semibold text-indigo-800 mb-2">Rasio Valuasi</h3>`;
+            if (data.valuationRatios && data.valuationRatios.length > 0) {
+                // For valuation ratios, period might not always be relevant or consistent, so omit it from header
+                valuationRatiosSection.appendChild(createTable(['Rasio', 'Nilai'], data.valuationRatios, 'valuation_ratios'));
+            } else {
+                valuationRatiosSection.innerHTML += `<p class="text-gray-700">Tidak ada rasio valuasi yang tersedia.</p>`;
+            }
+            resultContent.appendChild(valuationRatiosSection);
+
+
+            resultContent.appendChild(createSection('Ringkasan Arus Kas (dari Aktivitas Operasi)', data.cashFlowSummary || 'Tidak Tersedia'));
+            resultContent.appendChild(createSection('Pertumbuhan EPS', data.epsGrowthPercentage || 'Tidak Tersedia'));
+            resultContent.appendChild(createSection('Ringkasan Liabilitas', data.liabilitiesSummary || 'Tidak Tersedia'));
+            resultContent.appendChild(createSection('Penilaian Harga Wajar Saham', data.fairValueAssessment || 'Tidak Tersedia'));
+            if (data.recommendations) {
+                resultContent.appendChild(createSection('Saran/Insight', data.recommendations));
+            }
+        }; // End of displayResults function expression
+
+        // Event listener for analyze button
+        analyzeBtn.addEventListener('click', async () => {
+            const file = pdfUpload.files[0];
+            if (!file) {
+                showMessage('Mohon pilih file PDF terlebih dahulu.', true);
+                return;
+            }
+
+            const currentStockPrice = currentStockPriceInput.value;
+            if (!currentStockPrice || isNaN(currentStockPrice) || parseFloat(currentStockPrice) <= 0) {
+                showMessage('Mohon masukkan harga saham yang valid (angka positif) sebelum menganalisis.', true);
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                showMessage('Ukuran file terlalu besar. Maksimum 10MB.', true);
+                return;
+            }
+
+            hideMessage();
+            analysisResult.classList.add('hidden');
+            setLoading(true);
+
+            try {
+                showMessage('Membaca dan mengekstrak teks dari PDF...', false, true); // Added isLoading = true
+                const pdfText = await extractTextFromPdf(file);
+
+                showMessage('Menganalisis laporan keuangan. Mohon tunggu...', false, true); // Added isLoading = true
+                const analysisData = await callGeminiAPI(pdfText, parseFloat(currentStockPrice));
+
+                showMessage('Analisis selesai!', false, false); // isLoading = false
+                displayResults(analysisData);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(`Terjadi kesalahan: ${error.message}`, true, false); // isLoading = false
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>
