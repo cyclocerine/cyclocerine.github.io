@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Laporan Keuangan </title>
+    <title>Analisis Laporan Keuangan</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
@@ -145,7 +145,7 @@
 <body class="min-h-screen flex items-center justify-center">
     <div class="container bg-gray-50 p-6 rounded-xl shadow-lg w-full max-w-4xl" id="mainContent">
         <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">Analisis Laporan Keuangan</h1>
-        <p class="text-center text-gray-600 mb-8">Unggah laporan keuangan perusahaan Anda (format PDF).</p>
+        <p class="text-center text-gray-600 mb-8">Unggah laporan keuangan perusahaan Anda (format PDF) .</p>
 
         <div class="card">
             <label for="pdfUpload" class="block text-lg font-medium text-gray-700 mb-3">Pilih File Laporan Keuangan (PDF):</label>
@@ -492,12 +492,12 @@
                 result.candidates[0].content.parts.length > 0) {
                 const jsonString = result.candidates[0].content.parts[0].text;
                 // Log the raw JSON string for debugging
-                console.log("Raw JSON string from:", jsonString);
+                console.log("Raw JSON string from Gemini:", jsonString);
                 try {
                     return JSON.parse(jsonString);
                 } catch (e) {
                     // More informative error message for JSON parsing failure
-                    throw new Error(`Gagal mengurai respons JSON . Pastikan format JSON valid. Detail: ${e.message}. Respons mentah: ${jsonString.substring(0, 200)}...`);
+                    throw new Error(`Gagal mengurai respons JSON. Pastikan format JSON valid. Detail: ${e.message}. Respons mentah: ${jsonString.substring(0, 200)}...`);
                 }
             } else {
                 throw new Error('Respons tidak memiliki format yang diharapkan (candidates/content/parts kosong).');
