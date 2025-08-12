@@ -18,7 +18,7 @@ tapi ada juga yang diem-diem nunggu di background process.
 
 Gue gak tau kapan request ini bakal di-*resolve*,  
 tapi sejak PKKBN kemarin, ada satu *variable* yang nilainya berubah terus tiap lu ada di sekitar.  
-Dan gue cuma mau bilang, ini bukan sekedar *temporary data*—ini udah masuk ke storage permanen.
+Dan gue cuma mau bilang, ini bukan sekedar *temporary data* ini udah masuk ke storage permanen.
 
 ---
 id: 0x758A628
