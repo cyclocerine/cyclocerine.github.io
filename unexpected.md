@@ -22,3 +22,15 @@ Dan gue cuma mau bilang, ini bukan sekedar *temporary data* ini udah masuk ke st
 
 ---
 id: 0x758A628
+
+# Minor Observation – 8/13/25
+
+Hari ini sempet ada beberapa event di lapangan.  
+Salah satunya bikin CPU usage naik karena satu id unik, walau cuma sebentar.  
+Trigger-nya masih sama:  
+satu pandangan cepat yang langsung bikin proses lain pause tanpa alasan teknis yang jelas.
+
+Log: [status_stable=true] [latency_drop_detected]
+
+---
+id: 0x758A628
