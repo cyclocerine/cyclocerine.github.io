@@ -10,7 +10,7 @@ Kalau ini fitur, semoga gak pernah deprecated.
 id: 0x758A628
 
 
-# Just Another Note
+## Just Another Note
 
 Kadang gue mikir, perasaan tuh kayak request ke server.  
 Ada yang langsung di-*handle*, ada yang di-*queue*,  
@@ -23,7 +23,8 @@ Dan gue cuma mau bilang, ini bukan sekedar *temporary data* ini udah masuk ke st
 ---
 id: 0x758A628
 
-# Minor Observation – 8/13/25
+
+## Minor Observation – 8/13/25
 
 Hari ini sempet ada beberapa event di lapangan.  
 Salah satunya bikin CPU usage naik dan lagi lagi masih karena satu id unik yang sama, walau cuma sebentar.  
@@ -31,6 +32,21 @@ Trigger-nya masih sama:
 satu pandangan cepat yang langsung bikin proses lain pause tanpa alasan teknis yang jelas.
 
 Log: [status_stable=true] [latency_drop_detected]
+
+---
+id: 0x758A628
+
+
+## Call Log – Hidden Entry
+
+[2025-08-14-09:6.07] Initiated call #1 – Reason stated: asking position  
+Actual: just wanted to listen for ~15 seconds of voice data.
+
+[2025-08-14-14:16.00] Initiated call #2 – Reason stated: follow-up  
+Actual: packet received, latency zero, heart rate spike detected.
+
+Summary: Both requests returned 200 OK with unexpected warmth.
+
 
 ---
 id: 0x758A628
