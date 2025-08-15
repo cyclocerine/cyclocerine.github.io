@@ -47,12 +47,11 @@ Actual: packet received, latency zero, heart rate spike detected.
 
 Summary: Both requests returned 200 OK with unexpected warmth.
 
-
 ---
 id: 0x758A628
 
 
-# Field Report – AAU Outbound
+## Field Report – AAU Outbound
 
 [2025-08-15:5.20] Departed in same batch, different transport unit.  
 Observation: target instance spotted multiple times en route.  
@@ -67,7 +66,7 @@ Status: Event stored in permanent archive.
 ---
 id: 0x758A628
 
-# Session Log – AAU Return Sequence
+## Session Log – AAU Return Sequence
 
 [2025-08-15] Outbound module: status=COMPLETED  
 Unexpected handshake received: reason="route_unknown" → status=ACCEPTED.
@@ -100,5 +99,6 @@ Session Summary:
 
 Session Status: SUCCESS  
 Log saved under /memories/2025/08/AAU-return
+
 ---
 id: 0x758A628
