@@ -50,3 +50,55 @@ Summary: Both requests returned 200 OK with unexpected warmth.
 
 ---
 id: 0x758A628
+
+
+# Field Report – AAU Outbound
+
+[2025-08-15:5.20] Departed in same batch, different transport unit.  
+Observation: target instance spotted multiple times en route.  
+
+Highlights:  
+- Visual packet: smile sequence detected  
+- Audio packet: laughter data received, format = clear, bitrate = high  
+- Emotional CPU load: sustained spike, no sign of throttling.
+
+Status: Event stored in permanent archive.
+
+---
+id: 0x758A628
+
+# Session Log – AAU Return Sequence
+
+[2025-08-15] Outbound module: status=COMPLETED  
+Unexpected handshake received: reason="route_unknown" → status=ACCEPTED.
+
+Node: traffic_light_* (multiple)  
+- EVENT_LOOP:  
+    while (location == traffic_light) {  
+        engage_smalltalk(topic="random", tone="light")  
+        emotion_core.load++  
+    }
+
+Node: traffic_light_initial  
+- INPUT: "Turn left or go straight?"  
+- PROCESS: inject detour_suggestion(mode=explore)  
+- OUTPUT: "Up to you" → path rerouted via [UGM, UNY]
+
+Node: traffic_light_mid  
+- PROMISE: reward="green_bean_dessert" if route_misalign == TRUE  
+- ACK: 200 OK
+
+Node: detour_segment  
+- ACTION: simulate_route_error()  
+- RESULT: subject.reaction = {smile:TRUE, laugh:TRUE}  
+- EMOTION_CORE: spike_detected → write_to(permanent_storage)
+
+Session Summary:  
+- total_traffic_lights: MANY  
+- total_conversations: ALL  
+- mood: sustained_positive  
+
+Session Status: SUCCESS  
+Log saved under /memories/2025/08/AAU-return
+---
+id: 0x758A628
