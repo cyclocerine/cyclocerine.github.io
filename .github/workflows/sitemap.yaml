@@ -17,7 +17,7 @@ jobs:
       - name: Generate sitemap
         uses: cicirello/generate-sitemap@v1
         with:
-          base-url-path: 'https://cyclocerine.github.io/'  # Correct input name
+          base-url-path: 'https://cyclocerine.space/'  # Correct input name
 
       - name: Check for changes
         id: changes
