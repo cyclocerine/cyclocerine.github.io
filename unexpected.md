@@ -168,7 +168,7 @@ Outcome: memory archived under /chat/wa/2025-08
 ---
 id: 0x758A628
 
-## "What Outshines You"
+## "What Outshines You?"
 ```bash
 Your gaze can the universe hold more grace?
 Oceans bow, silenced by your calm.
