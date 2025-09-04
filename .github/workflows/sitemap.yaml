@@ -3,7 +3,7 @@ name: Generate Sitemap
 on:
   push:
     branches:
-      - main  # Change this if your default branch name is different
+      - main 
 
 jobs:
   build:
@@ -12,27 +12,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Required to get the full commit history
+          fetch-depth: 0
 
       - name: Generate sitemap
         uses: cicirello/generate-sitemap@v1
         with:
-          base-url-path: 'https://cyclocerine.space/'  # Correct input name
-
-      - name: Check for changes
-        id: changes
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add sitemap.xml
-          if git diff --cached --quiet; then
-            echo "CHANGES_DETECTED=false" >> $GITHUB_ENV
-          else
-            echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
-          fi
+          base-url-path: 'https://cyclocerine.space/'
 
       - name: Commit and push sitemap
-        if: env.CHANGES_DETECTED == 'true'
         run: |
-          git commit -m "Update sitemap"
-          git push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml
+          
+          # Cek apakah ada perubahan sebelum melakukan commit
+          git diff --cached --exit-code || (
+            git commit -m "Update sitemap"
+            git push
+          )
