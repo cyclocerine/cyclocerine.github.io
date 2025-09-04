@@ -20,7 +20,6 @@
             margin: 0;
             background-color: #f0f2f5;
             color: #333;
-            overflow: hidden;
             height: 100vh;
         }
 
@@ -93,22 +92,17 @@
             align-items: center;
             position: relative;
             padding: 20px;
+            overflow: auto; /* Mengaktifkan scroll pada konten utama */
         }
-
+        
         .canvas-wrapper {
-            max-width: 100%;
-            max-height: 100%;
-            overflow: auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-shrink: 0; /* Mencegah wrapper menyusut */
         }
-
+        
         .canvas-container {
             position: relative;
             background-color: #dcdde1;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            flex-shrink: 0;
         }
         
         #canvas {
@@ -649,12 +643,10 @@
         }
 
         function handleDrag(e) {
-            if (!selectedPhoto) return;
-            const photoRect = selectedPhoto.getBoundingClientRect();
-            const canvasRect = canvas.getBoundingClientRect();
+            if (!selectedPhoto || !isDragging) return;
             
-            let newX = e.clientX - canvasRect.left - startX;
-            let newY = e.clientY - canvasRect.top - startY;
+            let newX = parseFloat(selectedPhoto.dataset.x) + (e.clientX - startX);
+            let newY = parseFloat(selectedPhoto.dataset.y) + (e.clientY - startY);
             
             // Snap-to-grid if Shift is held down
             const gridSize = 20;
@@ -664,6 +656,8 @@
             }
 
             // Snap-to-center
+            const canvasRect = canvas.getBoundingClientRect();
+            const photoRect = selectedPhoto.getBoundingClientRect();
             const canvasCenterX = canvasRect.width / 2;
             const canvasCenterY = canvasRect.height / 2;
             const snapThreshold = 5;
@@ -684,7 +678,7 @@
         }
 
         function handleResize(e) {
-            if (!selectedPhoto) return;
+            if (!selectedPhoto || !isResizing) return;
             const rect = selectedPhoto.getBoundingClientRect();
             const aspectRatio = parseFloat(selectedPhoto.dataset.aspectRatio);
             
@@ -696,7 +690,7 @@
         }
 
         function handleRotate(e) {
-            if (!selectedPhoto) return;
+            if (!selectedPhoto || !isRotating) return;
             const rect = selectedPhoto.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
@@ -723,10 +717,9 @@
                 selectedPhoto = e.target;
                 selectedPhoto.classList.add('selected');
                 
-                const photoRect = selectedPhoto.getBoundingClientRect();
-                const canvasRect = canvas.getBoundingClientRect();
-                startX = e.clientX - (photoRect.left - canvasRect.left);
-                startY = e.clientY - (photoRect.top - canvasRect.top);
+                // Simpan posisi awal kursor
+                startX = e.clientX;
+                startY = e.clientY;
                 e.preventDefault();
             }
         });
