@@ -21,6 +21,7 @@
             background-color: #f0f2f5;
             color: #333;
             overflow: hidden;
+            height: 100vh;
         }
 
         .sidebar {
@@ -90,15 +91,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
             position: relative;
+            padding: 20px;
+        }
+
+        .canvas-wrapper {
+            max-width: 100%;
+            max-height: 100%;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .canvas-container {
             position: relative;
             background-color: #dcdde1;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
+            flex-shrink: 0;
         }
         
         #canvas {
@@ -241,6 +251,33 @@
             box-sizing: border-box;
             pointer-events: none;
         }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+        .modal textarea {
+            width: 100%;
+            height: 200px;
+            resize: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -294,7 +331,9 @@
 
         <div class="button-group">
             <button id="bring-front-btn">Bawa ke Depan</button>
+            <button id="send-back-btn">Kirim ke Belakang</button>
             <button id="rotate-90">Putar 90°</button>
+            <button id="duplicate-btn">Duplikat (Ctrl+D)</button>
             <button id="undo-btn" disabled>Undo (Ctrl+Z)</button>
             <button id="redo-btn" disabled>Redo (Ctrl+Y)</button>
         </div>
@@ -304,17 +343,32 @@
             <button id="pdf-btn">Simpan sebagai PDF</button>
             <button id="export-png-btn">Ekspor PNG</button>
             <button id="export-jpg-btn">Ekspor JPG</button>
+            <button id="export-layout-btn">Ekspor Layout</button>
+            <button id="import-layout-btn">Impor Layout</button>
         </div>
 
     </div>
     
     <div class="main-content">
-        <div class="canvas-container">
-            <div id="ruler-horizontal" class="ruler horizontal"></div>
-            <div id="ruler-vertical" class="ruler vertical"></div>
-            <div id="grid-overlay" class="grid-overlay"></div>
-            <div id="bleed-area" class="bleed-area"></div>
-            <div id="canvas"></div>
+        <div class="canvas-wrapper">
+            <div class="canvas-container">
+                <div id="ruler-horizontal" class="ruler horizontal"></div>
+                <div id="ruler-vertical" class="ruler vertical"></div>
+                <div id="grid-overlay" class="grid-overlay"></div>
+                <div id="bleed-area" class="bleed-area"></div>
+                <div id="canvas"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal untuk Impor Layout -->
+    <div id="import-modal" class="modal">
+        <h3>Impor Layout dari JSON</h3>
+        <p>Tempel JSON layout di bawah ini:</p>
+        <textarea id="import-textarea"></textarea>
+        <div class="modal-buttons">
+            <button id="import-cancel-btn">Batal</button>
+            <button id="import-confirm-btn">Impor</button>
         </div>
     </div>
 
@@ -344,15 +398,24 @@
         const undoBtn = document.getElementById('undo-btn');
         const redoBtn = document.getElementById('redo-btn');
         const bringFrontBtn = document.getElementById('bring-front-btn');
+        const sendBackBtn = document.getElementById('send-back-btn');
+        const duplicateBtn = document.getElementById('duplicate-btn');
+        const exportLayoutBtn = document.getElementById('export-layout-btn');
+        const importLayoutBtn = document.getElementById('import-layout-btn');
+        const importModal = document.getElementById('import-modal');
+        const importTextarea = document.getElementById('import-textarea');
+        const importCancelBtn = document.getElementById('import-cancel-btn');
+        const importConfirmBtn = document.getElementById('import-confirm-btn');
         
         let selectedPhoto = null;
         let isDragging = false;
         let isResizing = false;
         let isRotating = false;
-        let lastX = 0;
-        let lastY = 0;
+        let startX = 0;
+        let startY = 0;
         let history = [];
         let historyIndex = -1;
+        let minZIndex = 1;
         let maxZIndex = 1;
 
         const UNITS = {
@@ -418,7 +481,7 @@
             if (rulerToggle.checked) {
                 const pxToCm = 10 * UNITS.mm;
                 
-                // Horizontal ruler
+                // Penggaris Horizontal
                 for (let i = 0; i < canvas.offsetWidth; i += pxToCm) {
                     const mark = document.createElement('span');
                     mark.className = 'mark';
@@ -434,7 +497,7 @@
                     horizontalRuler.appendChild(label);
                 }
                 
-                // Vertical ruler
+                // Penggaris Vertikal
                 for (let i = 0; i < canvas.offsetHeight; i += pxToCm) {
                     const mark = document.createElement('span');
                     mark.className = 'mark';
@@ -477,22 +540,14 @@
 
         function getCanvasState() {
             const photos = Array.from(canvas.children).map(photo => {
-                const rect = photo.getBoundingClientRect();
-                const canvasRect = canvas.getBoundingClientRect();
-                
-                let transform = photo.style.transform;
-                let translateMatch = transform.match(/translate\(([^)]+)\)/);
-                let rotateMatch = transform.match(/rotate\(([^)]+)\)/);
-                let scaleMatch = transform.match(/scale\(([^)]+)\)/);
-                
                 return {
                     id: photo.id,
                     src: photo.dataset.originalSrc,
                     width: photo.offsetWidth,
                     height: photo.offsetHeight,
-                    x: translateMatch ? parseFloat(translateMatch[1].split(',')[0]) : 0,
-                    y: translateMatch ? parseFloat(translateMatch[1].split(',')[1]) : 0,
-                    angle: rotateMatch ? parseFloat(rotateMatch[1]) : 0,
+                    x: parseFloat(photo.dataset.x),
+                    y: parseFloat(photo.dataset.y),
+                    angle: parseFloat(photo.dataset.angle),
                     aspectRatio: parseFloat(photo.dataset.aspectRatio),
                     zIndex: parseInt(photo.style.zIndex) || 1,
                 };
@@ -504,6 +559,7 @@
             canvas.innerHTML = '';
             const photos = JSON.parse(state);
             maxZIndex = 1;
+            minZIndex = 1;
             photos.forEach(photoState => {
                 const photoDiv = createPhotoElement(photoState.src, photoState.aspectRatio);
                 photoDiv.id = photoState.id;
@@ -511,9 +567,16 @@
                 photoDiv.style.height = `${photoState.height}px`;
                 photoDiv.style.transform = `translate(${photoState.x}px, ${photoState.y}px) rotate(${photoState.angle}deg)`;
                 photoDiv.style.zIndex = photoState.zIndex;
+                photoDiv.dataset.x = photoState.x;
+                photoDiv.dataset.y = photoState.y;
+                photoDiv.dataset.angle = photoState.angle;
+
                 canvas.appendChild(photoDiv);
                 if (photoState.zIndex > maxZIndex) {
                     maxZIndex = photoState.zIndex;
+                }
+                if (photoState.zIndex < minZIndex) {
+                    minZIndex = photoState.zIndex;
                 }
             });
             saveState();
@@ -544,16 +607,19 @@
             }
         }
 
-        function createPhotoElement(src, aspectRatio) {
+        function createPhotoElement(src, aspectRatio, zIndex = maxZIndex + 1) {
             const photoDiv = document.createElement('div');
             photoDiv.className = 'photo';
             photoDiv.id = `photo-${Date.now()}`;
             
-            // Store original source and aspect ratio
             photoDiv.dataset.originalSrc = src;
             photoDiv.dataset.aspectRatio = aspectRatio;
+            photoDiv.dataset.x = '0';
+            photoDiv.dataset.y = '0';
+            photoDiv.dataset.angle = '0';
+            photoDiv.style.zIndex = zIndex;
 
-            const img = document.createElement('img');
+            const img = new Image();
             img.src = src;
             photoDiv.appendChild(img);
 
@@ -569,25 +635,23 @@
                 e.stopPropagation();
                 deselectPhoto();
                 selectedPhoto = photoDiv;
-                photoDiv.classList.add('selected');
+                selectedPhoto.classList.add('selected');
             });
 
             return photoDiv;
         }
 
-        function getTransformValues(element) {
-            const style = window.getComputedStyle(element);
-            const matrix = new DOMMatrixReadOnly(style.transform);
-            let angle = Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
-            let translateX = matrix.e;
-            let translateY = matrix.f;
-            return { angle, translateX, translateY };
+        function applyTransform(element) {
+            const x = parseFloat(element.dataset.x);
+            const y = parseFloat(element.dataset.y);
+            const angle = parseFloat(element.dataset.angle);
+            element.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
         }
 
         function handleDrag(e) {
             if (!selectedPhoto) return;
-            let currentX = e.clientX - lastX;
-            let currentY = e.clientY - lastY;
+            let currentX = parseFloat(selectedPhoto.dataset.x) + (e.clientX - startX);
+            let currentY = parseFloat(selectedPhoto.dataset.y) + (e.clientY - startY);
             
             // Snap-to-grid if Shift is held down
             const gridSize = 20;
@@ -602,16 +666,20 @@
             const canvasCenterX = canvasRect.width / 2;
             const canvasCenterY = canvasRect.height / 2;
             const snapThreshold = 5;
+            
+            const photoCurrentX = currentX + photoRect.width / 2;
+            const photoCurrentY = currentY + photoRect.height / 2;
 
-            if (Math.abs(currentX + photoRect.width / 2 - canvasCenterX) < snapThreshold) {
+            if (Math.abs(photoCurrentX - canvasCenterX) < snapThreshold) {
                 currentX = canvasCenterX - photoRect.width / 2;
             }
-            if (Math.abs(currentY + photoRect.height / 2 - canvasCenterY) < snapThreshold) {
+            if (Math.abs(photoCurrentY - canvasCenterY) < snapThreshold) {
                 currentY = canvasCenterY - photoRect.height / 2;
             }
 
-            const { angle } = getTransformValues(selectedPhoto);
-            selectedPhoto.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${angle}deg)`;
+            selectedPhoto.dataset.x = currentX;
+            selectedPhoto.dataset.y = currentY;
+            applyTransform(selectedPhoto);
         }
 
         function handleResize(e) {
@@ -633,8 +701,8 @@
             const centerY = rect.top + rect.height / 2;
             
             const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI + 90;
-            const { translateX, translateY } = getTransformValues(selectedPhoto);
-            selectedPhoto.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${angle}deg)`;
+            selectedPhoto.dataset.angle = angle;
+            applyTransform(selectedPhoto);
         }
 
         document.addEventListener('mousedown', e => {
@@ -653,9 +721,8 @@
                 deselectPhoto();
                 selectedPhoto = e.target;
                 selectedPhoto.classList.add('selected');
-                const { translateX, translateY } = getTransformValues(selectedPhoto);
-                lastX = e.clientX - translateX;
-                lastY = e.clientY - translateY;
+                startX = e.clientX;
+                startY = e.clientY;
                 e.preventDefault();
             }
         });
@@ -687,10 +754,12 @@
 
         document.addEventListener('keydown', e => {
             if (selectedPhoto) {
-                const step = 1;
-                let { translateX, translateY, angle } = getTransformValues(selectedPhoto);
-                
+                const step = 10;
                 let moved = false;
+                const currentX = parseFloat(selectedPhoto.dataset.x);
+                const currentY = parseFloat(selectedPhoto.dataset.y);
+                const currentAngle = parseFloat(selectedPhoto.dataset.angle);
+
                 switch (e.key) {
                     case 'Delete':
                         selectedPhoto.remove();
@@ -699,39 +768,54 @@
                         moved = true;
                         break;
                     case 'ArrowUp':
-                        selectedPhoto.style.transform = `translate(${translateX}px, ${translateY - step}px) rotate(${angle}deg)`;
+                        selectedPhoto.dataset.y = currentY - step;
                         moved = true;
                         e.preventDefault();
                         break;
                     case 'ArrowDown':
-                        selectedPhoto.style.transform = `translate(${translateX}px, ${translateY + step}px) rotate(${angle}deg)`;
+                        selectedPhoto.dataset.y = currentY + step;
                         moved = true;
                         e.preventDefault();
                         break;
                     case 'ArrowLeft':
-                        selectedPhoto.style.transform = `translate(${translateX - step}px, ${translateY}px) rotate(${angle}deg)`;
+                        selectedPhoto.dataset.x = currentX - step;
                         moved = true;
                         e.preventDefault();
                         break;
                     case 'ArrowRight':
-                        selectedPhoto.style.transform = `translate(${translateX + step}px, ${translateY}px) rotate(${angle}deg)`;
+                        selectedPhoto.dataset.x = currentX + step;
                         moved = true;
                         e.preventDefault();
                         break;
                 }
-
-                if (e.ctrlKey) {
-                    if (e.key === 'z' || e.key === 'Z') {
-                        undo();
-                        e.preventDefault();
-                    } else if (e.key === 'y' || e.key === 'Y') {
-                        redo();
-                        e.preventDefault();
-                    }
-                }
                 
                 if (moved) {
+                    applyTransform(selectedPhoto);
                     updateHistory('move', getCanvasState());
+                }
+            }
+
+            if (e.ctrlKey || e.metaKey) { // Handle both Ctrl (Windows/Linux) and Cmd (Mac)
+                if (e.key === 'z' || e.key === 'Z') {
+                    undo();
+                    e.preventDefault();
+                } else if (e.key === 'y' || e.key === 'Y') {
+                    redo();
+                    e.preventDefault();
+                } else if (e.key === 'd' || e.key === 'D') {
+                    if (selectedPhoto) {
+                        const state = getCanvasState().find(p => p.id === selectedPhoto.id);
+                        const newPhotoDiv = createPhotoElement(state.src, state.aspectRatio, maxZIndex + 1);
+                        newPhotoDiv.style.width = `${state.width}px`;
+                        newPhotoDiv.style.height = `${state.height}px`;
+                        newPhotoDiv.dataset.x = parseFloat(state.x) + 20;
+                        newPhotoDiv.dataset.y = parseFloat(state.y) + 20;
+                        newPhotoDiv.dataset.angle = parseFloat(state.angle);
+                        applyTransform(newPhotoDiv);
+                        canvas.appendChild(newPhotoDiv);
+                        updateHistory('duplicate', getCanvasState());
+                    }
+                    e.preventDefault();
                 }
             }
         });
@@ -761,7 +845,9 @@
                         // Set initial size and position
                         photoDiv.style.width = '200px';
                         photoDiv.style.height = `${200 / aspectRatio}px`;
-                        photoDiv.style.transform = `translate(50px, 50px)`;
+                        photoDiv.dataset.x = '50';
+                        photoDiv.dataset.y = '50';
+                        applyTransform(photoDiv);
                         
                         canvas.appendChild(photoDiv);
                         updateHistory('add', getCanvasState());
@@ -797,10 +883,11 @@
         
         rotate90Btn.addEventListener('click', () => {
             if (selectedPhoto) {
-                const { translateX, translateY, angle } = getTransformValues(selectedPhoto);
-                let newAngle = angle + 90;
+                let currentAngle = parseFloat(selectedPhoto.dataset.angle);
+                let newAngle = currentAngle + 90;
                 if (newAngle >= 360) newAngle -= 360;
-                selectedPhoto.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${newAngle}deg)`;
+                selectedPhoto.dataset.angle = newAngle;
+                applyTransform(selectedPhoto);
                 updateHistory('rotate', getCanvasState());
             }
         });
@@ -812,9 +899,47 @@
                 updateHistory('bring-front', getCanvasState());
             }
         });
+
+        sendBackBtn.addEventListener('click', () => {
+            if (selectedPhoto) {
+                minZIndex--;
+                selectedPhoto.style.zIndex = minZIndex;
+                updateHistory('send-back', getCanvasState());
+            }
+        });
         
         undoBtn.addEventListener('click', undo);
         redoBtn.addEventListener('click', redo);
+
+        exportLayoutBtn.addEventListener('click', () => {
+            const layoutState = JSON.stringify(getCanvasState(), null, 2);
+            const blob = new Blob([layoutState], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'layout.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+
+        importLayoutBtn.addEventListener('click', () => {
+            importModal.style.display = 'block';
+        });
+
+        importCancelBtn.addEventListener('click', () => {
+            importModal.style.display = 'none';
+        });
+
+        importConfirmBtn.addEventListener('click', () => {
+            try {
+                const importedState = JSON.parse(importTextarea.value);
+                restoreCanvasState(JSON.stringify(importedState));
+                updateHistory('import', getCanvasState());
+                importModal.style.display = 'none';
+            } catch (error) {
+                alert('JSON tidak valid. Pastikan formatnya benar.');
+            }
+        });
 
         // --- Fungsi Ekspor ---
         async function captureCanvas() {
