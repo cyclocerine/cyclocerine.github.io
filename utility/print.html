@@ -121,6 +121,7 @@
         
         .photo.selected {
             outline-color: var(--active-color);
+            z-index: 100;
         }
 
         .photo img {
@@ -131,18 +132,18 @@
         }
         
         .photo .resize-handle {
-            width: 10px;
-            height: 10px;
+            width: 14px;
+            height: 14px;
             background-color: var(--active-color);
-            border: 1px solid #fff;
+            border: 2px solid #fff;
             border-radius: 50%;
             position: absolute;
             pointer-events: auto;
         }
         
         .photo .resize-handle.bottom-right {
-            bottom: -5px;
-            right: -5px;
+            bottom: -7px;
+            right: -7px;
             cursor: nwse-resize;
         }
         
@@ -292,6 +293,7 @@
         </div>
 
         <div class="button-group">
+            <button id="bring-front-btn">Bawa ke Depan</button>
             <button id="rotate-90">Putar 90°</button>
             <button id="undo-btn" disabled>Undo (Ctrl+Z)</button>
             <button id="redo-btn" disabled>Redo (Ctrl+Y)</button>
@@ -317,8 +319,6 @@
     </div>
 
     <!-- Pengecualian: Library eksternal untuk fungsionalitas ekspor yang kompleks. -->
-    <!-- html2canvas digunakan untuk merender DOM ke elemen canvas. -->
-    <!-- jspdf digunakan untuk membuat dan mengunduh file PDF. -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
@@ -343,6 +343,7 @@
         const exportJpgBtn = document.getElementById('export-jpg-btn');
         const undoBtn = document.getElementById('undo-btn');
         const redoBtn = document.getElementById('redo-btn');
+        const bringFrontBtn = document.getElementById('bring-front-btn');
         
         let selectedPhoto = null;
         let isDragging = false;
@@ -352,6 +353,7 @@
         let lastY = 0;
         let history = [];
         let historyIndex = -1;
+        let maxZIndex = 1;
 
         const UNITS = {
             mm: 3.7795275591, // 1 mm = 3.7795275591 px pada 96 DPI
@@ -391,8 +393,6 @@
 
         function updateBleedArea() {
             const bleedPx = parseFloat(bleedSizeInput.value) * UNITS.mm;
-            const marginX = parseFloat(marginXInput.value);
-            const marginY = parseFloat(marginYInput.value);
             const canvasWidth = canvas.offsetWidth;
             const canvasHeight = canvas.offsetHeight;
             
@@ -416,26 +416,38 @@
             verticalRuler.innerHTML = '';
 
             if (rulerToggle.checked) {
-                const widthCm = canvas.offsetWidth / UNITS.mm / 10;
-                const heightCm = canvas.offsetHeight / UNITS.mm / 10;
-                const cmPerMark = 10;
+                const pxToCm = 10 * UNITS.mm;
                 
-                // Penggaris Horizontal
-                for (let i = 0; i < widthCm; i += cmPerMark) {
+                // Horizontal ruler
+                for (let i = 0; i < canvas.offsetWidth; i += pxToCm) {
                     const mark = document.createElement('span');
-                    mark.className = 'mark major';
-                    mark.style.left = `${(i * 10 * UNITS.mm) / canvas.offsetWidth * 100}%`;
-                    mark.innerText = `${i}cm`;
+                    mark.className = 'mark';
+                    if (i % (10 * pxToCm) === 0) mark.className += ' major';
+                    mark.style.left = `${i}px`;
+                    
+                    const label = document.createElement('span');
+                    label.className = 'label';
+                    label.innerText = `${Math.round(i / pxToCm * 10)}cm`;
+                    label.style.left = `${i + 2}px`;
+
                     horizontalRuler.appendChild(mark);
+                    horizontalRuler.appendChild(label);
                 }
                 
-                // Penggaris Vertikal
-                for (let i = 0; i < heightCm; i += cmPerMark) {
+                // Vertical ruler
+                for (let i = 0; i < canvas.offsetHeight; i += pxToCm) {
                     const mark = document.createElement('span');
-                    mark.className = 'mark major';
-                    mark.style.top = `${(i * 10 * UNITS.mm) / canvas.offsetHeight * 100}%`;
-                    mark.innerText = `${i}cm`;
+                    mark.className = 'mark';
+                    if (i % (10 * pxToCm) === 0) mark.className += ' major';
+                    mark.style.top = `${i}px`;
+
+                    const label = document.createElement('span');
+                    label.className = 'label';
+                    label.innerText = `${Math.round(i / pxToCm * 10)}cm`;
+                    label.style.top = `${i + 2}px`;
+                    
                     verticalRuler.appendChild(mark);
+                    verticalRuler.appendChild(label);
                 }
 
                 horizontalRuler.style.display = 'block';
@@ -446,11 +458,16 @@
             }
         }
 
+        function saveState() {
+            localStorage.setItem('canvasState', JSON.stringify(getCanvasState()));
+        }
+
         function updateHistory(action, state) {
             history = history.slice(0, historyIndex + 1);
             history.push({ action, state: JSON.stringify(state) });
             historyIndex++;
             updateUndoRedoButtons();
+            saveState();
         }
 
         function updateUndoRedoButtons() {
@@ -462,20 +479,22 @@
             const photos = Array.from(canvas.children).map(photo => {
                 const rect = photo.getBoundingClientRect();
                 const canvasRect = canvas.getBoundingClientRect();
-                const transform = photo.style.transform;
-                let angle = 0;
-                if (transform) {
-                    const matrix = new DOMMatrixReadOnly(transform);
-                    angle = Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
-                }
+                
+                let transform = photo.style.transform;
+                let translateMatch = transform.match(/translate\(([^)]+)\)/);
+                let rotateMatch = transform.match(/rotate\(([^)]+)\)/);
+                let scaleMatch = transform.match(/scale\(([^)]+)\)/);
+                
                 return {
                     id: photo.id,
-                    src: photo.querySelector('img').src,
-                    x: rect.left - canvasRect.left,
-                    y: rect.top - canvasRect.top,
-                    width: rect.width,
-                    height: rect.height,
-                    angle: angle,
+                    src: photo.dataset.originalSrc,
+                    width: photo.offsetWidth,
+                    height: photo.offsetHeight,
+                    x: translateMatch ? parseFloat(translateMatch[1].split(',')[0]) : 0,
+                    y: translateMatch ? parseFloat(translateMatch[1].split(',')[1]) : 0,
+                    angle: rotateMatch ? parseFloat(rotateMatch[1]) : 0,
+                    aspectRatio: parseFloat(photo.dataset.aspectRatio),
+                    zIndex: parseInt(photo.style.zIndex) || 1,
                 };
             });
             return photos;
@@ -484,16 +503,20 @@
         function restoreCanvasState(state) {
             canvas.innerHTML = '';
             const photos = JSON.parse(state);
+            maxZIndex = 1;
             photos.forEach(photoState => {
-                const photoDiv = createPhotoElement(photoState.src);
+                const photoDiv = createPhotoElement(photoState.src, photoState.aspectRatio);
                 photoDiv.id = photoState.id;
-                photoDiv.style.left = `${photoState.x}px`;
-                photoDiv.style.top = `${photoState.y}px`;
                 photoDiv.style.width = `${photoState.width}px`;
                 photoDiv.style.height = `${photoState.height}px`;
-                photoDiv.style.transform = `rotate(${photoState.angle}deg)`;
+                photoDiv.style.transform = `translate(${photoState.x}px, ${photoState.y}px) rotate(${photoState.angle}deg)`;
+                photoDiv.style.zIndex = photoState.zIndex;
                 canvas.appendChild(photoDiv);
+                if (photoState.zIndex > maxZIndex) {
+                    maxZIndex = photoState.zIndex;
+                }
             });
+            saveState();
         }
 
         function undo() {
@@ -521,10 +544,15 @@
             }
         }
 
-        function createPhotoElement(src) {
+        function createPhotoElement(src, aspectRatio) {
             const photoDiv = document.createElement('div');
             photoDiv.className = 'photo';
             photoDiv.id = `photo-${Date.now()}`;
+            
+            // Store original source and aspect ratio
+            photoDiv.dataset.originalSrc = src;
+            photoDiv.dataset.aspectRatio = aspectRatio;
+
             const img = document.createElement('img');
             img.src = src;
             photoDiv.appendChild(img);
@@ -547,52 +575,55 @@
             return photoDiv;
         }
 
+        function getTransformValues(element) {
+            const style = window.getComputedStyle(element);
+            const matrix = new DOMMatrixReadOnly(style.transform);
+            let angle = Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
+            let translateX = matrix.e;
+            let translateY = matrix.f;
+            return { angle, translateX, translateY };
+        }
+
         function handleDrag(e) {
             if (!selectedPhoto) return;
-            const rect = selectedPhoto.getBoundingClientRect();
-            const canvasRect = canvas.getBoundingClientRect();
+            let currentX = e.clientX - lastX;
+            let currentY = e.clientY - lastY;
             
-            let newX = e.clientX - lastX;
-            let newY = e.clientY - lastY;
-
-            // Snap-to-grid
+            // Snap-to-grid if Shift is held down
             const gridSize = 20;
-            if (gridToggle.checked) {
-                newX = Math.round(newX / gridSize) * gridSize;
-                newY = Math.round(newY / gridSize) * gridSize;
+            if (e.shiftKey) {
+                currentX = Math.round(currentX / gridSize) * gridSize;
+                currentY = Math.round(currentY / gridSize) * gridSize;
             }
 
             // Snap-to-center
-            const photoCenterX = newX + rect.width / 2;
-            const photoCenterY = newY + rect.height / 2;
+            const canvasRect = canvas.getBoundingClientRect();
+            const photoRect = selectedPhoto.getBoundingClientRect();
             const canvasCenterX = canvasRect.width / 2;
             const canvasCenterY = canvasRect.height / 2;
-
             const snapThreshold = 5;
-            if (Math.abs(photoCenterX - canvasCenterX) < snapThreshold) {
-                newX = canvasCenterX - rect.width / 2;
+
+            if (Math.abs(currentX + photoRect.width / 2 - canvasCenterX) < snapThreshold) {
+                currentX = canvasCenterX - photoRect.width / 2;
             }
-            if (Math.abs(photoCenterY - canvasCenterY) < snapThreshold) {
-                newY = canvasCenterY - rect.height / 2;
+            if (Math.abs(currentY + photoRect.height / 2 - canvasCenterY) < snapThreshold) {
+                currentY = canvasCenterY - photoRect.height / 2;
             }
-            
-            selectedPhoto.style.left = `${newX}px`;
-            selectedPhoto.style.top = `${newY}px`;
+
+            const { angle } = getTransformValues(selectedPhoto);
+            selectedPhoto.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${angle}deg)`;
         }
 
         function handleResize(e) {
             if (!selectedPhoto) return;
             const rect = selectedPhoto.getBoundingClientRect();
+            const aspectRatio = parseFloat(selectedPhoto.dataset.aspectRatio);
             
             const newWidth = e.clientX - rect.left;
-            const newHeight = e.clientY - rect.top;
-
-            const aspectRatio = rect.width / rect.height;
-            let finalWidth = newWidth;
-            let finalHeight = finalWidth / aspectRatio;
-
-            selectedPhoto.style.width = `${finalWidth}px`;
-            selectedPhoto.style.height = `${finalHeight}px`;
+            let newHeight = newWidth / aspectRatio;
+            
+            selectedPhoto.style.width = `${newWidth}px`;
+            selectedPhoto.style.height = `${newHeight}px`;
         }
 
         function handleRotate(e) {
@@ -602,7 +633,8 @@
             const centerY = rect.top + rect.height / 2;
             
             const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI + 90;
-            selectedPhoto.style.transform = `rotate(${angle}deg)`;
+            const { translateX, translateY } = getTransformValues(selectedPhoto);
+            selectedPhoto.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${angle}deg)`;
         }
 
         document.addEventListener('mousedown', e => {
@@ -618,10 +650,12 @@
                 e.preventDefault();
             } else if (e.target.className.includes('photo')) {
                 isDragging = true;
+                deselectPhoto();
                 selectedPhoto = e.target;
                 selectedPhoto.classList.add('selected');
-                lastX = e.clientX - selectedPhoto.getBoundingClientRect().left;
-                lastY = e.clientY - selectedPhoto.getBoundingClientRect().top;
+                const { translateX, translateY } = getTransformValues(selectedPhoto);
+                lastX = e.clientX - translateX;
+                lastY = e.clientY - translateY;
                 e.preventDefault();
             }
         });
@@ -654,8 +688,7 @@
         document.addEventListener('keydown', e => {
             if (selectedPhoto) {
                 const step = 1;
-                let currentLeft = parseFloat(selectedPhoto.style.left) || 0;
-                let currentTop = parseFloat(selectedPhoto.style.top) || 0;
+                let { translateX, translateY, angle } = getTransformValues(selectedPhoto);
                 
                 let moved = false;
                 switch (e.key) {
@@ -666,22 +699,22 @@
                         moved = true;
                         break;
                     case 'ArrowUp':
-                        selectedPhoto.style.top = `${currentTop - step}px`;
+                        selectedPhoto.style.transform = `translate(${translateX}px, ${translateY - step}px) rotate(${angle}deg)`;
                         moved = true;
                         e.preventDefault();
                         break;
                     case 'ArrowDown':
-                        selectedPhoto.style.top = `${currentTop + step}px`;
+                        selectedPhoto.style.transform = `translate(${translateX}px, ${translateY + step}px) rotate(${angle}deg)`;
                         moved = true;
                         e.preventDefault();
                         break;
                     case 'ArrowLeft':
-                        selectedPhoto.style.left = `${currentLeft - step}px`;
+                        selectedPhoto.style.transform = `translate(${translateX - step}px, ${translateY}px) rotate(${angle}deg)`;
                         moved = true;
                         e.preventDefault();
                         break;
                     case 'ArrowRight':
-                        selectedPhoto.style.left = `${currentLeft + step}px`;
+                        selectedPhoto.style.transform = `translate(${translateX + step}px, ${translateY}px) rotate(${angle}deg)`;
                         moved = true;
                         e.preventDefault();
                         break;
@@ -720,13 +753,20 @@
             Array.from(e.target.files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    const photoDiv = createPhotoElement(event.target.result);
-                    photoDiv.style.left = '50px';
-                    photoDiv.style.top = '50px';
-                    photoDiv.style.width = '200px';
-                    photoDiv.style.height = 'auto'; // Pertahankan rasio aspek
-                    canvas.appendChild(photoDiv);
-                    updateHistory('add', getCanvasState());
+                    const img = new Image();
+                    img.onload = () => {
+                        const aspectRatio = img.naturalWidth / img.naturalHeight;
+                        const photoDiv = createPhotoElement(event.target.result, aspectRatio);
+                        
+                        // Set initial size and position
+                        photoDiv.style.width = '200px';
+                        photoDiv.style.height = `${200 / aspectRatio}px`;
+                        photoDiv.style.transform = `translate(50px, 50px)`;
+                        
+                        canvas.appendChild(photoDiv);
+                        updateHistory('add', getCanvasState());
+                    };
+                    img.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             });
@@ -757,15 +797,19 @@
         
         rotate90Btn.addEventListener('click', () => {
             if (selectedPhoto) {
-                const currentTransform = selectedPhoto.style.transform;
-                const match = currentTransform.match(/rotate\(([^deg]+)deg\)/);
-                let currentAngle = match ? parseFloat(match[1]) : 0;
-                
-                let newAngle = currentAngle + 90;
+                const { translateX, translateY, angle } = getTransformValues(selectedPhoto);
+                let newAngle = angle + 90;
                 if (newAngle >= 360) newAngle -= 360;
-                
-                selectedPhoto.style.transform = `rotate(${newAngle}deg)`;
+                selectedPhoto.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${newAngle}deg)`;
                 updateHistory('rotate', getCanvasState());
+            }
+        });
+
+        bringFrontBtn.addEventListener('click', () => {
+            if (selectedPhoto) {
+                maxZIndex++;
+                selectedPhoto.style.zIndex = maxZIndex;
+                updateHistory('bring-front', getCanvasState());
             }
         });
         
@@ -775,20 +819,51 @@
         // --- Fungsi Ekspor ---
         async function captureCanvas() {
             deselectPhoto();
-            const originalBleedDisplay = document.getElementById('bleed-area').style.display;
-            document.getElementById('bleed-area').style.display = 'none';
+            const bleedArea = document.getElementById('bleed-area');
+            const gridOverlay = document.getElementById('grid-overlay');
+            const rulerHorizontal = document.getElementById('ruler-horizontal');
+            const rulerVertical = document.getElementById('ruler-vertical');
+            
+            const originalBleedDisplay = bleedArea.style.display;
+            const originalGridDisplay = gridOverlay.style.display;
+            const originalRulerHDisplay = rulerHorizontal.style.display;
+            const originalRulerVDisplay = rulerVertical.style.display;
+            
+            // Hide all overlays before capturing
+            bleedArea.style.display = 'none';
+            gridOverlay.style.display = 'none';
+            rulerHorizontal.style.display = 'none';
+            rulerVertical.style.display = 'none';
 
             const canvasElement = await html2canvas(canvas, {
                 useCORS: true,
                 backgroundColor: transparentBgToggle.checked ? null : backgroundColorInput.value,
             });
             
-            document.getElementById('bleed-area').style.display = originalBleedDisplay;
+            // Restore original display settings
+            bleedArea.style.display = originalBleedDisplay;
+            gridOverlay.style.display = originalGridDisplay;
+            rulerHorizontal.style.display = originalRulerHDisplay;
+            rulerVertical.style.display = originalRulerVDisplay;
+
             return canvasElement;
         }
 
         async function exportImage(format) {
-            const canvasImage = await captureCanvas();
+            let canvasImage = await captureCanvas();
+            
+            // Handle JPG with transparent background
+            if (format === 'jpg' && transparentBgToggle.checked) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvasImage.width;
+                tempCanvas.height = canvasImage.height;
+                const ctx = tempCanvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                ctx.drawImage(canvasImage, 0, 0);
+                canvasImage = tempCanvas;
+            }
+
             const dataURL = canvasImage.toDataURL(`image/${format === 'jpg' ? 'jpeg' : format}`);
             
             const link = document.createElement('a');
@@ -850,8 +925,17 @@
         printBtn.addEventListener('click', printLayout);
 
         // --- Inisialisasi ---
-        updateCanvasSize();
-        updateHistory('init', getCanvasState());
+        function initialize() {
+            updateCanvasSize();
+            const savedState = localStorage.getItem('canvasState');
+            if (savedState) {
+                restoreCanvasState(savedState);
+            } else {
+                updateHistory('init', getCanvasState());
+            }
+        }
+
+        initialize();
 
     </script>
 </body>
