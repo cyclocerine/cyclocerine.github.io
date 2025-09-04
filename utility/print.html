@@ -650,35 +650,36 @@
 
         function handleDrag(e) {
             if (!selectedPhoto) return;
-            let currentX = parseFloat(selectedPhoto.dataset.x) + (e.clientX - startX);
-            let currentY = parseFloat(selectedPhoto.dataset.y) + (e.clientY - startY);
+            const photoRect = selectedPhoto.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            let newX = e.clientX - canvasRect.left - startX;
+            let newY = e.clientY - canvasRect.top - startY;
             
             // Snap-to-grid if Shift is held down
             const gridSize = 20;
             if (e.shiftKey) {
-                currentX = Math.round(currentX / gridSize) * gridSize;
-                currentY = Math.round(currentY / gridSize) * gridSize;
+                newX = Math.round(newX / gridSize) * gridSize;
+                newY = Math.round(newY / gridSize) * gridSize;
             }
 
             // Snap-to-center
-            const canvasRect = canvas.getBoundingClientRect();
-            const photoRect = selectedPhoto.getBoundingClientRect();
             const canvasCenterX = canvasRect.width / 2;
             const canvasCenterY = canvasRect.height / 2;
             const snapThreshold = 5;
             
-            const photoCurrentX = currentX + photoRect.width / 2;
-            const photoCurrentY = currentY + photoRect.height / 2;
+            const photoCurrentX = newX + photoRect.width / 2;
+            const photoCurrentY = newY + photoRect.height / 2;
 
             if (Math.abs(photoCurrentX - canvasCenterX) < snapThreshold) {
-                currentX = canvasCenterX - photoRect.width / 2;
+                newX = canvasCenterX - photoRect.width / 2;
             }
             if (Math.abs(photoCurrentY - canvasCenterY) < snapThreshold) {
-                currentY = canvasCenterY - photoRect.height / 2;
+                newY = canvasCenterY - photoRect.height / 2;
             }
 
-            selectedPhoto.dataset.x = currentX;
-            selectedPhoto.dataset.y = currentY;
+            selectedPhoto.dataset.x = newX;
+            selectedPhoto.dataset.y = newY;
             applyTransform(selectedPhoto);
         }
 
@@ -721,8 +722,11 @@
                 deselectPhoto();
                 selectedPhoto = e.target;
                 selectedPhoto.classList.add('selected');
-                startX = e.clientX;
-                startY = e.clientY;
+                
+                const photoRect = selectedPhoto.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                startX = e.clientX - (photoRect.left - canvasRect.left);
+                startY = e.clientY - (photoRect.top - canvasRect.top);
                 e.preventDefault();
             }
         });
