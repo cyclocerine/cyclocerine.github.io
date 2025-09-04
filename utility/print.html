@@ -92,11 +92,11 @@
             align-items: center;
             position: relative;
             padding: 20px;
-            overflow: auto; /* Mengaktifkan scroll pada konten utama */
+            overflow: auto;
         }
         
         .canvas-wrapper {
-            flex-shrink: 0; /* Mencegah wrapper menyusut */
+            flex-shrink: 0;
         }
         
         .canvas-container {
@@ -132,7 +132,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Memungkinkan klik melewati ke div induk */
+            pointer-events: none;
         }
         
         .photo .resize-handle {
@@ -407,8 +407,8 @@
         let isRotating = false;
         let startX = 0;
         let startY = 0;
-        let initialPhotoX = 0; // Tambahan: Simpan posisi X awal foto saat drag dimulai
-        let initialPhotoY = 0; // Tambahan: Simpan posisi Y awal foto saat drag dimulai
+        let initialPhotoX = 0;
+        let initialPhotoY = 0;
         let history = [];
         let historyIndex = -1;
         let minZIndex = 1;
@@ -647,18 +647,15 @@
         function handleDrag(e) {
             if (!selectedPhoto || !isDragging) return;
             
-            // Perbaikan: Gunakan posisi awal foto + delta kursor untuk menghindari bug "lompat"
             let newX = initialPhotoX + (e.clientX - startX);
             let newY = initialPhotoY + (e.clientY - startY);
             
-            // Snap-to-grid if Shift is held down
             const gridSize = 20;
             if (e.shiftKey) {
                 newX = Math.round(newX / gridSize) * gridSize;
                 newY = Math.round(newY / gridSize) * gridSize;
             }
 
-            // Snap-to-center
             const canvasRect = canvas.getBoundingClientRect();
             const photoRect = selectedPhoto.getBoundingClientRect();
             const canvasCenterX = canvasRect.width / 2;
@@ -720,7 +717,6 @@
                 selectedPhoto = e.target;
                 selectedPhoto.classList.add('selected');
                 
-                // Simpan posisi awal kursor DAN posisi foto
                 startX = e.clientX;
                 startY = e.clientY;
                 initialPhotoX = parseFloat(selectedPhoto.dataset.x);
@@ -798,7 +794,7 @@
                 }
             }
 
-            if (e.ctrlKey || e.metaKey) { // Handle both Ctrl (Windows/Linux) and Cmd (Mac)
+            if (e.ctrlKey || e.metaKey) {
                 if (e.key === 'z' || e.key === 'Z') {
                     undo();
                     e.preventDefault();
@@ -823,7 +819,6 @@
             }
         });
         
-        // --- Event Listeners ---
         paperSizeSelect.addEventListener('change', (e) => {
             if (e.target.value === 'Custom') {
                 customSizeControls.style.display = 'flex';
@@ -845,7 +840,6 @@
                         const aspectRatio = img.naturalWidth / img.naturalHeight;
                         const photoDiv = createPhotoElement(event.target.result, aspectRatio);
                         
-                        // Set initial size and position
                         photoDiv.style.width = '200px';
                         photoDiv.style.height = `${200 / aspectRatio}px`;
                         photoDiv.dataset.x = '50';
@@ -944,7 +938,6 @@
             }
         });
 
-        // --- Fungsi Ekspor ---
         async function captureCanvas() {
             deselectPhoto();
             const bleedArea = document.getElementById('bleed-area');
@@ -957,7 +950,6 @@
             const originalRulerHDisplay = rulerHorizontal.style.display;
             const originalRulerVDisplay = rulerVertical.style.display;
             
-            // Hide all overlays before capturing
             bleedArea.style.display = 'none';
             gridOverlay.style.display = 'none';
             rulerHorizontal.style.display = 'none';
@@ -968,7 +960,6 @@
                 backgroundColor: transparentBgToggle.checked ? null : backgroundColorInput.value,
             });
             
-            // Restore original display settings
             bleedArea.style.display = originalBleedDisplay;
             gridOverlay.style.display = originalGridDisplay;
             rulerHorizontal.style.display = originalRulerHDisplay;
@@ -980,7 +971,6 @@
         async function exportImage(format) {
             let canvasImage = await captureCanvas();
             
-            // Handle JPG with transparent background
             if (format === 'jpg' && transparentBgToggle.checked) {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = canvasImage.width;
@@ -1005,13 +995,15 @@
             const dataURL = canvasImage.toDataURL('image/png');
             
             const { jsPDF } = window.jspdf;
+            
+            const orientation = canvas.offsetWidth > canvas.offsetHeight ? 'landscape' : 'portrait';
             const doc = new jsPDF({
-                orientation: canvas.offsetWidth > canvas.offsetHeight ? 'landscape' : 'portrait',
+                orientation: orientation,
                 unit: 'px',
                 format: [canvas.offsetWidth, canvas.offsetHeight]
             });
             
-            doc.addImage(dataURL, 'PNG', 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+            doc.addImage(dataURL, 'PNG', 0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight());
             doc.save('print_layout.pdf');
         }
 
@@ -1029,10 +1021,10 @@
                                 size: ${paperSizeSelect.value.toLowerCase()};
                                 margin: 0;
                             }
-                            body { margin: 0; padding: 0; }
+                            body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; }
                             img {
-                                width: 100%;
-                                height: auto;
+                                max-width: 100%;
+                                max-height: 100%;
                                 display: block;
                             }
                         </style>
@@ -1052,7 +1044,6 @@
         pdfBtn.addEventListener('click', exportPDF);
         printBtn.addEventListener('click', printLayout);
 
-        // --- Inisialisasi ---
         function initialize() {
             updateCanvasSize();
             const savedState = localStorage.getItem('canvasState');
