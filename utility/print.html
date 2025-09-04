@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilitas Cetak Foto</title>
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --canvas-bg: #fff;
+            --bleed-color: rgba(255, 0, 0, 0.1);
+            --grid-color: rgba(0, 0, 0, 0.1);
+            --ruler-color: #555;
+            --active-color: dodgerblue;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .control-group input[type="file"],
+        .control-group select,
+        .control-group input[type="text"],
+        .control-group input[type="color"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .canvas-container {
+            position: relative;
+            background-color: #dcdde1;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        #canvas {
+            position: relative;
+            background-color: var(--canvas-bg);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px dashed #aaa;
+        }
+
+        .photo {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            outline: 2px solid transparent;
+            transition: outline 0.1s;
+            transform-origin: center center;
+            box-sizing: border-box;
+        }
+        
+        .photo.selected {
+            outline-color: var(--active-color);
+        }
+
+        .photo img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Memungkinkan klik melewati ke div induk */
+        }
+        
+        .photo .resize-handle {
+            width: 10px;
+            height: 10px;
+            background-color: var(--active-color);
+            border: 1px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            pointer-events: auto;
+        }
+        
+        .photo .resize-handle.bottom-right {
+            bottom: -5px;
+            right: -5px;
+            cursor: nwse-resize;
+        }
+        
+        .photo .rotate-handle {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: grab;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+        }
+        
+        .photo .rotate-handle::before {
+            content: '⟳';
+            color: var(--active-color);
+            text-shadow: 0 0 2px #fff;
+        }
+
+        .ruler {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid #ccc;
+            font-size: 10px;
+            color: var(--ruler-color);
+            user-select: none;
+            z-index: 10;
+        }
+        
+        .ruler.horizontal {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+        }
+
+        .ruler.vertical {
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 20px;
+        }
+
+        .ruler .mark {
+            position: absolute;
+            background-color: var(--ruler-color);
+            display: block;
+        }
+        
+        .ruler.horizontal .mark {
+            top: 15px;
+            width: 1px;
+            height: 5px;
+        }
+
+        .ruler.vertical .mark {
+            left: 15px;
+            height: 1px;
+            width: 5px;
+        }
+
+        .ruler .mark.major {
+            height: 10px;
+        }
+
+        .ruler .label {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 0.8em;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .bleed-area {
+            position: absolute;
+            border: 1px dashed var(--bleed-color);
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Utilitas Cetak Foto</h2>
+        
+        <div class="control-group">
+            <label for="paper-size">Ukuran Kertas:</label>
+            <select id="paper-size">
+                <option value="A4">A4 (210 x 297 mm)</option>
+                <option value="A3">A3 (297 x 420 mm)</option>
+                <option value="Letter">Letter (8.5 x 11 in)</option>
+                <option value="Custom">Custom</option>
+            </select>
+        </div>
+
+        <div class="control-group" id="custom-size-controls" style="display:none;">
+            <label for="custom-width">Lebar (px):</label>
+            <input type="text" id="custom-width" value="800">
+            <label for="custom-height">Tinggi (px):</label>
+            <input type="text" id="custom-height" value="1131">
+        </div>
+
+        <div class="control-group">
+            <label for="image-upload">Upload Foto:</label>
+            <input type="file" id="image-upload" accept="image/*" multiple>
+        </div>
+
+        <div class="control-group">
+            <label for="background-color">Warna Background:</label>
+            <input type="color" id="background-color" value="#ffffff">
+            <label><input type="checkbox" id="transparent-bg-toggle"> Transparan</label>
+        </div>
+
+        <div class="control-group">
+            <label for="margin-top">Margin (atas/bawah):</label>
+            <input type="text" id="margin-y" value="20">
+            <label for="margin-left">Margin (kiri/kanan):</label>
+            <input type="text" id="margin-x" value="20">
+        </div>
+
+        <div class="control-group">
+            <label for="bleed-size">Bleed (mm):</label>
+            <input type="text" id="bleed-size" value="3">
+        </div>
+        
+        <div class="control-group">
+            <label><input type="checkbox" id="grid-toggle" checked> Tampilkan Grid</label>
+            <label><input type="checkbox" id="ruler-toggle" checked> Tampilkan Penggaris</label>
+        </div>
+
+        <div class="button-group">
+            <button id="rotate-90">Putar 90°</button>
+            <button id="undo-btn" disabled>Undo (Ctrl+Z)</button>
+            <button id="redo-btn" disabled>Redo (Ctrl+Y)</button>
+        </div>
+
+        <div class="button-group">
+            <button id="print-btn">Print</button>
+            <button id="pdf-btn">Simpan sebagai PDF</button>
+            <button id="export-png-btn">Ekspor PNG</button>
+            <button id="export-jpg-btn">Ekspor JPG</button>
+        </div>
+
+    </div>
+    
+    <div class="main-content">
+        <div class="canvas-container">
+            <div id="ruler-horizontal" class="ruler horizontal"></div>
+            <div id="ruler-vertical" class="ruler vertical"></div>
+            <div id="grid-overlay" class="grid-overlay"></div>
+            <div id="bleed-area" class="bleed-area"></div>
+            <div id="canvas"></div>
+        </div>
+    </div>
+
+    <!-- Pengecualian: Library eksternal untuk fungsionalitas ekspor yang kompleks. -->
+    <!-- html2canvas digunakan untuk merender DOM ke elemen canvas. -->
+    <!-- jspdf digunakan untuk membuat dan mengunduh file PDF. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const container = document.querySelector('.canvas-container');
+        const paperSizeSelect = document.getElementById('paper-size');
+        const customSizeControls = document.getElementById('custom-size-controls');
+        const customWidthInput = document.getElementById('custom-width');
+        const customHeightInput = document.getElementById('custom-height');
+        const imageUpload = document.getElementById('image-upload');
+        const backgroundColorInput = document.getElementById('background-color');
+        const transparentBgToggle = document.getElementById('transparent-bg-toggle');
+        const marginYInput = document.getElementById('margin-y');
+        const marginXInput = document.getElementById('margin-x');
+        const bleedSizeInput = document.getElementById('bleed-size');
+        const gridToggle = document.getElementById('grid-toggle');
+        const rulerToggle = document.getElementById('ruler-toggle');
+        const rotate90Btn = document.getElementById('rotate-90');
+        const printBtn = document.getElementById('print-btn');
+        const pdfBtn = document.getElementById('pdf-btn');
+        const exportPngBtn = document.getElementById('export-png-btn');
+        const exportJpgBtn = document.getElementById('export-jpg-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        
+        let selectedPhoto = null;
+        let isDragging = false;
+        let isResizing = false;
+        let isRotating = false;
+        let lastX = 0;
+        let lastY = 0;
+        let history = [];
+        let historyIndex = -1;
+
+        const UNITS = {
+            mm: 3.7795275591, // 1 mm = 3.7795275591 px pada 96 DPI
+            inch: 96,        // 1 inci = 96 px
+        };
+
+        const paperSizes = {
+            'A4': { width: 210, height: 297, unit: 'mm' },
+            'A3': { width: 297, height: 420, unit: 'mm' },
+            'Letter': { width: 8.5, height: 11, unit: 'inch' },
+            'Custom': { width: 800, height: 1131, unit: 'px' }
+        };
+
+        function convertToPx(value, unit) {
+            return value * UNITS[unit];
+        }
+
+        function updateCanvasSize() {
+            const size = paperSizeSelect.value;
+            const sizeData = paperSizes[size];
+            let widthPx, heightPx;
+
+            if (size === 'Custom') {
+                widthPx = parseFloat(customWidthInput.value);
+                heightPx = parseFloat(customHeightInput.value);
+            } else {
+                widthPx = convertToPx(sizeData.width, sizeData.unit);
+                heightPx = convertToPx(sizeData.height, sizeData.unit);
+            }
+
+            canvas.style.width = `${widthPx}px`;
+            canvas.style.height = `${heightPx}px`;
+            
+            updateBleedArea();
+            updateRulers();
+        }
+
+        function updateBleedArea() {
+            const bleedPx = parseFloat(bleedSizeInput.value) * UNITS.mm;
+            const marginX = parseFloat(marginXInput.value);
+            const marginY = parseFloat(marginYInput.value);
+            const canvasWidth = canvas.offsetWidth;
+            const canvasHeight = canvas.offsetHeight;
+            
+            const bleedArea = document.getElementById('bleed-area');
+            if (bleedPx > 0) {
+                bleedArea.style.display = 'block';
+                bleedArea.style.top = `-${bleedPx}px`;
+                bleedArea.style.left = `-${bleedPx}px`;
+                bleedArea.style.width = `${canvasWidth + bleedPx * 2}px`;
+                bleedArea.style.height = `${canvasHeight + bleedPx * 2}px`;
+                bleedArea.style.border = `1px dashed var(--bleed-color)`;
+            } else {
+                bleedArea.style.display = 'none';
+            }
+        }
+
+        function updateRulers() {
+            const horizontalRuler = document.getElementById('ruler-horizontal');
+            const verticalRuler = document.getElementById('ruler-vertical');
+            horizontalRuler.innerHTML = '';
+            verticalRuler.innerHTML = '';
+
+            if (rulerToggle.checked) {
+                const widthCm = canvas.offsetWidth / UNITS.mm / 10;
+                const heightCm = canvas.offsetHeight / UNITS.mm / 10;
+                const cmPerMark = 10;
+                
+                // Penggaris Horizontal
+                for (let i = 0; i < widthCm; i += cmPerMark) {
+                    const mark = document.createElement('span');
+                    mark.className = 'mark major';
+                    mark.style.left = `${(i * 10 * UNITS.mm) / canvas.offsetWidth * 100}%`;
+                    mark.innerText = `${i}cm`;
+                    horizontalRuler.appendChild(mark);
+                }
+                
+                // Penggaris Vertikal
+                for (let i = 0; i < heightCm; i += cmPerMark) {
+                    const mark = document.createElement('span');
+                    mark.className = 'mark major';
+                    mark.style.top = `${(i * 10 * UNITS.mm) / canvas.offsetHeight * 100}%`;
+                    mark.innerText = `${i}cm`;
+                    verticalRuler.appendChild(mark);
+                }
+
+                horizontalRuler.style.display = 'block';
+                verticalRuler.style.display = 'block';
+            } else {
+                horizontalRuler.style.display = 'none';
+                verticalRuler.style.display = 'none';
+            }
+        }
+
+        function updateHistory(action, state) {
+            history = history.slice(0, historyIndex + 1);
+            history.push({ action, state: JSON.stringify(state) });
+            historyIndex++;
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= history.length - 1;
+        }
+
+        function getCanvasState() {
+            const photos = Array.from(canvas.children).map(photo => {
+                const rect = photo.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const transform = photo.style.transform;
+                let angle = 0;
+                if (transform) {
+                    const matrix = new DOMMatrixReadOnly(transform);
+                    angle = Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
+                }
+                return {
+                    id: photo.id,
+                    src: photo.querySelector('img').src,
+                    x: rect.left - canvasRect.left,
+                    y: rect.top - canvasRect.top,
+                    width: rect.width,
+                    height: rect.height,
+                    angle: angle,
+                };
+            });
+            return photos;
+        }
+
+        function restoreCanvasState(state) {
+            canvas.innerHTML = '';
+            const photos = JSON.parse(state);
+            photos.forEach(photoState => {
+                const photoDiv = createPhotoElement(photoState.src);
+                photoDiv.id = photoState.id;
+                photoDiv.style.left = `${photoState.x}px`;
+                photoDiv.style.top = `${photoState.y}px`;
+                photoDiv.style.width = `${photoState.width}px`;
+                photoDiv.style.height = `${photoState.height}px`;
+                photoDiv.style.transform = `rotate(${photoState.angle}deg)`;
+                canvas.appendChild(photoDiv);
+            });
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreCanvasState(history[historyIndex].state);
+                updateUndoRedoButtons();
+                deselectPhoto();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreCanvasState(history[historyIndex].state);
+                updateUndoRedoButtons();
+                deselectPhoto();
+            }
+        }
+
+        function deselectPhoto() {
+            if (selectedPhoto) {
+                selectedPhoto.classList.remove('selected');
+                selectedPhoto = null;
+            }
+        }
+
+        function createPhotoElement(src) {
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'photo';
+            photoDiv.id = `photo-${Date.now()}`;
+            const img = document.createElement('img');
+            img.src = src;
+            photoDiv.appendChild(img);
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle bottom-right';
+            photoDiv.appendChild(resizeHandle);
+            
+            const rotateHandle = document.createElement('div');
+            rotateHandle.className = 'rotate-handle';
+            photoDiv.appendChild(rotateHandle);
+            
+            photoDiv.addEventListener('click', e => {
+                e.stopPropagation();
+                deselectPhoto();
+                selectedPhoto = photoDiv;
+                photoDiv.classList.add('selected');
+            });
+
+            return photoDiv;
+        }
+
+        function handleDrag(e) {
+            if (!selectedPhoto) return;
+            const rect = selectedPhoto.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            let newX = e.clientX - lastX;
+            let newY = e.clientY - lastY;
+
+            // Snap-to-grid
+            const gridSize = 20;
+            if (gridToggle.checked) {
+                newX = Math.round(newX / gridSize) * gridSize;
+                newY = Math.round(newY / gridSize) * gridSize;
+            }
+
+            // Snap-to-center
+            const photoCenterX = newX + rect.width / 2;
+            const photoCenterY = newY + rect.height / 2;
+            const canvasCenterX = canvasRect.width / 2;
+            const canvasCenterY = canvasRect.height / 2;
+
+            const snapThreshold = 5;
+            if (Math.abs(photoCenterX - canvasCenterX) < snapThreshold) {
+                newX = canvasCenterX - rect.width / 2;
+            }
+            if (Math.abs(photoCenterY - canvasCenterY) < snapThreshold) {
+                newY = canvasCenterY - rect.height / 2;
+            }
+            
+            selectedPhoto.style.left = `${newX}px`;
+            selectedPhoto.style.top = `${newY}px`;
+        }
+
+        function handleResize(e) {
+            if (!selectedPhoto) return;
+            const rect = selectedPhoto.getBoundingClientRect();
+            
+            const newWidth = e.clientX - rect.left;
+            const newHeight = e.clientY - rect.top;
+
+            const aspectRatio = rect.width / rect.height;
+            let finalWidth = newWidth;
+            let finalHeight = finalWidth / aspectRatio;
+
+            selectedPhoto.style.width = `${finalWidth}px`;
+            selectedPhoto.style.height = `${finalHeight}px`;
+        }
+
+        function handleRotate(e) {
+            if (!selectedPhoto) return;
+            const rect = selectedPhoto.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI + 90;
+            selectedPhoto.style.transform = `rotate(${angle}deg)`;
+        }
+
+        document.addEventListener('mousedown', e => {
+            if (!e.target.closest('#canvas')) {
+                deselectPhoto();
+                return;
+            }
+            if (e.target.className.includes('resize-handle')) {
+                isResizing = true;
+                e.preventDefault();
+            } else if (e.target.className.includes('rotate-handle')) {
+                isRotating = true;
+                e.preventDefault();
+            } else if (e.target.className.includes('photo')) {
+                isDragging = true;
+                selectedPhoto = e.target;
+                selectedPhoto.classList.add('selected');
+                lastX = e.clientX - selectedPhoto.getBoundingClientRect().left;
+                lastY = e.clientY - selectedPhoto.getBoundingClientRect().top;
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', e => {
+            if (isDragging) {
+                handleDrag(e);
+            } else if (isResizing) {
+                handleResize(e);
+            } else if (isRotating) {
+                handleRotate(e);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging || isResizing || isRotating) {
+                updateHistory('update', getCanvasState());
+            }
+            isDragging = false;
+            isResizing = false;
+            isRotating = false;
+        });
+        
+        document.addEventListener('click', e => {
+            if (e.target.id === 'canvas' || e.target.className === 'canvas-container') {
+                deselectPhoto();
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (selectedPhoto) {
+                const step = 1;
+                let currentLeft = parseFloat(selectedPhoto.style.left) || 0;
+                let currentTop = parseFloat(selectedPhoto.style.top) || 0;
+                
+                let moved = false;
+                switch (e.key) {
+                    case 'Delete':
+                        selectedPhoto.remove();
+                        selectedPhoto = null;
+                        updateHistory('delete', getCanvasState());
+                        moved = true;
+                        break;
+                    case 'ArrowUp':
+                        selectedPhoto.style.top = `${currentTop - step}px`;
+                        moved = true;
+                        e.preventDefault();
+                        break;
+                    case 'ArrowDown':
+                        selectedPhoto.style.top = `${currentTop + step}px`;
+                        moved = true;
+                        e.preventDefault();
+                        break;
+                    case 'ArrowLeft':
+                        selectedPhoto.style.left = `${currentLeft - step}px`;
+                        moved = true;
+                        e.preventDefault();
+                        break;
+                    case 'ArrowRight':
+                        selectedPhoto.style.left = `${currentLeft + step}px`;
+                        moved = true;
+                        e.preventDefault();
+                        break;
+                }
+
+                if (e.ctrlKey) {
+                    if (e.key === 'z' || e.key === 'Z') {
+                        undo();
+                        e.preventDefault();
+                    } else if (e.key === 'y' || e.key === 'Y') {
+                        redo();
+                        e.preventDefault();
+                    }
+                }
+                
+                if (moved) {
+                    updateHistory('move', getCanvasState());
+                }
+            }
+        });
+        
+        // --- Event Listeners ---
+        paperSizeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'Custom') {
+                customSizeControls.style.display = 'flex';
+            } else {
+                customSizeControls.style.display = 'none';
+            }
+            updateCanvasSize();
+        });
+
+        customWidthInput.addEventListener('change', updateCanvasSize);
+        customHeightInput.addEventListener('change', updateCanvasSize);
+
+        imageUpload.addEventListener('change', (e) => {
+            Array.from(e.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const photoDiv = createPhotoElement(event.target.result);
+                    photoDiv.style.left = '50px';
+                    photoDiv.style.top = '50px';
+                    photoDiv.style.width = '200px';
+                    photoDiv.style.height = 'auto'; // Pertahankan rasio aspek
+                    canvas.appendChild(photoDiv);
+                    updateHistory('add', getCanvasState());
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        backgroundColorInput.addEventListener('input', (e) => {
+            canvas.style.backgroundColor = e.target.value;
+            transparentBgToggle.checked = false;
+        });
+        
+        transparentBgToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                canvas.style.backgroundColor = 'transparent';
+            } else {
+                canvas.style.backgroundColor = backgroundColorInput.value;
+            }
+        });
+        
+        marginYInput.addEventListener('change', updateBleedArea);
+        marginXInput.addEventListener('change', updateBleedArea);
+        bleedSizeInput.addEventListener('change', updateBleedArea);
+        
+        gridToggle.addEventListener('change', (e) => {
+            document.getElementById('grid-overlay').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        rulerToggle.addEventListener('change', updateRulers);
+        
+        rotate90Btn.addEventListener('click', () => {
+            if (selectedPhoto) {
+                const currentTransform = selectedPhoto.style.transform;
+                const match = currentTransform.match(/rotate\(([^deg]+)deg\)/);
+                let currentAngle = match ? parseFloat(match[1]) : 0;
+                
+                let newAngle = currentAngle + 90;
+                if (newAngle >= 360) newAngle -= 360;
+                
+                selectedPhoto.style.transform = `rotate(${newAngle}deg)`;
+                updateHistory('rotate', getCanvasState());
+            }
+        });
+        
+        undoBtn.addEventListener('click', undo);
+        redoBtn.addEventListener('click', redo);
+
+        // --- Fungsi Ekspor ---
+        async function captureCanvas() {
+            deselectPhoto();
+            const originalBleedDisplay = document.getElementById('bleed-area').style.display;
+            document.getElementById('bleed-area').style.display = 'none';
+
+            const canvasElement = await html2canvas(canvas, {
+                useCORS: true,
+                backgroundColor: transparentBgToggle.checked ? null : backgroundColorInput.value,
+            });
+            
+            document.getElementById('bleed-area').style.display = originalBleedDisplay;
+            return canvasElement;
+        }
+
+        async function exportImage(format) {
+            const canvasImage = await captureCanvas();
+            const dataURL = canvasImage.toDataURL(`image/${format === 'jpg' ? 'jpeg' : format}`);
+            
+            const link = document.createElement('a');
+            link.download = `print_layout.${format}`;
+            link.href = dataURL;
+            link.click();
+        }
+
+        async function exportPDF() {
+            const canvasImage = await captureCanvas();
+            const dataURL = canvasImage.toDataURL('image/png');
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: canvas.offsetWidth > canvas.offsetHeight ? 'landscape' : 'portrait',
+                unit: 'px',
+                format: [canvas.offsetWidth, canvas.offsetHeight]
+            });
+            
+            doc.addImage(dataURL, 'PNG', 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+            doc.save('print_layout.pdf');
+        }
+
+        async function printLayout() {
+            const canvasImage = await captureCanvas();
+            const dataURL = canvasImage.toDataURL('image/png');
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Print Layout</title>
+                        <style>
+                            @page {
+                                size: ${paperSizeSelect.value.toLowerCase()};
+                                margin: 0;
+                            }
+                            body { margin: 0; padding: 0; }
+                            img {
+                                width: 100%;
+                                height: auto;
+                                display: block;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${dataURL}">
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        exportPngBtn.addEventListener('click', () => exportImage('png'));
+        exportJpgBtn.addEventListener('click', () => exportImage('jpg'));
+        pdfBtn.addEventListener('click', exportPDF);
+        printBtn.addEventListener('click', printLayout);
+
+        // --- Inisialisasi ---
+        updateCanvasSize();
+        updateHistory('init', getCanvasState());
+
+    </script>
+</body>
+</html>
