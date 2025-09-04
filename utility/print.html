@@ -407,6 +407,8 @@
         let isRotating = false;
         let startX = 0;
         let startY = 0;
+        let initialPhotoX = 0; // Tambahan: Simpan posisi X awal foto saat drag dimulai
+        let initialPhotoY = 0; // Tambahan: Simpan posisi Y awal foto saat drag dimulai
         let history = [];
         let historyIndex = -1;
         let minZIndex = 1;
@@ -645,8 +647,9 @@
         function handleDrag(e) {
             if (!selectedPhoto || !isDragging) return;
             
-            let newX = parseFloat(selectedPhoto.dataset.x) + (e.clientX - startX);
-            let newY = parseFloat(selectedPhoto.dataset.y) + (e.clientY - startY);
+            // Perbaikan: Gunakan posisi awal foto + delta kursor untuk menghindari bug "lompat"
+            let newX = initialPhotoX + (e.clientX - startX);
+            let newY = initialPhotoY + (e.clientY - startY);
             
             // Snap-to-grid if Shift is held down
             const gridSize = 20;
@@ -717,9 +720,12 @@
                 selectedPhoto = e.target;
                 selectedPhoto.classList.add('selected');
                 
-                // Simpan posisi awal kursor
+                // Simpan posisi awal kursor DAN posisi foto
                 startX = e.clientX;
                 startY = e.clientY;
+                initialPhotoX = parseFloat(selectedPhoto.dataset.x);
+                initialPhotoY = parseFloat(selectedPhoto.dataset.y);
+
                 e.preventDefault();
             }
         });
