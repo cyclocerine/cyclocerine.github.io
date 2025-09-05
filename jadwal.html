@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Kuliah IF-A</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #f8f9fa;
+            --text-color: #343a40;
+            --border-color: #e9ecef;
+            --card-bg: #ffffff;
+            --current-day-bg: #ffd700;
+            --reminder-dot-color: #e74c3c;
+            --today-bg: #d6eaff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            color: var(--text-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .schedule ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .schedule li {
+            background-color: var(--secondary-color);
+            border-left: 5px solid var(--primary-color);
+            margin-bottom: 0.75rem;
+            padding: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        #today-schedule li {
+            background-color: var(--today-bg);
+        }
+
+        .schedule li:hover {
+            transform: translateX(5px);
+        }
+
+        .schedule .time {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .schedule .details {
+            font-size: 0.95rem;
+        }
+
+        .calendar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+        }
+
+        #current-month-year {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        #calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .day-header {
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 0.5rem 0;
+        }
+
+        .day-cell {
+            position: relative;
+            padding: 0.75rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .day-cell.current-day {
+            background-color: var(--current-day-bg);
+            font-weight: 700;
+            border-color: #f7b801;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .day-cell:not(.empty):hover {
+            background-color: var(--border-color);
+            transform: scale(1.05);
+        }
+
+        .day-cell.empty {
+            background-color: transparent;
+            border: 1px solid transparent;
+            cursor: default;
+        }
+        
+        /* Titik pengingat */
+        .day-cell.has-reminder::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--reminder-dot-color);
+            border-radius: 50%;
+        }
+
+        .button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+        
+        .add-reminder-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .add-reminder-form input[type="date"],
+        .add-reminder-form input[type="text"] {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .add-reminder-form input[type="text"] {
+            flex-grow: 1;
+        }
+
+        /* Modal / pop-up untuk pengingat */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s;
+        }
+
+        .modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        .modal-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .modal-list li {
+            background-color: var(--secondary-color);
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .modal-title {
+            margin-top: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Bagian Kiri: Jadwal -->
+        <div class="schedule-section">
+            <h1 class="main-title">Jadwal Kuliah IF-A</h1>
+
+            <div class="card">
+                <h2>Jadwal Hari Ini</h2>
+                <div id="today-schedule" class="schedule">
+                    <p>Tidak ada kegiatan hari ini.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Jadwal Mingguan</h2>
+                <div id="schedule-if-a" class="schedule"></div>
+            </div>
+
+            <div class="card">
+                <h2>Kontak Dosen</h2>
+                <div id="lecturer-contacts" class="schedule"></div>
+            </div>
+        </div>
+
+        <!-- Bagian Kanan: Kalender -->
+        <div class="card calendar-section">
+            <h2>Kalender</h2>
+            <div class="calendar-nav">
+                <button id="prev-month" class="button"> &lt; </button>
+                <div id="current-month-year"></div>
+                <button id="next-month" class="button"> &gt; </button>
+            </div>
+            <div id="calendar-grid"></div>
+
+            <div class="card add-reminder-form">
+                <h2>Tambah Pengingat</h2>
+                <input type="date" id="reminder-date">
+                <input type="text" id="reminder-text" placeholder="Masukkan pengingat">
+                <button id="add-reminder-button" class="button">Tambah Pengingat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk pengingat -->
+    <div id="reminder-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modal-date"></h3>
+            <div id="modal-content-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data jadwal dalam format JavaScript object
+        const schedules = {
+            'if-a': {
+                'Senin': [
+                    { time: '09:00 – 10:00', subject: 'Olahraga', location: 'Lapangan', lecturer: 'Hanafi Mustofa' },
+                    { time: '15:00 – 16:45', subject: 'Algoritma dan Pemrograman 1', location: 'Patt.I-3C', lecturer: 'Wilis Kaswidjanti' }
+                ],
+                'Selasa': [
+                    { time: '08:00 – 10:00', subject: 'Praktikum Basis Data', location: 'Lab. Tek. Mobile', lecturer: 'Dr. Heriyanto, A.Md, S.Kom, M.Cs' },
+                    { time: '15:00 – 16:45', subject: 'Kalkulus 1', location: 'Patt.I-3C', lecturer: 'Ahmad Taufiq Akbar, S.Si, M.Cs' }
+                ],
+                'Rabu': [
+                    { time: '07:30 – 09:15', subject: 'Konsep Teknologi', location: 'Patt.I-3C', lecturer: 'Nur Heri Cahyana,S.T, M.Kom' },
+                    { time: '12:30 – 15:00', subject: 'Sistem Teknologi Basis Data', location: 'Patt.I-3D', lecturer: 'Mangaras Yanu F.,S.T, M.T' },
+                    { time: '15:00 – 16:45', subject: 'Pancasila', location: 'Patt.II-3C', lecturer: 'Yunie Herawati' }
+                ],
+                'Kamis': [
+                    { time: '10:30 – 12:30', subject: 'Praktikum Algoritma dan Pemrograman 1', location: 'Lab. Jaringan', lecturer: 'Andiko Putro Suryotomo, S.Kom, M.Cs' },
+                    { time: '12:30 – 14:15', subject: 'Logika Informatika', location: 'Patt.I-3C', lecturer: 'Agus Sasmito Aribowo, S.Kom, M.Cs' },
+                    { time: '15:00 – 16:45', subject: 'Pendidikan Agama Islam', location: 'Patt.III-3D', lecturer: 'Robby Abror' }
+                ],
+                'Jumat': [
+                    { time: '13:00 – 15:30', subject: 'Matematika Diskrit', location: 'Patt.III-3A', lecturer: 'Rifki Indra Perwira, S.Kom, M.Eng' }
+                ]
+            },
+        };
+
+        // Data pengingat. Gunakan 'let' agar bisa diubah.
+        // Coba memuat pengingat dari localStorage saat halaman dimuat
+        let reminders = JSON.parse(localStorage.getItem('userReminders')) || {
+            '2025-5-25': ['Deadline Laporan STBD', 'Revisi Tugas Praktikum BD'],
+            '2025-5-28': ['Ujian Tengah Semester Kalk1'],
+            '2025-6-1': ['Libur Hari Raya'],
+        };
+        
+        // Data kontak dosen lengkap yang Anda berikan
+        const allLecturers = [
+            { name: 'Dr. Awang Hendrianto Pratomo, S.T, M.T', email: 'awang@upnyk.ac.id', phone: '+62 819-3176-7489' },
+            { name: 'Andiko Putro Suryotomo, S.Kom, M.Cs', email: 'andiko.ps@upnyk.ac.id', phone: '+62 818-0274-8228' },
+            { name: 'Dessyanto Boedi Prasetyo, S.T, M.T', email: 'dess@upnyk.ac.id', phone: '+62 878-3963-5954' },
+            { name: 'Rochmat Husaini, S.Kom, M.Kom', email: 'husaini@upnyk.ac.id', phone: '+62 856-4340-4141' },
+            { name: 'Frans Richard Kodong, S.T, M.Kom', email: 'frans.ricard@upnyk.ac.id', phone: '+62 878-3822-9010' },
+            { name: 'Hari Prapcoyo, S.Kom, M.ICT', email: 'hari.prapcoyo@upnyk.ac.id', phone: '+62 812-5000-215' },
+            { name: 'Mangaras Yanu F.,S.T, M.T', email: 'mangaras.yanu@upnyk.ac.id', phone: '+62 817-4109-001' },
+            { name: 'Dyah Ayu Irawati, S.T, M.Cs', email: 'dyah.ayu.irawati@upnyk.ac.id', phone: '+62 812-3224-7483' },
+            { name: 'Dr. Heriyanto, A.Md, S.Kom, M.Cs', email: 'heriyanto@upnyk.ac.id', phone: '+62 813-2879-1352' },
+            { name: 'Shoffan Saifullah, S.Kom, M.Kom', email: 'shoffans@upnyk.ac.id', phone: '+62 858-7717-7459' },
+            { name: 'Rifki Indra Perwira, S.Kom, M.Eng', email: 'rifki@upnyk.ac.id', phone: '+62 813-2882-8344' },
+            { name: 'Oliver Samuel Simanjuntak, S.Kom, M.Eng', email: 'oliver.simanjuntak@upnyk.ac.id', phone: '+62 856-2851-724' },
+            { name: 'Riza Prapascatama Agusdin, S.Kom, MIM', email: 'rizapra@upnyk.ac.id', phone: '+62 813-3650-4021' },
+            { name: 'Sylvert Prian Tahalea, S.Si, M.Cs', email: 'sylvert@upnyk.ac.id', phone: '+62 852-4357-7889' },
+            { name: 'Dr. Herlina Jayadianti, S.T, M.T', email: 'herlina.jayadianti@upnyk.ac.id', phone: '+62 819-1544-4643' },
+            { name: 'Nur Heri Cahyana,S.T, M.Kom', email: 'nur.hericahyana@upnyk.ac.id', phone: '+62 812-2695-749' },
+            { name: 'Hidayatulah Himawan, S.T, M.M, M.Eng', email: 'if.iwan@upnyk.ac.id', phone: '+62 812-2732-222' },
+            { name: 'Hafsah,S.Si, M.T', email: 'hafsahotha@upnyk.ac.id', phone: '+62 877-3932-0333' },
+            { name: 'Ahmad Taufiq Akbar, S.Si, M.Cs', email: 'ahmadtaufiq.akbar@upnyk.ac.id', phone: '+62 813-3228-9809' },
+            { name: 'Juwairiah, S.Si, M.T', email: 'juwairiah@upnyk.ac.id', phone: '+62 815-6850-935' },
+            { name: 'Heru Cahya Rustamaji, S.Si, M.T', email: 'herucr@upnyk.ac.id', phone: '+62 813-9237-3971' },
+            { name: 'Agus Sasmito Aribowo, S.Kom, M.Cs', email: 'sasmito.skom@upnyk.ac.id', phone: '+62 813-2875-0726' },
+            { name: 'Bagus Muhammad Akbar, S.S.T, M.Kom', email: 'bagusmuhammadakbar@upnyk.ac.id', phone: '+62 857-2923-7545' },
+            { name: 'Wilis Kaswidjanti, S.Si, M.Kom', email: 'wilisk@upnyk.ac.id', phone: '+62 819-3174-2704' },
+            { name: 'Bambang Yuwono,S.T,M.T', email: 'bambangy@upnyk.ac.id', phone: '+62 818-0405-0066' },
+            { name: 'Vynska Amalia Permadi, S.Kom, M.Kom', email: 'vynspermadi@upnyk.ac.id', phone: '+62 812-3723-3005' },
+            { name: 'Budi Santosa, S.Si, M.T', email: 'dissan@upnyk.ac.id', phone: '+62 815-6027-294' },
+            { name: 'Herry Sofyan, S.T, M.Kom', email: 'herry.s@upnyk.ac.id', phone: '+62 877-3892-6048' },
+            { name: 'Yuli Fauziah, S.T, M.T', email: 'yuli.fauziah@upnyk.ac.id', phone: '+62 859-2743-3377' },
+            { name: 'Dr. Novrido Charibaldi, S.Kom, M.Kom', email: 'novrido@upnyk.ac.id', phone: '+62 812-2742-693' },
+            { name: 'Simon Pulung Nugroho, S.Kom, M.Cs', email: 'simon.pulung@upnyk.ac.id', phone: '+62 812-1344-7356' },
+            { name: 'Paryati, S.Kom, M.Kom', email: 'yaya_upn_cute@yahoo.com', phone: '+62 815-8738-519' },
+            { name: 'Hanafi Mustofa', email: null, phone: '+62 852-9342-9849' },
+            { name: 'Hermanto Pilasri', email: null, phone: '+62 857-4386-4338' },
+            { name: 'Robby Abror', email: null, phone: '+62 878-3979-2629' }
+        ];
+
+        function saveReminders() {
+            localStorage.setItem('userReminders', JSON.stringify(reminders));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            function renderSchedule(scheduleData, elementId) {
+                const container = document.getElementById(elementId);
+                container.innerHTML = '';
+                for (const day in scheduleData) {
+                    const dayList = document.createElement('ul');
+                    const dayHeader = document.createElement('h3');
+                    dayHeader.textContent = day;
+                    container.appendChild(dayHeader);
+                    scheduleData[day].forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<span class="time">${item.time}</span><span class="details">${item.subject} | ${item.location} | ${item.lecturer}</span>`;
+                        dayList.appendChild(listItem);
+                    });
+                    container.appendChild(dayList);
+                }
+            }
+            
+            function renderTodaySchedule() {
+                const today = new Date();
+                const todayDateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+                const todayDayName = today.toLocaleDateString('id-ID', { weekday: 'long' });
+                
+                const container = document.getElementById('today-schedule');
+                container.innerHTML = '';
+                let hasContent = false;
+                
+                const todaySchedule = schedules['if-a'][todayDayName];
+                if (todaySchedule) {
+                    const ul = document.createElement('ul');
+                    todaySchedule.forEach(item => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span class="time">${item.time}</span><br><span class="details">${item.subject} | ${item.location} | ${item.lecturer}</span>`;
+                        ul.appendChild(li);
+                    });
+                    container.appendChild(ul);
+                    hasContent = true;
+                }
+
+                const todayReminders = reminders[todayDateKey];
+                if (todayReminders && todayReminders.length > 0) {
+                    const ul = document.createElement('ul');
+                    todayReminders.forEach(reminder => {
+                        const li = document.createElement('li');
+                        li.textContent = reminder;
+                        ul.appendChild(li);
+                    });
+                    container.appendChild(ul);
+                    hasContent = true;
+                }
+                
+                if (!hasContent) {
+                    container.innerHTML = '<p>Tidak ada kegiatan hari ini.</p>';
+                }
+            }
+
+            // Fungsi untuk menampilkan daftar kontak dosen
+            function renderLecturerContacts() {
+                const container = document.getElementById('lecturer-contacts');
+                const ul = document.createElement('ul');
+                
+                // Dapatkan nama-nama dosen unik dari jadwal
+                const scheduledLecturerNames = new Set();
+                for (const day in schedules['if-a']) {
+                    schedules['if-a'][day].forEach(item => {
+                        if (item.lecturer && item.lecturer.trim() !== '') {
+                            scheduledLecturerNames.add(item.lecturer.trim());
+                        }
+                    });
+                }
+
+                // Filter data dosen untuk hanya menampilkan yang ada di jadwal
+                const filteredLecturers = allLecturers.filter(lecturer => scheduledLecturerNames.has(lecturer.name));
+                
+                if (filteredLecturers.length > 0) {
+                    filteredLecturers.forEach(lecturer => {
+                        const li = document.createElement('li');
+                        let content = `<strong>${lecturer.name}</strong><br>`;
+                        if (lecturer.email) {
+                            content += `Email: <a href="mailto:${lecturer.email}">${lecturer.email}</a><br>`;
+                        }
+                        if (lecturer.phone) {
+                            content += `HP: ${lecturer.phone}`;
+                        }
+                        li.innerHTML = content;
+                        ul.appendChild(li);
+                    });
+                    container.appendChild(ul);
+                } else {
+                    container.innerHTML = '<p>Tidak ada kontak dosen yang relevan dengan jadwal Anda.</p>';
+                }
+            }
+
+            renderSchedule(schedules['if-a'], 'schedule-if-a');
+            renderTodaySchedule();
+            renderLecturerContacts();
+
+
+            // === FUNGSI KALENDER INTERAKTIF ===
+            const calendarGrid = document.getElementById('calendar-grid');
+            const currentMonthYear = document.getElementById('current-month-year');
+            const prevButton = document.getElementById('prev-month');
+            const nextButton = document.getElementById('next-month');
+            const reminderModal = document.getElementById('reminder-modal');
+            const modalDate = document.getElementById('modal-date');
+            const modalContentList = document.getElementById('modal-content-list');
+            const closeButton = document.querySelector('.close-button');
+            const reminderDateInput = document.getElementById('reminder-date');
+            const reminderTextInput = document.getElementById('reminder-text');
+            const addReminderButton = document.getElementById('add-reminder-button');
+
+            let currentDate = new Date();
+            
+            function renderCalendar() {
+                calendarGrid.innerHTML = '';
+                const month = currentDate.getMonth();
+                const year = currentDate.getFullYear();
+                
+                currentMonthYear.textContent = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(currentDate);
+
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startDayOfWeek = firstDay.getDay(); 
+                
+                const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+                dayNames.forEach(day => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.textContent = day;
+                    calendarGrid.appendChild(dayHeader);
+                });
+
+                for (let i = 0; i < startDayOfWeek; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.className = 'day-cell empty';
+                    calendarGrid.appendChild(emptyCell);
+                }
+
+                const today = new Date();
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    dayCell.textContent = i;
+                    
+                    const dateObj = new Date(year, month, i);
+                    const dateKey = `${year}-${month + 1}-${i}`;
+                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+
+                    const hasSchedule = schedules['if-a'][dayName];
+                    const hasReminder = reminders[dateKey] && reminders[dateKey].length > 0;
+                    
+                    if (hasSchedule || hasReminder) {
+                        dayCell.classList.add('has-reminder');
+                    }
+                    
+                    if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dayCell.classList.add('current-day');
+                    }
+                    calendarGrid.appendChild(dayCell);
+                }
+            }
+            
+            prevButton.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            nextButton.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+
+            addReminderButton.addEventListener('click', () => {
+                const date = reminderDateInput.value;
+                const text = reminderTextInput.value.trim();
+
+                if (date && text) {
+                    const [year, month, day] = date.split('-').map(Number);
+                    const dateKey = `${year}-${month}-${day}`;
+                    
+                    if (!reminders[dateKey]) {
+                        reminders[dateKey] = [];
+                    }
+                    reminders[dateKey].push(text);
+                    saveReminders();
+                    renderCalendar();
+                    renderTodaySchedule();
+                    
+                    reminderTextInput.value = '';
+                    // showModal(`Pengingat berhasil ditambahkan untuk tanggal ${new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}!`);
+                } else {
+                    // showModal('Silakan pilih tanggal dan masukkan pengingat.');
+                }
+            });
+
+            calendarGrid.addEventListener('click', (event) => {
+                const clickedCell = event.target.closest('.day-cell:not(.empty)');
+                if (clickedCell) {
+                    const day = parseInt(clickedCell.textContent);
+                    const month = currentDate.getMonth();
+                    const year = currentDate.getFullYear();
+                    const dateObj = new Date(year, month, day);
+                    const dateKey = `${year}-${month + 1}-${day}`;
+                    const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+
+                    modalDate.textContent = `Kegiatan untuk ${day}, ${dayName} ${new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(currentDate)}`;
+                    modalContentList.innerHTML = '';
+
+                    const scheduleDataA = schedules['if-a'][dayName];
+                    const reminderData = reminders[dateKey];
+                    
+                    let hasContent = false;
+
+                    if (scheduleDataA) {
+                        const scheduleTitle = document.createElement('h4');
+                        scheduleTitle.className = 'modal-title';
+                        scheduleTitle.textContent = 'Jadwal Kuliah IF-A';
+                        modalContentList.appendChild(scheduleTitle);
+
+                        const ul = document.createElement('ul');
+                        ul.className = 'modal-list';
+                        scheduleDataA.forEach(item => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<strong>${item.time}</strong><br>${item.subject} | ${item.location} | ${item.lecturer}`;
+                            ul.appendChild(li);
+                        });
+                        modalContentList.appendChild(ul);
+                        hasContent = true;
+                    }
+
+                    if (reminderData && reminderData.length > 0) {
+                        const reminderTitle = document.createElement('h4');
+                        reminderTitle.className = 'modal-title';
+                        reminderTitle.textContent = 'Pengingat Tambahan';
+                        modalContentList.appendChild(reminderTitle);
+                        
+                        const ul = document.createElement('ul');
+                        ul.className = 'modal-list';
+                        reminderData.forEach(reminder => {
+                            const li = document.createElement('li');
+                            li.textContent = reminder;
+                            ul.appendChild(li);
+                        });
+                        modalContentList.appendChild(ul);
+                        hasContent = true;
+                    }
+
+                    if (!hasContent) {
+                        const message = document.createElement('p');
+                        message.textContent = "Tidak ada kegiatan atau pengingat pada hari ini.";
+                        modalContentList.appendChild(message);
+                    }
+
+                    reminderModal.classList.add('show');
+                }
+            });
+
+            closeButton.addEventListener('click', () => {
+                reminderModal.classList.remove('show');
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === reminderModal) {
+                    reminderModal.classList.remove('show');
+                }
+            });
+
+            renderCalendar();
+        });
+    </script>
+</body>
+</html>
