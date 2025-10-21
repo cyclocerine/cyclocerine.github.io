@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaStrip Photobooth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Kalam:wght@700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .font-doodle {
+            font-family: 'Kalam', cursive;
+        }
+        .font-elegant {
+            font-family: 'Playfair Display', serif;
+        }
+        .photo-strip-frame {
+            border-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='4' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e") 2;
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4f46e5;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5;
+        }
+        .filter-btn.active, .strip-style-btn.active {
+            transform: scale(1.1);
+            border-color: #4f46e5;
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+        }
+        .sticker {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            width: 80px;
+            height: 80px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-7xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-600">📸 InstaStrip Photobooth 📸</h1>
+            <p class="text-gray-500 mt-2">Abadikan momen seru Anda!</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            <!-- Kolom Kontrol -->
+            <div class="lg:col-span-1 flex flex-col space-y-4">
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">1. Mulai Kamera</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="start-webcam" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition">Webcam</button>
+                        <label for="upload-photo" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition text-center cursor-pointer">Unggah</label>
+                        <input type="file" id="upload-photo" class="hidden" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">2. Pengaturan</h3>
+                    <div class="flex items-center justify-between">
+                        <span>Hitung Mundur</span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="countdown-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                            <label for="countdown-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">3. Pilih Filter</h3>
+                    <div id="filter-container" class="grid grid-cols-3 gap-2">
+                        <button class="filter-btn border-2 border-transparent rounded-lg p-1 active" data-filter="none"><img src="https://placehold.co/100x100/f9a8d4/4a4a4a?text=Normal" class="rounded-md w-full"></button>
+                        <button class="filter-btn border-2 border-transparent rounded-lg p-1" data-filter="grayscale(100%)"><img src="https://placehold.co/100x100/9ca3af/ffffff?text=B%26W" class="rounded-md w-full" style="filter: grayscale(100%);"></button>
+                        <button class="filter-btn border-2 border-transparent rounded-lg p-1" data-filter="sepia(100%)"><img src="https://placehold.co/100x100/f59e0b/ffffff?text=Sepia" class="rounded-md w-full" style="filter: sepia(100%);"></button>
+                        <button class="filter-btn border-2 border-transparent rounded-lg p-1" data-filter="saturate(2)"><img src="https://placehold.co/100x100/ef4444/ffffff?text=Vivid" class="rounded-md w-full" style="filter: saturate(2);"></button>
+                         <button class="filter-btn border-2 border-transparent rounded-lg p-1" data-filter="contrast(150%)"><img src="https://placehold.co/100x100/6366f1/ffffff?text=Contrast" class="rounded-md w-full" style="filter: contrast(150%);"></button>
+                        <button class="filter-btn border-2 border-transparent rounded-lg p-1" data-filter="invert(100%)"><img src="https://placehold.co/100x100/10b981/ffffff?text=Invert" class="rounded-md w-full" style="filter: invert(100%);"></button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">4. Pilih Model Strip</h3>
+                    <div id="strip-style-container" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2">
+                        <button class="strip-style-btn border-2 border-transparent rounded-lg p-1 active" data-style="default">
+                            <div class="w-full h-16 bg-white border border-gray-300 rounded-md flex items-center justify-center text-xs text-gray-700">Polos</div>
+                        </button>
+                         <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="film-reel">
+                            <div class="w-full h-16 bg-gray-800 border border-gray-600 rounded-md flex items-center justify-center text-xs text-white">Film Reel</div>
+                        </button>
+                         <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="doodle-fun">
+                            <div class="w-full h-16 bg-yellow-100 border border-yellow-300 rounded-md flex items-center justify-center text-xs text-yellow-800">Doodle</div>
+                        </button>
+                        <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="pastel-dreams">
+                            <div class="w-full h-16 bg-gradient-to-br from-pink-200 to-blue-200 border border-purple-300 rounded-md flex items-center justify-center text-xs text-purple-700">Pastel</div>
+                        </button>
+                         <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="scribble-notes">
+                            <div class="w-full h-16 bg-white border border-gray-400 rounded-md flex items-center justify-center text-xs text-gray-800" style="background-image: linear-gradient(rgba(200,200,200,0.5) .1em, transparent .1em); background-size: 100% 1.2em;">Notes</div>
+                        </button>
+                        <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="kawaii-treats">
+                            <div class="w-full h-16 bg-gradient-to-br from-pink-200 to-green-200 border border-pink-300 rounded-md flex items-center justify-center text-xs text-pink-700">Kawaii</div>
+                        </button>
+                         <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="galaxy-voyage">
+                            <div class="w-full h-16 bg-gradient-to-br from-indigo-900 to-gray-900 border border-indigo-700 rounded-md flex items-center justify-center text-xs text-indigo-300">Galaxy</div>
+                        </button>
+                        <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="art-deco">
+                            <div class="w-full h-16 bg-gray-800 border border-yellow-500 rounded-md flex items-center justify-center text-xs text-yellow-300">Art Deco</div>
+                        </button>
+                        <button class="strip-style-btn border-2 border-transparent rounded-lg p-1" data-style="vintage-floral">
+                            <div class="w-full h-16 bg-teal-700 border border-teal-500 rounded-md flex items-center justify-center text-xs text-teal-100">Floral</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-bold text-lg mb-3 text-gray-700">5. Tambah Stiker</h3>
+                    <div id="sticker-container" class="grid grid-cols-4 gap-2">
+                        <!-- Stiker akan ditambahkan oleh JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Kolom Kamera/Preview -->
+            <div class="relative lg:col-span-1 flex flex-col items-center justify-center">
+                <div id="camera-view" class="w-full max-w-md aspect-[3/4] bg-gray-200 rounded-lg overflow-hidden relative flex items-center justify-center">
+                    <video id="video" class="h-full w-full object-cover" autoplay playsinline></video>
+                    <img id="image-preview" class="h-full w-full object-cover hidden" src="">
+                    <div id="sticker-area" class="absolute top-0 left-0 w-full h-full"></div>
+                    <div id="countdown-overlay" class="absolute inset-0 bg-black bg-opacity-50 text-white text-9xl font-bold flex items-center justify-center hidden"></div>
+                    <div id="placeholder-text" class="text-gray-500 text-center">Nyalakan webcam atau unggah foto</div>
+                </div>
+                <button id="take-photo" class="mt-4 w-full max-w-md bg-indigo-500 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-600 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none" disabled>Ambil Foto</button>
+            </div>
+
+            <!-- Kolom Photo Strip -->
+            <div class="lg:col-span-1 flex flex-col items-center">
+                <h3 class="font-bold text-lg mb-3 text-gray-700">Hasil Foto</h3>
+                <div id="photo-strip" class="w-4/5 max-w-xs h-full p-3 rounded-lg flex flex-col items-center justify-start space-y-2 transition-colors duration-300" style="background-size: cover; background-position: center;">
+                    <!-- Slot foto akan ditambahkan oleh JS -->
+                </div>
+                <div class="w-4/5 max-w-xs grid grid-cols-2 gap-2 mt-4">
+                    <button id="finish-download" class="w-full bg-purple-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-600 transition disabled:bg-gray-400" disabled>Selesai & Unduh</button>
+                    <button id="reset-all" class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition">Ulangi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Elemen Canvas tersembunyi untuk pemrosesan gambar -->
+    <canvas id="canvas" class="hidden"></canvas>
+
+    <script>
+        // --- DOM Elements ---
+        const video = document.getElementById('video');
+        const imagePreview = document.getElementById('image-preview');
+        const canvas = document.getElementById('canvas');
+        const startWebcamBtn = document.getElementById('start-webcam');
+        const uploadInput = document.getElementById('upload-photo');
+        const takePhotoBtn = document.getElementById('take-photo');
+        const photoStrip = document.getElementById('photo-strip');
+        const countdownToggle = document.getElementById('countdown-toggle');
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const filterContainer = document.getElementById('filter-container');
+        const stickerContainer = document.getElementById('sticker-container');
+        const stickerArea = document.getElementById('sticker-area');
+        const finishDownloadBtn = document.getElementById('finish-download');
+        const resetBtn = document.getElementById('reset-all');
+        const cameraView = document.getElementById('camera-view');
+        const placeholderText = document.getElementById('placeholder-text');
+        const stripStyleContainer = document.getElementById('strip-style-container');
+
+        // --- State ---
+        let stream;
+        let photos = [];
+        let currentFilter = 'none';
+        let isWebcamActive = false;
+        let currentStripStyle = 'default';
+
+        // --- Stiker SVG (inline) ---
+        const stickers = {
+            heart: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+            star: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`,
+            speech_bubble: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" stroke="black" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+            sunglasses: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="black"><path d="M432 192c-17.7 0-32 14.3-32 32s14.3 32 32 32s32-14.3 32-32s-14.3-32-32-32zM80 192c-17.7 0-32 14.3-32 32s14.3 32 32 32s32-14.3 32-32s-14.3-32-32-32zm384 16c-3.3-11.9-7.9-23.2-13.8-33.6c-24.1-42.5-62.7-71.9-108.2-83.3c-2.4-11-6.1-21.6-11-31.5C322.2 41.6 292.1 32 256 32s-66.2 9.6-83.1 27.6c-4.9 9.9-8.6 20.5-11 31.5C116.6 106.1 78 135.5 53.8 178.4C47.9 188.8 43.3 200.1 40 211.2V224c0 35.3 28.7 64 64 64h304c35.3 0 64-28.7 64-64v-12.8zM256 256c-44.2 0-80-35.8-80-80s35.8-80 80-80s80 35.8 80 80s-35.8 80-80 80z"/></svg>`,
+        };
+
+        const stripDesigns = {
+            'default': {
+                preview: { type: 'class', value: 'bg-gray-800' },
+                canvas: { type: 'color', value: '#1F2937' }, // gray-800
+                header: { text: 'InstaStrip Booth', color: '#FFFFFF', font: 'bold 30px Poppins, sans-serif' }
+            },
+            'film-reel': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='400' fill='%23222'/%3E%3Crect x='5' y='5' width='2' height='390' fill='%23444'/%3E%3Crect x='93' y='5' width='2' height='390' fill='%23444'/%3E%3Ctext x='50' y='30' font-family='monospace' font-size='10' fill='white' text-anchor='middle'%3EPHOTO%3C/text%3E%3Ccircle cx='50' cy='385' r='8' fill='white'/%3E%3C/svg%3E`},
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='1958' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='470' height='1958' fill='%231a1a1a'/%3E%3Cstyle%3E.small%7Bfont:14px monospace;fill:%23888%7D%3C/style%3E%3Crect x='0' y='0' width='15' height='1958' fill='%23333'/%3E%3Crect x='455' y='0' width='15' height='1958' fill='%23333'/%3E%3Cg fill='%23ccc' opacity='0.5'%3E%3Crect x='4' y='25' width='7' height='7' rx='1'/%3E%3Crect x='4' y='50' width='7' height='7' rx='1'/%3E%3Crect x='4' y='75' width='7' height='7' rx='1'/%3E%3Crect x='459' y='25' width='7' height='7' rx='1'/%3E%3Crect x='459' y='50' width='7' height='7' rx='1'/%3E%3Crect x='459' y='75' width='7' height='7' rx='1'/%3E%3C/g%3E%3Ctext x='235' y='50' font-family='monospace' font-size='32' fill='%23ddd' text-anchor='middle'%3EINSTASTRIP BOOTH%3C/text%3E%3C/svg%3E` }
+            },
+            'doodle-fun': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='400' fill='%23fef3c7'/%3E%3Cpath d='M10 10 L20 20 M20 10 L10 20' stroke='%23fbbf24' stroke-width='2'/%3E%3Ccircle cx='80' cy='25' r='8' fill='%23f59e0b'/%3E%3Cpath d='M50 380 Q 60 370, 70 380' stroke='%23ef4444' stroke-width='2' fill='none'/%3E%3C/svg%3E` },
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='1958' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.kalam%7Bfont:bold 48px Kalam,cursive; fill:%23c2410c;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='1958' fill='%23fef3c7'/%3E%3Ctext x='235' y='65' class='kalam' text-anchor='middle'%3EMy Awesome Day!%3C/text%3E%3Cg transform='translate(350 100) rotate(15)'%3E%3Cpath d='M0,15 L10,0 L20,15 L0,5 L20,5 Z' fill='%23f59e0b'/%3E%3C/g%3E%3Cg transform='translate(50 1800) rotate(-25)'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='%23ef4444' transform='scale(2)'/%3E%3C/g%3E%3Ccircle cx='30' cy='120' r='10' fill='%23fbbf24'/%3E%3Cpath d='M400 1780 Q 410 1770, 420 1780' stroke='%23059669' stroke-width='3' fill='none'/%3E%3Cpath d='M380 900 L410 930 M410 900 L380 930' stroke='%238b5cf6' stroke-width='4'/%3E%3C/svg%3E` }
+            },
+            'pastel-dreams': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23fbcfe8'/%3E%3Cstop offset='100%25' stop-color='%23bfdbfe'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23p)'/%3E%3Cpath d='M20 30 L22 25 L24 30 L29 32 L24 34 L22 39 L20 34 L15 32 Z' fill='white' opacity='0.7' transform='translate(10 15) scale(0.8)'/%3E%3Cpath d='M20 30 L22 25 L24 30 L29 32 L24 34 L22 39 L20 34 L15 32 Z' fill='white' opacity='0.6' transform='translate(70 60) scale(1.2)'/%3E%3C/svg%3E` },
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='1958' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='pastelGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23fbcfe8' /%3E%3Cstop offset='100%25' style='stop-color:%23bfdbfe' /%3E%3C/linearGradient%3E%3Cstyle%3E.kalam%7Bfont:bold 48px Kalam,cursive; fill:%239333ea;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='1958' fill='url(%23pastelGrad)'/%3E%3Ctext x='235' y='65' class='kalam' text-anchor='middle'%3EDreamy Moments%3C/text%3E%3Cpath d='M20 30 L22 25 L24 30 L29 32 L24 34 L22 39 L20 34 L15 32 Z' fill='white' opacity='0.7' transform='translate(50 100)'/%3E%3Cpath d='M20 30 L22 25 L24 30 L29 32 L24 34 L22 39 L20 34 L15 32 Z' fill='white' opacity='0.5' transform='translate(380 1700) scale(1.5)'/%3E%3Cpath d='M20 30 L22 25 L24 30 L29 32 L24 34 L22 39 L20 34 L15 32 Z' fill='white' opacity='0.6' transform='translate(40 800) scale(0.8)'/%3E%3C/svg%3E` }
+            },
+            'scribble-notes': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='l' patternUnits='userSpaceOnUse' width='100' height='15'%3E%3Cpath d='M 0 14.5 H 100' stroke='%23dbeafe' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='%23eff6ff'/%3E%3Crect width='100' height='100' fill='url(%23l)'/%3E%3Cpath d='M 0 20 H 100' stroke='%23fca5a5' stroke-width='1.5'/%3E%3C/svg%3E`},
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='1958' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='linedPaper' patternUnits='userSpaceOnUse' width='470' height='50'%3E%3Cpath d='M 0 49.5 H 470' stroke='%23dbeafe' stroke-width='1'/%3E%3C/pattern%3E%3Cstyle%3E.kalam%7Bfont:bold 48px Kalam,cursive; fill:%231e3a8a;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='1958' fill='%23eff6ff'/%3E%3Crect width='470' height='1958' fill='url(%23linedPaper)'/%3E%3Cpath d='M 0 100 H 470' stroke='%23fca5a5' stroke-width='2'/%3E%3Ctext x='235' y='65' class='kalam' text-anchor='middle'%3E%23OurNotes%3C/text%3E%3Cg transform='translate(370 20) rotate(20) scale(1.5)'%3E%3Cpath d='M10 3 C7.243 3 5 5.243 5 8 L5 21 C5 24.866 8.134 28 12 28 C15.866 28 19 24.866 19 21 L19 9 C19 6.243 16.757 4 14 4 C11.243 4 9 6.243 9 9 L9 20' stroke='%2371717a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/g%3E%3Ccircle cx='80' cy='1800' r='50' stroke='%23a16207' stroke-width='3' fill='none' opacity='0.4'/%3E%3Ccircle cx='75' cy='1795' r='45' stroke='%23a16207' stroke-width='2' fill='none' opacity='0.3'/%3E%3C/svg%3E` }
+            },
+            'kawaii-treats': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='k' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23fce7f3'/%3E%3Cstop offset='100%25' stop-color='%23d1fae5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23k)'/%3E%3Ccircle cx='25' cy='25' r='10' fill='%23fb7185'/%3E%3Ccircle cx='25' cy='25' r='4' fill='white'/%3E%3Cpath d='M70 60 L80 80 L60 80 Z' fill='%23a78bfa'/%3E%3C/svg%3E` },
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='1958' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='kawaiiGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23fce7f3' /%3E%3Cstop offset='100%25' style='stop-color:%23d1fae5' /%3E%3C/linearGradient%3E%3Cstyle%3E.kalam%7Bfont:bold 48px Kalam,cursive; fill:%23be185d;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='1958' fill='url(%23kawaiiGrad)'/%3E%3Ctext x='235' y='65' class='kalam' text-anchor='middle'%3ESweet Memories%3C/text%3E%3Cg transform='translate(50 120) rotate(-15)'%3E%3Cpath d='M40,20 A20,20 0 1 1 0,20 A10,10 0 0 0 40,20 Z' fill='%23f472b6'/%3E%3Ccircle cx='20' cy='20' r='8' fill='%23fef08a'/%3E%3C/g%3E%3Cg transform='translate(380 1850) rotate(20)'%3E%3Cpath d='M10 0 L 20 20 L 0 20 Z' fill='%23a78bfa'/%3E%3Cpath d='M10 25 L 20 45 L 0 45 Z' fill='%23818cf8'/%3E%3C/g%3E%3Ccircle cx='400' cy='900' r='25' fill='%23f9a8d4' stroke='%23ec4899' stroke-width='3'/%3E%3Ccircle cx='400' cy='900' r='10' fill='white'/%3E%3C/svg%3E` }
+            },
+            'galaxy-voyage': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='g'%3E%3Cstop offset='0%25' stop-color='%23312e81'/%3E%3Cstop offset='100%25' stop-color='%23111827'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23g)'/%3E%3Ccircle cx='20' cy='20' r='2' fill='white'/%3E%3Ccircle cx='80' cy='30' r='1' fill='white'/%3E%3Ccircle cx='50' cy='80' r='3' fill='%23fef08a'/%3E%3C/svg%3E`},
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='1958' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='galaxyGrad'%3E%3Cstop offset='0%25' stop-color='%23312e81' /%3E%3Cstop offset='100%25' stop-color='%23111827' /%3E%3C/radialGradient%3E%3Cstyle%3E.poppins%7Bfont:bold 44px Poppins,sans-serif; fill:%23f0f9ff;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='1958' fill='url(%23galaxyGrad)'/%3E%3Ctext x='235' y='65' class='poppins' text-anchor='middle'%3ECosmic Journey%3C/text%3E%3Ccircle cx='60' cy='150' r='2' fill='white'/%3E%3Ccircle cx='400' cy='200' r='3' fill='white'/%3E%3Ccircle cx='100' cy='900' r='1' fill='white'/%3E%3Ccircle cx='350' cy='1800' r='4' fill='%23fef08a'/%3E%3Ccircle cx='80' cy='1850' r='2' fill='white'/%3E%3Cg transform='translate(350 900) rotate(15)'%3E%3Cellipse cx='0' cy='0' rx='40' ry='20' fill='%23e9d5ff'/%3E%3Cellipse cx='0' cy='0' rx='50' ry='10' stroke='%23a855f7' stroke-width='3' fill='none'/%3E%3C/g%3E%3C/svg%3E` }
+            },
+            'art-deco': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%231c2833'/%3E%3Cpath d='M0 0 L20 0 L0 20 Z' fill='%23daa520'/%3E%3Cpath d='M100 0 L80 0 L100 20 Z' fill='%23daa520'/%3E%3Ccircle cx='50' cy='85' r='10' stroke='%23daa520' stroke-width='1.5' fill='none'/%3E%3C/svg%3E`},
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='2540' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.elegant%7Bfont:italic bold 32px 'Playfair Display',serif; fill:%23f0e68c;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='2540' fill='%231c2833'/%3E%3Crect x='35' y='80' width='400' height='568' stroke='%23daa520' stroke-width='2' fill='none'/%3E%3Crect x='35' y='683' width='400' height='568' stroke='%23daa520' stroke-width='2' fill='none'/%3E%3Crect x='35' y='1286' width='400' height='568' stroke='%23daa520' stroke-width='2' fill='none'/%3E%3Crect x='35' y='1889' width='400' height='568' stroke='%23daa520' stroke-width='2' fill='none'/%3E%3Cg stroke='%23daa520' stroke-width='1.5'%3E%3Cpath d='M0 0 L50 0 L0 50 Z'/%3E%3Cpath d='M470 0 L420 0 L470 50 Z'/%3E%3Cpath d='M0 2540 L50 2540 L0 2490 Z'/%3E%3Cpath d='M470 2540 L420 2540 L470 2490 Z'/%3E%3C/g%3E%3Ccircle cx='235' cy='40' r='20' stroke='%23daa520' stroke-width='2' fill='none'/%3E%3C/svg%3E` },
+                footer: { text: 'Capture the Moment', color: '#f0e68c', font: "italic 32px 'Playfair Display', serif", yOffset: -30 }
+            },
+             'vintage-floral': {
+                preview: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23e0f2f1'/%3E%3Cpath d='M20 80 C 10 70, 10 50, 20 40' stroke='%2300796b' fill='none' stroke-width='2'/%3E%3Ccircle cx='80' cy='20' r='5' fill='%23004d40'/%3E%3C/svg%3E`},
+                canvas: { type: 'svg', value: `data:image/svg+xml,%3Csvg width='470' height='2540' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cstyle%3E.elegant%7Bfont:italic bold 32px 'Playfair Display',serif; fill:%23004d40;%7D%3C/style%3E%3C/defs%3E%3Crect width='470' height='2540' fill='%23e0f2f1'/%3E%3Cg fill='none' stroke='%2300796b' stroke-width='2'%3E%3Cpath d='M60 100 C 40 150, 40 250, 60 300'/%3E%3Cpath d='M410 100 C 430 150, 430 250, 410 300'/%3E%3Cpath d='M60 2240 C 40 2290, 40 2390, 60 2440'/%3E%3Cpath d='M410 2240 C 430 2290, 430 2390, 410 2440'/%3E%3Crect x='25' y='70' width='420' height='2400' rx='10' stroke-width='4'/%3E%3C/g%3E%3Ctext x='235' y='50' class='elegant' text-anchor='middle'%3EMaking Memories%3C/text%3E%3C/svg%3E` },
+                 footer: { text: 'With Love', color: '#004d40', font: "italic 32px 'Playfair Display', serif", yOffset: 0 }
+            }
+        };
+
+        // --- Functions ---
+
+        function activateCameraView() {
+            takePhotoBtn.disabled = false;
+            placeholderText.style.display = 'none';
+        }
+
+        async function startWebcam() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                video.classList.remove('hidden');
+                imagePreview.classList.add('hidden');
+                activateCameraView();
+                isWebcamActive = true;
+            } catch (err) {
+                console.error("Error accessing webcam:", err);
+                alert("Tidak bisa mengakses webcam. Pastikan Anda memberikan izin.");
+            }
+        }
+
+        function handleFileUpload(event) {
+             if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                isWebcamActive = false;
+            }
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    video.classList.add('hidden');
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    activateCameraView();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function takePhoto() {
+            if (photos.length >= 4) return;
+            
+            if (countdownToggle.checked) {
+                let count = 3;
+                countdownOverlay.textContent = count;
+                countdownOverlay.classList.remove('hidden');
+                const interval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownOverlay.textContent = count;
+                    } else {
+                        countdownOverlay.textContent = '😊';
+                        setTimeout(() => {
+                           countdownOverlay.classList.add('hidden');
+                           captureImage();
+                        }, 500);
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            } else {
+                captureImage();
+            }
+        }
+        
+        async function captureImage() {
+            const context = canvas.getContext('2d');
+            const source = isWebcamActive ? video : imagePreview;
+            const sourceWidth = source.videoWidth || source.naturalWidth;
+            const sourceHeight = source.videoHeight || source.naturalHeight;
+
+            const targetAspectRatio = 3.0 / 4.0;
+            let sWidth = sourceWidth;
+            let sHeight = sourceHeight;
+            let sx = 0;
+            let sy = 0;
+
+            if (sourceWidth / sourceHeight > targetAspectRatio) {
+                sWidth = sourceHeight * targetAspectRatio;
+                sx = (sourceWidth - sWidth) / 2;
+            } else {
+                sHeight = sourceWidth / targetAspectRatio;
+                sy = (sourceHeight - sHeight) / 2;
+            }
+            canvas.width = 600;
+            canvas.height = 800;
+            
+            context.filter = currentFilter;
+            context.drawImage(source, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+
+            const stickersOnArea = stickerArea.querySelectorAll('.sticker');
+            if (stickersOnArea.length > 0) {
+                 const scaleX = canvas.width / stickerArea.clientWidth;
+                 const scaleY = canvas.height / stickerArea.clientHeight;
+
+                for (const stickerEl of stickersOnArea) {
+                    const stickerImg = stickerEl.querySelector('svg');
+                    const svgString = new XMLSerializer().serializeToString(stickerImg);
+                    const svgBlob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+                    const url = URL.createObjectURL(svgBlob);
+                    const img = new Image();
+                    
+                    await new Promise((resolve) => {
+                        img.onload = () => {
+                            const x = stickerEl.offsetLeft * scaleX;
+                            const y = stickerEl.offsetTop * scaleY;
+                            const width = stickerEl.clientWidth * scaleX;
+                            const height = stickerEl.clientHeight * scaleY;
+                            context.drawImage(img, x, y, width, height);
+                            URL.revokeObjectURL(url);
+                            resolve();
+                        };
+                        img.src = url;
+                    });
+                }
+            }
+
+            const dataUrl = canvas.toDataURL('image/png');
+            photos.push(dataUrl);
+            updatePhotoStrip();
+            clearStickers();
+
+            if (photos.length >= 4) {
+                takePhotoBtn.disabled = true;
+                finishDownloadBtn.disabled = false;
+            }
+        }
+
+        function updatePhotoStrip() {
+            photoStrip.innerHTML = '';
+            
+            const design = stripDesigns[currentStripStyle];
+
+            if (design.preview.type === 'class') {
+                photoStrip.style.backgroundImage = '';
+                photoStrip.classList.remove('bg-gray-800'); 
+                photoStrip.classList.add(design.preview.value);
+            } else if (design.preview.type === 'svg') {
+                photoStrip.classList.remove('bg-gray-800');
+                photoStrip.style.backgroundImage = `url("${design.preview.value}")`;
+            }
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = `text-center font-bold text-sm py-1 h-8 flex items-center justify-center`;
+            
+            if(design.header || design.footer) {
+                let textToShow = design.header ? design.header.text : (design.footer ? design.footer.text : '');
+                let fontClass = 'font-sans';
+                let colorClass = 'text-gray-500';
+
+                 if (currentStripStyle === 'art-deco' || currentStripStyle === 'vintage-floral') {
+                    fontClass = 'font-elegant';
+                    colorClass = currentStripStyle === 'art-deco' ? 'text-yellow-200' : 'text-teal-900';
+                }
+                
+                headerDiv.classList.add(fontClass, colorClass);
+                headerDiv.textContent = textToShow;
+            } else {
+                headerDiv.innerHTML = '&nbsp;';
+            }
+            photoStrip.appendChild(headerDiv);
+
+            for (let i = 0; i < 4; i++) {
+                const photoSlot = document.createElement('div');
+                photoSlot.className = `w-full aspect-[3/4] rounded flex items-center justify-center relative`;
+                
+                if (photos[i]) {
+                    const img = document.createElement('img');
+                    img.src = photos[i];
+                    img.className = 'w-full h-full object-cover rounded';
+                    
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.innerHTML = '&#x2B07;';
+                    downloadBtn.className = 'absolute bottom-1 right-1 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 text-sm';
+                    downloadBtn.onclick = () => downloadImage(photos[i], `photostrip-${i+1}.png`);
+                    
+                    photoSlot.appendChild(img);
+                    photoSlot.appendChild(downloadBtn);
+
+                } else {
+                     photoSlot.innerHTML = `<span class="text-4xl font-bold opacity-20">${i + 1}</span>`;
+                }
+                photoStrip.appendChild(photoSlot);
+            }
+        }
+
+        function downloadImage(dataUrl, filename) {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+a.click();
+            document.body.removeChild(a);
+        }
+
+        function applyFilter(filter) {
+            currentFilter = filter;
+            const mediaView = isWebcamActive ? video : imagePreview;
+            mediaView.style.filter = currentFilter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+        }
+        
+        function selectStripStyle(style) {
+            currentStripStyle = style;
+            document.querySelectorAll('.strip-style-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.style === style);
+            });
+            updatePhotoStrip();
+        }
+
+        function initStickers() {
+            Object.keys(stickers).forEach(key => {
+                const stickerBtn = document.createElement('button');
+                stickerBtn.className = 'p-1 bg-white rounded-md border-2 border-gray-200 hover:border-indigo-400';
+                stickerBtn.innerHTML = stickers[key];
+                stickerBtn.onclick = () => addStickerToArea(stickers[key]);
+                stickerContainer.appendChild(stickerBtn);
+            });
+        }
+        
+        function addStickerToArea(stickerHTML) {
+            const stickerEl = document.createElement('div');
+            stickerEl.className = 'sticker';
+            stickerEl.innerHTML = stickerHTML;
+            stickerEl.style.left = 'calc(50% - 40px)';
+            stickerEl.style.top = 'calc(50% - 40px)';
+            
+            makeDraggable(stickerEl);
+            stickerArea.appendChild(stickerEl);
+        }
+
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+            element.ontouchstart = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e.preventDefault();
+                if (e.type === 'touchstart') {
+                    pos3 = e.touches[0].clientX;
+                    pos4 = e.touches[0].clientY;
+                } else {
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                }
+                document.onmouseup = closeDragElement;
+                document.ontouchend = closeDragElement;
+                document.onmousemove = elementDrag;
+                document.ontouchmove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                let clientX, clientY;
+                if (e.type === 'touchmove') {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+                pos1 = pos3 - clientX;
+                pos2 = pos4 - clientY;
+                pos3 = clientX;
+                pos4 = clientY;
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+                document.ontouchend = null;
+                document.ontouchmove = null;
+            }
+        }
+        
+        function clearStickers() {
+            stickerArea.innerHTML = '';
+        }
+
+        async function drawStripBackground(ctx, width, height) {
+             const design = stripDesigns[currentStripStyle];
+             if (design.canvas.type === 'color') {
+                 ctx.fillStyle = design.canvas.value;
+                 ctx.fillRect(0, 0, width, height);
+             } else if (design.canvas.type === 'svg') {
+                 const bgImage = new Image();
+                 await new Promise(resolve => {
+                     bgImage.onload = () => {
+                         ctx.drawImage(bgImage, 0, 0, width, height);
+                         resolve();
+                     };
+                     bgImage.src = design.canvas.value;
+                 });
+             }
+        }
+
+        async function generateAndDownloadStrip() {
+            if (photos.length < 4) return;
+            
+            const stripCanvas = document.createElement('canvas');
+            const ctx = stripCanvas.getContext('2d');
+            const design = stripDesigns[currentStripStyle];
+
+            const photoWidth = 400;
+            const photoHeight = photoWidth * (4/3); 
+            const padding = 35; 
+            const headerHeight = 80;
+            const footerHeight = design.footer ? 150 : 0;
+            const photoSpacing = 35;
+
+            const canvasWidth = photoWidth + padding * 2;
+            const canvasHeight = headerHeight + (photoHeight * 4) + (photoSpacing * 3) + padding * 2 + footerHeight;
+
+            stripCanvas.width = canvasWidth;
+            stripCanvas.height = canvasHeight;
+
+            await drawStripBackground(ctx, stripCanvas.width, stripCanvas.height);
+
+            if (design.header) {
+                 ctx.fillStyle = design.header.color;
+                 ctx.font = design.header.font;
+                 ctx.textAlign = 'center';
+                 ctx.fillText(design.header.text, stripCanvas.width / 2, headerHeight / 2 + 10);
+            }
+            
+            for(let i = 0; i < photos.length; i++) {
+                const img = new Image();
+                await new Promise(resolve => {
+                    img.onload = () => {
+                        const y = headerHeight + padding + i * (photoHeight + photoSpacing);
+                        ctx.drawImage(img, padding, y, photoWidth, photoHeight);
+                        resolve();
+                    };
+                    img.src = photos[i];
+                });
+            }
+
+            if (design.footer) {
+                 ctx.fillStyle = design.footer.color;
+                 ctx.font = design.footer.font;
+                 ctx.textAlign = 'center';
+                 const footerY = stripCanvas.height - (footerHeight / 2) + (design.footer.yOffset || 0);
+                 ctx.fillText(design.footer.text, stripCanvas.width / 2, footerY);
+            }
+            
+            const dataUrl = stripCanvas.toDataURL('image/png');
+            
+            downloadImage(dataUrl, 'instastrip-photobooth.png');
+        }
+        
+        function resetAll() {
+            photos = [];
+            clearStickers();
+            applyFilter('none');
+            selectStripStyle('default');
+            updatePhotoStrip();
+            takePhotoBtn.disabled = true;
+            finishDownloadBtn.disabled = true;
+            placeholderText.style.display = 'block';
+             if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                isWebcamActive = false;
+            }
+            video.classList.add('hidden');
+            imagePreview.classList.add('hidden');
+            uploadInput.value = '';
+        }
+
+        // --- Event Listeners ---
+        startWebcamBtn.addEventListener('click', startWebcam);
+        uploadInput.addEventListener('change', handleFileUpload);
+        takePhotoBtn.addEventListener('click', takePhoto);
+        filterContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.filter-btn');
+            if (button) {
+                applyFilter(button.dataset.filter);
+            }
+        });
+        finishDownloadBtn.addEventListener('click', generateAndDownloadStrip);
+        resetBtn.addEventListener('click', resetAll);
+        stripStyleContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.strip-style-btn');
+            if (button) {
+                selectStripStyle(button.dataset.style);
+            }
+        });
+
+        // --- Initialization ---
+        updatePhotoStrip();
+        initStickers();
+    </script>
+</body>
+</html>
+
