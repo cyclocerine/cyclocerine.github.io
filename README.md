@@ -8,5 +8,7 @@ Even time yields, without reply.
 ```
 
 ```bash
-​"A flawless melody rings within your laugh. Keep it echoing, and I shall cherish its sound from across the distance."
+​"A flawless melody rings within your laugh.
+ Keep it echoing, and I shall cherish its
+ sound from across the distance."
 ```
