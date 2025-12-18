@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utility Tools | Cyclocerine</title>
+    <meta name="description" content="Collection of useful utility tools - budgeting, money management, stock picking, and JSON generator.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #a855f7;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(99, 102, 241, 0.2);
+            --glow-color: rgba(99, 102, 241, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
+            animation: gradientShift 15s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        /* Grid Pattern Overlay */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        /* Header Section */
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .back-link {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: translateX(-5px);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 
+                0 20px 50px -10px rgba(99, 102, 241, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tool-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-primary);
+            box-shadow: 
+                0 25px 50px -12px rgba(99, 102, 241, 0.25),
+                0 0 0 1px rgba(99, 102, 241, 0.1);
+        }
+
+        .tool-card:hover::before,
+        .tool-card:hover::after {
+            opacity: 1;
+        }
+
+        .tool-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-card:nth-child(1) .tool-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .tool-card:nth-child(2) .tool-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.4);
+        }
+
+        .tool-card:nth-child(3) .tool-icon {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.4);
+        }
+
+        .tool-card:nth-child(4) .tool-icon {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+            box-shadow: 0 10px 30px -5px rgba(236, 72, 153, 0.4);
+        }
+
+        .tool-title {
+            font-size: 1.375rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-description {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-arrow {
+            position: absolute;
+            bottom: 32px;
+            right: 32px;
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover .tool-arrow {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .tool-arrow svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 40px 16px;
+            }
+
+            .back-link {
+                position: relative;
+                margin-bottom: 40px;
+            }
+
+            header {
+                margin-bottom: 50px;
+            }
+
+            .logo-icon {
+                width: 64px;
+                height: 64px;
+                font-size: 28px;
+            }
+
+            .tool-card {
+                padding: 24px;
+            }
+
+            .tool-arrow {
+                bottom: 24px;
+                right: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="grid-pattern"></div>
+
+    <div class="container">
+        <header>
+            <a href="../" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Home
+            </a>
+            <div class="logo-icon">🛠️</div>
+            <h1>Utility Tools</h1>
+            <p class="subtitle">A collection of useful tools to help you manage finances, generate data, and make better decisions.</p>
+        </header>
+
+        <div class="tools-grid">
+            <a href="budgeting.html" class="tool-card">
+                <div class="tool-icon">💰</div>
+                <h2 class="tool-title">Budgeting</h2>
+                <p class="tool-description">Track your income and expenses, create budgets, and visualize your spending habits.</p>
+                <div class="tool-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="moneymanagement.html" class="tool-card">
+                <div class="tool-icon">📊</div>
+                <h2 class="tool-title">Money Management</h2>
+                <p class="tool-description">Manage your finances with smart tools for savings, investments, and financial planning.</p>
+                <div class="tool-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="stockpick.html" class="tool-card">
+                <div class="tool-icon">📈</div>
+                <h2 class="tool-title">Stock Pick</h2>
+                <p class="tool-description">Analyze and pick stocks with data-driven insights and technical analysis tools.</p>
+                <div class="tool-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+
+            <a href="jsongen.html" class="tool-card">
+                <div class="tool-icon">{ }</div>
+                <h2 class="tool-title">JSON Generator</h2>
+                <p class="tool-description">Generate, format, and validate JSON data with an intuitive interface.</p>
+                <div class="tool-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ by <a href="../">Cyclocerine</a></p>
+        </footer>
+    </div>
+</body>
+</html>
