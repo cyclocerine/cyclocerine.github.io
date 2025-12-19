@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Generator | Image Tools</title>
+    <meta name="description" content="Create memes online with top and bottom text in impact font style.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(26, 26, 37, 0.8);
+            --accent-primary: #10b981;
+            --accent-secondary: #059669;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            color: var(--accent-primary);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+        }
+
+        .upload-area {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .editor {
+            display: none;
+        }
+
+        .editor.show {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+        }
+
+        @media (max-width: 800px) {
+            .editor.show {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .preview-panel canvas {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .control-group input[type="text"],
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .control-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .control-group input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row>* {
+            flex: 1;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient"></div>
+    <div class="container">
+        <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg> Back to Tools</a>
+        <header>
+            <div class="tool-icon">😂</div>
+            <h1>Meme Generator</h1>
+            <p class="subtitle">Create memes with top and bottom text</p>
+        </header>
+        <div class="upload-area" id="uploadArea">
+            <h3>📁 Drop image here or click to upload</h3>
+            <p>Upload your meme template</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div class="editor" id="editor">
+            <div class="preview-panel">
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>Top Text</label>
+                    <input type="text" id="topText" placeholder="TOP TEXT" style="text-transform: uppercase;">
+                </div>
+                <div class="control-group">
+                    <label>Bottom Text</label>
+                    <input type="text" id="bottomText" placeholder="BOTTOM TEXT" style="text-transform: uppercase;">
+                </div>
+                <div class="control-group row">
+                    <div>
+                        <label>Font Size</label>
+                        <input type="number" id="fontSize" value="48" min="20" max="150">
+                    </div>
+                    <div>
+                        <label>Text Color</label>
+                        <input type="color" id="textColor" value="#ffffff">
+                    </div>
+                </div>
+                <div class="control-group row">
+                    <div>
+                        <label>Stroke Color</label>
+                        <input type="color" id="strokeColor" value="#000000">
+                    </div>
+                    <div>
+                        <label>Stroke Width</label>
+                        <input type="number" id="strokeWidth" value="3" min="0" max="10">
+                    </div>
+                </div>
+                <button class="btn-primary" id="downloadBtn">Download Meme</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const editor = document.getElementById('editor');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const topText = document.getElementById('topText');
+        const bottomText = document.getElementById('bottomText');
+        const fontSize = document.getElementById('fontSize');
+        const textColor = document.getElementById('textColor');
+        const strokeColor = document.getElementById('strokeColor');
+        const strokeWidth = document.getElementById('strokeWidth');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let img = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', e => e.preventDefault());
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+        function handleFile(f) {
+            if (!f || !f.type.startsWith('image/')) return;
+            img = new Image();
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                editor.classList.add('show');
+                render();
+            };
+            img.src = URL.createObjectURL(f);
+        }
+
+        [topText, bottomText, fontSize, textColor, strokeColor, strokeWidth].forEach(el => el.addEventListener('input', render));
+
+        function render() {
+            if (!img) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+
+            const size = parseInt(fontSize.value);
+            ctx.font = `bold ${size}px Impact, sans-serif`;
+            ctx.fillStyle = textColor.value;
+            ctx.strokeStyle = strokeColor.value;
+            ctx.lineWidth = parseInt(strokeWidth.value);
+            ctx.textAlign = 'center';
+            ctx.lineJoin = 'round';
+
+            const top = topText.value.toUpperCase();
+            const bottom = bottomText.value.toUpperCase();
+            const pad = size * 0.8;
+
+            if (top) {
+                ctx.textBaseline = 'top';
+                ctx.strokeText(top, canvas.width / 2, pad * 0.5);
+                ctx.fillText(top, canvas.width / 2, pad * 0.5);
+            }
+
+            if (bottom) {
+                ctx.textBaseline = 'bottom';
+                ctx.strokeText(bottom, canvas.width / 2, canvas.height - pad * 0.5);
+                ctx.fillText(bottom, canvas.width / 2, canvas.height - pad * 0.5);
+            }
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = canvas.toDataURL('image/png');
+            a.download = 'meme.png';
+            a.click();
+        });
+    </script>
+</body>
+
+</html>

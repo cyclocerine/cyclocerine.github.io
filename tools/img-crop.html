@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Image | Image Tools</title>
+    <meta name="description" content="Crop images online for free with preset ratios or custom dimensions.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(26, 26, 37, 0.8);
+            --accent-primary: #10b981;
+            --accent-secondary: #059669;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(5, 150, 105, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 15px 40px -10px rgba(16, 185, 129, 0.4);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+        }
+
+        .upload-area {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .upload-area h3 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-area p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .editor {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .editor.show {
+            display: block;
+        }
+
+        .crop-container {
+            position: relative;
+            max-width: 100%;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            min-height: 300px;
+        }
+
+        .crop-container img {
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+        }
+
+        .crop-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .crop-box {
+            position: absolute;
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            cursor: move;
+        }
+
+        .crop-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-primary);
+            border: 2px solid white;
+        }
+
+        .crop-handle.nw {
+            top: -6px;
+            left: -6px;
+            cursor: nw-resize;
+        }
+
+        .crop-handle.ne {
+            top: -6px;
+            right: -6px;
+            cursor: ne-resize;
+        }
+
+        .crop-handle.sw {
+            bottom: -6px;
+            left: -6px;
+            cursor: sw-resize;
+        }
+
+        .crop-handle.se {
+            bottom: -6px;
+            right: -6px;
+            cursor: se-resize;
+        }
+
+        .ratios {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .ratio-btn {
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .ratio-btn:hover,
+        .ratio-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .dimensions {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px 32px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .btn-primary.show {
+            display: block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.5);
+        }
+
+        .result {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .btn-download {
+            padding: 14px 32px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient"></div>
+    <div class="container">
+        <a href="index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg> Back to Tools</a>
+        <header>
+            <div class="tool-icon">✂️</div>
+            <h1>Crop Image</h1>
+            <p class="subtitle">Crop images with preset ratios or custom dimensions</p>
+        </header>
+        <div class="upload-area" id="uploadArea">
+            <h3>📁 Drop image here or click to upload</h3>
+            <p>Supports JPG, PNG, WEBP, GIF</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div class="editor" id="editor">
+            <div class="ratios">
+                <button class="ratio-btn active" data-ratio="free">Free</button>
+                <button class="ratio-btn" data-ratio="1:1">1:1</button>
+                <button class="ratio-btn" data-ratio="4:3">4:3</button>
+                <button class="ratio-btn" data-ratio="16:9">16:9</button>
+                <button class="ratio-btn" data-ratio="3:2">3:2</button>
+                <button class="ratio-btn" data-ratio="2:3">2:3</button>
+            </div>
+            <div class="dimensions" id="dimensions">Selection: 0 × 0 px</div>
+            <div class="crop-container" id="cropContainer">
+                <img id="cropImage" src="" alt="Crop">
+                <div class="crop-overlay" id="cropOverlay">
+                    <div class="crop-box" id="cropBox">
+                        <div class="crop-handle nw" data-handle="nw"></div>
+                        <div class="crop-handle ne" data-handle="ne"></div>
+                        <div class="crop-handle sw" data-handle="sw"></div>
+                        <div class="crop-handle se" data-handle="se"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" id="cropBtn">Crop Image</button>
+        <div class="result" id="result">
+            <img id="resultImg" src="" alt="Cropped">
+            <div><button class="btn-download" id="downloadBtn">Download Cropped Image</button></div>
+        </div>
+    </div>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const editor = document.getElementById('editor');
+        const cropImage = document.getElementById('cropImage');
+        const cropBox = document.getElementById('cropBox');
+        const cropBtn = document.getElementById('cropBtn');
+        const result = document.getElementById('result');
+        const resultImg = document.getElementById('resultImg');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const dimensions = document.getElementById('dimensions');
+
+        let file = null, imgW = 0, imgH = 0, ratio = null, resultBlob = null;
+        let crop = { x: 50, y: 50, w: 200, h: 200 };
+        let isDragging = false, isResizing = false, resizeHandle = null;
+        let startX, startY, startCrop = {};
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); });
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+        function handleFile(f) {
+            if (!f || !f.type.startsWith('image/')) return;
+            file = f;
+            const img = new Image();
+            img.onload = () => {
+                cropImage.src = img.src;
+                setTimeout(() => {
+                    imgW = cropImage.offsetWidth; imgH = cropImage.offsetHeight;
+                    crop = { x: imgW * 0.1, y: imgH * 0.1, w: imgW * 0.8, h: imgH * 0.8 };
+                    updateCropBox();
+                    editor.classList.add('show'); cropBtn.classList.add('show');
+                }, 100);
+            };
+            img.src = URL.createObjectURL(f);
+        }
+
+        document.querySelectorAll('.ratio-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const r = btn.dataset.ratio;
+                if (r === 'free') { ratio = null; }
+                else { const [w, h] = r.split(':').map(Number); ratio = w / h; }
+                applyCropRatio();
+            });
+        });
+
+        function applyCropRatio() {
+            if (!ratio) return;
+            const newH = crop.w / ratio;
+            if (crop.y + newH > imgH) { crop.h = imgH - crop.y; crop.w = crop.h * ratio; }
+            else { crop.h = newH; }
+            updateCropBox();
+        }
+
+        function updateCropBox() {
+            cropBox.style.left = crop.x + 'px';
+            cropBox.style.top = crop.y + 'px';
+            cropBox.style.width = crop.w + 'px';
+            cropBox.style.height = crop.h + 'px';
+            const scaleX = cropImage.naturalWidth / imgW;
+            const scaleY = cropImage.naturalHeight / imgH;
+            dimensions.textContent = `Selection: ${Math.round(crop.w * scaleX)} × ${Math.round(crop.h * scaleY)} px`;
+        }
+
+        cropBox.addEventListener('mousedown', e => {
+            if (e.target.classList.contains('crop-handle')) {
+                isResizing = true; resizeHandle = e.target.dataset.handle;
+            } else {
+                isDragging = true;
+            }
+            startX = e.clientX; startY = e.clientY;
+            startCrop = { ...crop };
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', e => {
+            if (!isDragging && !isResizing) return;
+            const dx = e.clientX - startX, dy = e.clientY - startY;
+            if (isDragging) {
+                crop.x = Math.max(0, Math.min(imgW - crop.w, startCrop.x + dx));
+                crop.y = Math.max(0, Math.min(imgH - crop.h, startCrop.y + dy));
+            } else if (isResizing) {
+                if (resizeHandle.includes('e')) crop.w = Math.max(20, Math.min(imgW - crop.x, startCrop.w + dx));
+                if (resizeHandle.includes('s')) crop.h = Math.max(20, Math.min(imgH - crop.y, startCrop.h + dy));
+                if (resizeHandle.includes('w')) { crop.x = Math.max(0, Math.min(startCrop.x + startCrop.w - 20, startCrop.x + dx)); crop.w = startCrop.w - (crop.x - startCrop.x); }
+                if (resizeHandle.includes('n')) { crop.y = Math.max(0, Math.min(startCrop.y + startCrop.h - 20, startCrop.y + dy)); crop.h = startCrop.h - (crop.y - startCrop.y); }
+                if (ratio) { crop.h = crop.w / ratio; if (crop.y + crop.h > imgH) { crop.h = imgH - crop.y; crop.w = crop.h * ratio; } }
+            }
+            updateCropBox();
+        });
+
+        document.addEventListener('mouseup', () => { isDragging = false; isResizing = false; });
+
+        cropBtn.addEventListener('click', () => {
+            const scaleX = cropImage.naturalWidth / imgW;
+            const scaleY = cropImage.naturalHeight / imgH;
+            const sx = crop.x * scaleX, sy = crop.y * scaleY;
+            const sw = crop.w * scaleX, sh = crop.h * scaleY;
+            const canvas = document.createElement('canvas');
+            canvas.width = sw; canvas.height = sh;
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+                canvas.toBlob(blob => {
+                    resultBlob = blob;
+                    resultImg.src = URL.createObjectURL(blob);
+                    result.classList.add('show');
+                }, file.type);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!resultBlob) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(resultBlob);
+            a.download = file.name.replace(/\.([^.]+)$/, '_cropped.$1');
+            a.click();
+        });
+    </script>
+</body>
+
+</html>

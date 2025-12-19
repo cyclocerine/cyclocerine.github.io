@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resize Image | Image Tools</title>
+    <meta name="description" content="Resize images online for free. Change dimensions by pixels or percentage.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(26, 26, 37, 0.8);
+            --accent-primary: #10b981;
+            --accent-secondary: #059669;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(5, 150, 105, 0.1) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 15px 40px -10px rgba(16, 185, 129, 0.4);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .upload-area {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover,
+        .upload-area.drag-over {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .upload-area h3 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-area p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .preview {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .preview.show {
+            display: block;
+        }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preview .dimensions {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .controls {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .controls.show {
+            display: block;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .link-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--accent-primary);
+            transition: all 0.2s;
+        }
+
+        .link-icon.unlinked {
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px 32px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .btn-primary.show {
+            display: block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.5);
+        }
+
+        .result {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .result .new-dimensions {
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .btn-download {
+            padding: 14px 32px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-download:hover {
+            background: var(--accent-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-gradient"></div>
+    <div class="container">
+        <a href="index.html" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Tools
+        </a>
+        <header>
+            <div class="tool-icon">📐</div>
+            <h1>Resize Image</h1>
+            <p class="subtitle">Change image dimensions by pixels or percentage</p>
+        </header>
+        <div class="upload-area" id="uploadArea">
+            <h3>📁 Drop image here or click to upload</h3>
+            <p>Supports JPG, PNG, WEBP, GIF</p>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        <div class="preview" id="preview">
+            <img id="previewImg" src="" alt="Preview">
+            <div class="dimensions">Original: <span id="origDimensions"></span></div>
+        </div>
+        <div class="controls" id="controls">
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="pixels">By Pixels</button>
+                <button class="mode-btn" data-mode="percentage">By Percentage</button>
+            </div>
+            <div id="pixelsMode">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Width (px)</label>
+                        <input type="number" id="widthInput" min="1" max="10000">
+                    </div>
+                    <span class="link-icon" id="linkToggle">🔗</span>
+                    <div class="input-group">
+                        <label>Height (px)</label>
+                        <input type="number" id="heightInput" min="1" max="10000">
+                    </div>
+                </div>
+            </div>
+            <div id="percentMode" style="display:none">
+                <div class="input-group">
+                    <label>Scale Percentage (%)</label>
+                    <input type="number" id="scaleInput" min="1" max="500" value="100">
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" id="resizeBtn">Resize Image</button>
+        <div class="result" id="result">
+            <img id="resultImg" src="" alt="Result">
+            <div class="new-dimensions" id="newDimensions"></div>
+            <button class="btn-download" id="downloadBtn">Download Resized Image</button>
+        </div>
+    </div>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+        const origDimensions = document.getElementById('origDimensions');
+        const controls = document.getElementById('controls');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const scaleInput = document.getElementById('scaleInput');
+        const linkToggle = document.getElementById('linkToggle');
+        const resizeBtn = document.getElementById('resizeBtn');
+        const result = document.getElementById('result');
+        const resultImg = document.getElementById('resultImg');
+        const newDimensions = document.getElementById('newDimensions');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let file = null, origWidth = 0, origHeight = 0, aspectRatio = 1, linked = true, mode = 'pixels', resultBlob = null;
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                mode = btn.dataset.mode;
+                document.getElementById('pixelsMode').style.display = mode === 'pixels' ? 'block' : 'none';
+                document.getElementById('percentMode').style.display = mode === 'percentage' ? 'block' : 'none';
+            });
+        });
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+        function handleFile(f) {
+            if (!f || !f.type.startsWith('image/')) return;
+            file = f;
+            const img = new Image();
+            img.onload = () => {
+                origWidth = img.width; origHeight = img.height; aspectRatio = origWidth / origHeight;
+                previewImg.src = img.src;
+                origDimensions.textContent = `${origWidth} × ${origHeight} px`;
+                widthInput.value = origWidth; heightInput.value = origHeight;
+                preview.classList.add('show'); controls.classList.add('show'); resizeBtn.classList.add('show');
+                result.classList.remove('show');
+            };
+            img.src = URL.createObjectURL(f);
+        }
+
+        linkToggle.addEventListener('click', () => {
+            linked = !linked;
+            linkToggle.classList.toggle('unlinked', !linked);
+            linkToggle.textContent = linked ? '🔗' : '🔓';
+        });
+
+        widthInput.addEventListener('input', () => {
+            if (linked) heightInput.value = Math.round(widthInput.value / aspectRatio);
+        });
+        heightInput.addEventListener('input', () => {
+            if (linked) widthInput.value = Math.round(heightInput.value * aspectRatio);
+        });
+
+        resizeBtn.addEventListener('click', () => {
+            let newW, newH;
+            if (mode === 'pixels') {
+                newW = parseInt(widthInput.value); newH = parseInt(heightInput.value);
+            } else {
+                const scale = parseInt(scaleInput.value) / 100;
+                newW = Math.round(origWidth * scale); newH = Math.round(origHeight * scale);
+            }
+            if (!newW || !newH || newW < 1 || newH < 1) return alert('Invalid dimensions');
+
+            const canvas = document.createElement('canvas');
+            canvas.width = newW; canvas.height = newH;
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, newW, newH);
+                canvas.toBlob(blob => {
+                    resultBlob = blob;
+                    resultImg.src = URL.createObjectURL(blob);
+                    newDimensions.textContent = `New size: ${newW} × ${newH} px`;
+                    result.classList.add('show');
+                }, file.type);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!resultBlob) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(resultBlob);
+            a.download = file.name.replace(/\.([^.]+)$/, '_resized.$1');
+            a.click();
+        });
+    </script>
+</body>
+
+</html>
