@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faiq Hammam | IT Engineer & AI Enthusiast</title>
-    
+
     <!-- Meta Tags for SEO -->
-    <meta name="description" content="Portfolio of Faiq Hammam Mutaqin, an IT Engineer and AI Enthusiast with expertise in Machine Learning and Web Development.">
+    <meta name="description"
+        content="Portfolio of Faiq Hammam Mutaqin, an IT Engineer and AI Enthusiast with expertise in Machine Learning and Web Development.">
     <meta name="author" content="Faiq Hammam Mutaqin">
-    <meta name="keywords" content="Faiq Hammam, Faiq Hammam Mutaqin, Fa'iq Hammam, Fa'iq Hammam Mutaqin, Portfolio, Web Developer, UI/UX Designer, IT Engineer, AI Enthusiast, Machine Learning, Programmer">
+    <meta name="keywords"
+        content="Faiq Hammam, Faiq Hammam Mutaqin, Fa'iq Hammam, Fa'iq Hammam Mutaqin, Portfolio, Web Developer, UI/UX Designer, IT Engineer, AI Enthusiast, Machine Learning, Programmer">
     <meta name="robots" content="index, follow">
 
     <!-- Favicon with F.H. initials -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F97316'></rect><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='50' font-family='Sora, sans-serif' font-weight='bold' fill='white'>F.H.</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F97316'></rect><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='50' font-family='Sora, sans-serif' font-weight='bold' fill='white'>F.H.</text></svg>">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts: Sora -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -48,13 +52,16 @@
         body.has-mouse {
             cursor: none;
         }
+
         body.has-mouse a,
         body.has-mouse button {
             cursor: none;
         }
 
-        .cursor-dot, .cursor-outline {
-            display: none; /* Hide by default */
+        .cursor-dot,
+        .cursor-outline {
+            display: none;
+            /* Hide by default */
             position: fixed;
             top: 0;
             left: 0;
@@ -76,22 +83,24 @@
             height: 8px;
             background-color: #F97316;
         }
+
         .cursor-outline {
             width: 40px;
             height: 40px;
             border: 2px solid #F97316;
             transition: transform 0.1s;
         }
-        
+
         /* Cursor hover effect */
         .cursor-hover {
             transform: translate(-50%, -50%) scale(1.5);
             opacity: 0.5;
         }
-        
+
         /* Accent color (orange) settings */
         .accent-color {
-            color: #F97316; /* Tailwind orange-500 */
+            color: #F97316;
+            /* Tailwind orange-500 */
         }
 
         /* Cursor for typing effect */
@@ -100,10 +109,13 @@
             opacity: 1;
             animation: typedjsBlink 0.7s infinite;
         }
+
         @keyframes typedjsBlink {
-            50% { opacity: 0.0; }
+            50% {
+                opacity: 0.0;
+            }
         }
-        
+
         /* Main button with glow effect */
         .glow-button-orange {
             background-color: #F97316;
@@ -111,23 +123,28 @@
             transition: all 0.3s ease;
             box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
         }
+
         .glow-button-orange:hover {
             box-shadow: 0 0 25px rgba(249, 115, 22, 0.7);
             transform: scale(1.05);
         }
-        
+
         /* Glassmorphism effect for cards */
         .content-card {
-            background: rgba(30, 30, 30, 0.5); /* #1E1E1E with transparency */
+            background: rgba(30, 30, 30, 0.5);
+            /* #1E1E1E with transparency */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(249, 115, 22, 0.2); /* Transparent orange border */
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            /* Transparent orange border */
             border-radius: 1rem;
             transition: all 0.3s ease;
         }
+
         .content-card:hover {
             transform: translateY(-8px);
-            border-color: rgba(249, 115, 22, 0.5); /* Brighter orange border on hover */
+            border-color: rgba(249, 115, 22, 0.5);
+            /* Brighter orange border on hover */
             background: rgba(30, 30, 30, 0.7);
         }
 
@@ -137,20 +154,23 @@
             transform: translateY(40px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
+
         .reveal-on-scroll.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        
+
         /* Glassmorphism effect for navbar on scroll */
         .scrolled-nav {
-            background-color: rgba(18, 18, 18, 0.7); /* #121212 with transparency */
+            background-color: rgba(18, 18, 18, 0.7);
+            /* #121212 with transparency */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(45, 45, 45, 0.5);
         }
     </style>
 </head>
+
 <body class="w-full overflow-x-hidden">
 
     <!-- Custom Cursor Elements -->
@@ -169,11 +189,18 @@
                 <a href="#skills" class="hover:text-orange-500 transition-colors duration-300">Skills</a>
                 <a href="#projects" class="hover:text-orange-500 transition-colors duration-300">Projects</a>
                 <a href="#contact" class="hover:text-orange-500 transition-colors duration-300">Contact</a>
+                <a href="/tools/" class="hover:text-orange-500 transition-colors duration-300">Tools</a>
             </nav>
             <div class="flex items-center space-x-4">
-                 <a href="https://github.com/cyclocerine" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-lg"><i class="fab fa-github"></i></a>
-                 <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-lg"><i class="fab fa-linkedin"></i></a>
-                 <a href="https://open.spotify.com/user/d70i4umn8pce6gi650yd8ujpo?si=3158421eeea842b4" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-lg"><i class="fa-brands fa-spotify"></i></a>
+                <a href="https://github.com/cyclocerine" target="_blank"
+                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
+                        class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank"
+                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
+                        class="fab fa-linkedin"></i></a>
+                <a href="https://open.spotify.com/user/d70i4umn8pce6gi650yd8ujpo?si=3158421eeea842b4" target="_blank"
+                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
+                        class="fa-brands fa-spotify"></i></a>
             </div>
         </div>
     </header>
@@ -192,7 +219,8 @@
                 <p class="mt-6 text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
                     I transform complex ideas into elegant and efficient technological solutions.
                 </p>
-                <a href="#projects" class="glow-button-orange mt-10 inline-block font-bold py-3 px-8 rounded-full text-lg">
+                <a href="#projects"
+                    class="glow-button-orange mt-10 inline-block font-bold py-3 px-8 rounded-full text-lg">
                     View My Projects
                 </a>
             </div>
@@ -204,14 +232,18 @@
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
                     <div class="lg:col-span-2 flex justify-center">
                         <!-- Circular profile picture -->
-                        <div class="w-60 h-60 lg:w-72 lg:h-72 rounded-full overflow-hidden border-2 border-orange-500/50 p-2 bg-black/20">
-                            <img src="https://a.top4top.io/p_3537vlrkw1.png" alt="Faiq Hammam Mutaqin" class="w-full h-full object-cover rounded-full">
+                        <div
+                            class="w-60 h-60 lg:w-72 lg:h-72 rounded-full overflow-hidden border-2 border-orange-500/50 p-2 bg-black/20">
+                            <img src="https://a.top4top.io/p_3537vlrkw1.png" alt="Faiq Hammam Mutaqin"
+                                class="w-full h-full object-cover rounded-full">
                         </div>
                     </div>
                     <div class="lg:col-span-3">
                         <h2 class="text-3xl font-bold text-white mb-4">A Little More About Me</h2>
                         <p class="text-gray-300 leading-relaxed">
-                           An IT Engineer with a passion for tech, tinkering, and turning coffee into code. From building IoT projects to crafting smart solutions, I’m always exploring ways to bring ideas to life (sometimes with a soldering iron in one hand and a coffee mug in the other).
+                            An IT Engineer with a passion for tech, tinkering, and turning coffee into code. From
+                            building IoT projects to crafting smart solutions, I’m always exploring ways to bring ideas
+                            to life (sometimes with a soldering iron in one hand and a coffee mug in the other).
                         </p>
                     </div>
                 </div>
@@ -227,30 +259,42 @@
                     <div class="content-card p-8">
                         <h3 class="text-2xl font-bold text-white mb-6">AI / ML</h3>
                         <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Python</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Tensorflow & Keras</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Data Handling (Pandas)</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Math & Statistics</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Python</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Tensorflow & Keras</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Data Handling (Pandas)</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Math & Statistics</li>
                         </ul>
                     </div>
                     <!-- Web Development Card -->
                     <div class="content-card p-8">
                         <h3 class="text-2xl font-bold text-white mb-6">Web Development</h3>
                         <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> HTML, CSS, JavaScript</li>
-                             <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> UI/UX Design</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> PHP</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> React.js</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                HTML, CSS, JavaScript</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                UI/UX Design</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> PHP
+                            </li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                React.js</li>
                         </ul>
                     </div>
                     <!-- Soft Skills Card -->
                     <div class="content-card p-8">
                         <h3 class="text-2xl font-bold text-white mb-6">Soft Skills</h3>
                         <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Team Collaboration</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Technical Communication</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Problem Solving</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> Project Management</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Team Collaboration</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Technical Communication</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Problem Solving</li>
+                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
+                                Project Management</li>
                         </ul>
                     </div>
                 </div>
@@ -263,27 +307,33 @@
                 <h2 class="text-3xl font-bold text-center text-white mb-12">Featured Projects</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Project 1 -->
-                    <a href="https://github.com/cyclocerine/HedgeFund" target="_blank" class="block group content-card overflow-hidden">
-                        <img src="https://f.top4top.io/p_34101fmv01.png" alt="AI Hedge Fund Project" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <a href="https://github.com/cyclocerine/HedgeFund" target="_blank"
+                        class="block group content-card overflow-hidden">
+                        <img src="https://f.top4top.io/p_34101fmv01.png" alt="AI Hedge Fund Project"
+                            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
                         <div class="p-6">
                             <p class="accent-color text-sm font-semibold">Machine Learning</p>
                             <h3 class="text-xl font-bold text-white mt-2">AI Hedge Fund</h3>
                         </div>
                     </a>
                     <!-- Project 2 -->
-                    <a href="https://github.com/cyclocerine/Stock-Price-Prediction" target="_blank" class="block group content-card overflow-hidden">
-                         <img src="https://j.top4top.io/p_3410wtivt1.png" alt="Stock Predictor Project" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <a href="https://github.com/cyclocerine/Stock-Price-Prediction" target="_blank"
+                        class="block group content-card overflow-hidden">
+                        <img src="https://j.top4top.io/p_3410wtivt1.png" alt="Stock Predictor Project"
+                            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
                         <div class="p-6">
                             <p class="accent-color text-sm font-semibold">Machine Learning</p>
                             <h3 class="text-xl font-bold text-white mt-2">Stock Predictor</h3>
                         </div>
                     </a>
                     <!-- Project 3 -->
-                    <a href="https://github.com/cyclocerine/Sudoku-Solver" target="_blank" class="block group content-card overflow-hidden">
-                        <img src="https://a.top4top.io/p_3410y8zte1.png" alt="Sudoku Solver Project" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
+                    <a href="https://github.com/cyclocerine/Sudoku-Solver" target="_blank"
+                        class="block group content-card overflow-hidden">
+                        <img src="https://a.top4top.io/p_3410y8zte1.png" alt="Sudoku Solver Project"
+                            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
                         <div class="p-6">
-                           <p class="accent-color text-sm font-semibold">Logic</p>
-                           <h3 class="text-xl font-bold text-white mt-2">Sudoku Solver</h3>
+                            <p class="accent-color text-sm font-semibold">Logic</p>
+                            <h3 class="text-xl font-bold text-white mt-2">Sudoku Solver</h3>
                         </div>
                     </a>
                 </div>
@@ -293,25 +343,34 @@
         <!-- Contact Section -->
         <section id="contact" class="py-24">
             <div class="container mx-auto px-6 text-center reveal-on-scroll">
-                 <h2 class="text-3xl font-bold text-white mb-4">Interested in Working Together?</h2>
+                <h2 class="text-3xl font-bold text-white mb-4">Interested in Working Together?</h2>
                 <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
                     Let's discuss your next project. I'm ready to help bring your vision to life.
                 </p>
-                <a href="mailto:hammamfaiq@protonmail.com" class="glow-button-orange inline-block font-bold py-4 px-10 rounded-full text-xl">
+                <a href="mailto:hammamfaiq@protonmail.com"
+                    class="glow-button-orange inline-block font-bold py-4 px-10 rounded-full text-xl">
                     Contact Me
                 </a>
             </div>
         </section>
     </main>
-    
+
     <!-- Footer -->
     <footer class="py-8 border-t border-white/10 relative z-10">
         <div class="container mx-auto px-6 text-center text-gray-500">
-             <div class="flex justify-center items-center space-x-6 mb-4">
-                 <a href="https://github.com/cyclocerine" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i class="fab fa-github"></i></a>
-                 <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i class="fab fa-linkedin"></i></a>
-                 <a href="mailto:hammamfaiq@protonmail.com" class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i class="fas fa-envelope"></i></a>
-                 <a href="https://open.spotify.com/user/d70i4umn8pce6gi650yd8ujpo?si=3158421eeea842b4" target="_blank" class="hover:text-orange-500 transition-colors duration-300 text-lg"><i class="fa-brands fa-spotify"></i></a>
+            <div class="flex justify-center items-center space-x-6 mb-4">
+                <a href="https://github.com/cyclocerine" target="_blank"
+                    class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i
+                        class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank"
+                    class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i
+                        class="fab fa-linkedin"></i></a>
+                <a href="mailto:hammamfaiq@protonmail.com"
+                    class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i
+                        class="fas fa-envelope"></i></a>
+                <a href="https://open.spotify.com/user/d70i4umn8pce6gi650yd8ujpo?si=3158421eeea842b4" target="_blank"
+                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
+                        class="fa-brands fa-spotify"></i></a>
             </div>
             <p>&copy; 2025 Faiq Hammam Mutaqin. Crafted with passion and code.</p>
         </div>
@@ -333,7 +392,7 @@
                 navbar.classList.remove('scrolled-nav');
             }
         });
-        
+
         // --- Fade-in animation on scroll ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -347,12 +406,12 @@
 
         const elementsToReveal = document.querySelectorAll('.reveal-on-scroll');
         elementsToReveal.forEach(el => observer.observe(el));
-        
+
         // --- Particle background animation with Three.js ---
         let scene, camera, renderer, particles, lines;
         const canvas = document.getElementById('particle-canvas');
         const particleCount = 200;
-        const maxDistance = 35; 
+        const maxDistance = 35;
         const initialCameraZ = 70;
         const finalCameraZ = 45;
 
@@ -412,7 +471,7 @@
 
             document.addEventListener('mousemove', onDocumentMouseMove);
             window.addEventListener('resize', onWindowResize);
-            window.addEventListener('scroll', onScroll); 
+            window.addEventListener('scroll', onScroll);
         }
 
         let mouseX = 0;
@@ -429,7 +488,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         }
-        
+
         // Function to handle zoom animation on scroll
         function onScroll() {
             const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
@@ -439,14 +498,14 @@
         function animate() {
             requestAnimationFrame(animate);
             const elapsedTime = new Date().getTime() * 0.00005;
-            
+
             // Animate particles
             particles.rotation.y = elapsedTime * 0.5;
-            
+
             // Update connecting lines
             const positions = particles.geometry.attributes.position.array;
             const lineVertices = [];
-            
+
             for (let i = 0; i < particleCount; i++) {
                 for (let j = i + 1; j < particleCount; j++) {
                     const dx = positions[i * 3] - positions[j * 3];
@@ -460,10 +519,10 @@
                     }
                 }
             }
-            
+
             lines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(lineVertices, 3));
             lines.rotation.copy(particles.rotation);
-            
+
             // Parallax camera movement
             camera.position.x += (mouseX - camera.position.x) * 0.02;
             camera.position.y += (-mouseY - camera.position.y) * 0.02;
@@ -474,7 +533,7 @@
         // --- Custom Cursor Logic ---
         if (window.matchMedia("(pointer: fine)").matches) {
             document.body.classList.add('has-mouse');
-            
+
             const cursorDot = document.querySelector('.cursor-dot');
             const cursorOutline = document.querySelector('.cursor-outline');
 
@@ -503,7 +562,7 @@
         }
 
         // --- Initialize all scripts after the page loads ---
-        window.onload = function() {
+        window.onload = function () {
             // Initialize Typed.js
             new Typed('#typing-effect', {
                 strings: ['IT Engineer', 'AI Enthusiast', 'Programmer', 'Economic Observer'],
@@ -519,4 +578,5 @@
         };
     </script>
 </body>
+
 </html>
