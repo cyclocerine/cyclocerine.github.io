@@ -262,7 +262,7 @@ Gadis itu melihatnya. Wajah cemasnya seketika berubah cerah, seolah baru saja me
 
 Senja mengangguk antusias. "Hah... gila. Gue kira gue nyasar lagi." Ia membuka helmnya sebentar, merapikan poni yang berantakan.
 
-Untuk pertama kalinya, Bumi melihat Senja secara langsung. Bukan lewat stiker WhatsApp atau foto profil buram. Dia... biasa saja, sebenarnya. Wajah khas Indonesia, kulit sawo matang, mata bulat yang ekspresif. Tapi ada aura "hidup" yang meletup-letup darinya, kontras dengan Bumi yang lempeng.
+Untuk pertama kalinya, Bumi melihat Senja secara langsung. Bukan lewat stiker WhatsApp atau foto profil buram. Dia... cantik. Wajah khas Indonesia, kulit kuning langsat, mata bulat yang ekspresif. Tapi ada aura "hidup" yang meletup-letup darinya, kontras dengan Bumi yang lempeng.
 
 "Udah sarapan?" tanya Bumi basa-basi, standar sopan santun.
 
