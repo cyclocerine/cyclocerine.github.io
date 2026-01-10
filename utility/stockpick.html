@@ -1,80 +1,180 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Pick Dashboard - Rekomendasi Saham</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <style>
-        /* Custom font for a clean look */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            --poster-title: 'Playfair Display', serif;
+            --poster-body: 'Lato', sans-serif;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --text-main: #2d3436;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Slate 50 - Very light gray/off-white */
-            color: #374151; /* Dark gray text */
-            line-height: 1.6;
+            font-family: var(--poster-body) !important;
+            background: none !important;
+            color: var(--text-main) !important;
+            cursor: none;
         }
-        /* Custom styles for stock card status - Elegant & Minimalist Palette */
+
+        /* Override Tailwind Backgrounds */
+        .bg-white,
+        .bg-slate-900,
+        .bg-yellow-50,
+        .bg-slate-50,
+        header,
+        footer,
+        section {
+            background: var(--glass-bg) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: var(--text-main) !important;
+            border-radius: 8px;
+            /* Smooth corners */
+        }
+
+        /* Status Overrides - Keep subtle tint */
         .card-strong_buy {
-            border-left: 6px solid #059669; /* Emerald 600 - Muted green */
-            background-color: #f0fdf4; /* Emerald 50 - Very light green */
+            background-color: rgba(5, 150, 105, 0.1) !important;
+            border-left-color: #059669 !important;
         }
+
         .card-buy {
-            border-left: 6px solid #0284c7; /* Sky 600 - Muted blue */
-            background-color: #f0f9ff; /* Sky 50 - Very light blue */
+            background-color: rgba(2, 132, 199, 0.1) !important;
+            border-left-color: #0284c7 !important;
         }
+
         .card-neutral {
-            border-left: 6px solid #d97706; /* Amber 600 - Muted amber/gold */
-            background-color: #fffbeb; /* Amber 50 - Very light amber */
+            background-color: rgba(217, 119, 6, 0.1) !important;
+            border-left-color: #d97706 !important;
         }
+
         .card-speculative {
-            border-left: 6px solid #e11d48; /* Rose 600 - Muted rose/red */
-            background-color: #fff1f2; /* Rose 50 - Very light rose */
+            background-color: rgba(225, 29, 72, 0.1) !important;
+            border-left-color: #e11d48 !important;
+        }
+
+        /* Cinematic Elements */
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
+            }
+
+            body,
+            a {
+                cursor: auto !important;
+            }
+        }
+
+        #atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.3), transparent, rgba(255, 182, 193, 0.3));
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
-    <!-- Header Section -->
-    <header class="bg-slate-900 text-white p-6 shadow-lg rounded-b-lg">
-        <div class="container mx-auto text-center">
-            <h1 class="text-4xl font-bold mb-2">Rekomendasi Saham Mingguan</h1>
-            <!-- Added timestamp for last update -->
-            <p class="text-lg opacity-90">Diperbarui <span id="last-updated-date"></span> oleh Cyclocerine</p>
-        </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="container mx-auto px-4 py-8 flex-grow">
-        <!-- Stock List Section -->
-        <section class="bg-white p-8 rounded-xl shadow-md mb-8">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">Saham Pilihan Minggu Ini</h2>
-            <!-- Legend for SL/TP -->
-            <p class="text-center text-gray-600 text-sm mb-6">
-                <span class="font-semibold">SL (Stop Loss):</span> Harga di mana Anda disarankan untuk menjual saham untuk membatasi kerugian.<br>
-                <span class="font-semibold">TP (Take Profit):</span> Target harga di mana Anda disarankan untuk menjual saham untuk mengamankan keuntungan.
-            </p>
-            <div id="stocks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Stock cards will be dynamically loaded here by JavaScript -->
-                <p class="text-center text-gray-500 col-span-full">Memuat rekomendasi...</p>
+<body class="min-h-screen flex flex-col bg-transparent">
+    <div id="atmosphere"></div>
+    <img src="../assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="cinematic-overlay"></div>
+    <div class="cursor-outline"></div>
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <!-- Header Section -->
+        <header class="bg-slate-900 text-white p-6 shadow-lg rounded-b-lg">
+            <div class="container mx-auto text-center">
+                <h1 class="text-4xl font-bold mb-2">Rekomendasi Saham Mingguan</h1>
+                <!-- Added timestamp for last update -->
+                <p class="text-lg opacity-90">Diperbarui <span id="last-updated-date"></span> oleh Cyclocerine</p>
             </div>
-        </section>
+        </header>
 
-        <!-- Disclaimer Section -->
-        <section class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg shadow-sm">
-            <h2 class="text-2xl font-semibold text-yellow-800 mb-4">Penting: Penolakan Tanggung Jawab (Disclaimer)</h2>
-            <p class="text-yellow-700 text-sm">Rekomendasi ini bersifat pribadi dan bukan merupakan saran keuangan. Selalu lakukan riset Anda sendiri sebelum membuat keputusan investasi. Investasi saham mengandung risiko.</p>
-        </section>
-    </main>
+        <!-- Main Content Area -->
+        <main class="container mx-auto px-4 py-8 flex-grow">
+            <!-- Stock List Section -->
+            <section class="bg-white p-8 rounded-xl shadow-md mb-8">
+                <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">Saham Pilihan Minggu Ini</h2>
+                <!-- Legend for SL/TP -->
+                <p class="text-center text-gray-600 text-sm mb-6">
+                    <span class="font-semibold">SL (Stop Loss):</span> Harga di mana Anda disarankan untuk menjual saham
+                    untuk membatasi kerugian.<br>
+                    <span class="font-semibold">TP (Take Profit):</span> Target harga di mana Anda disarankan untuk
+                    menjual saham untuk mengamankan keuntungan.
+                </p>
+                <div id="stocks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Stock cards will be dynamically loaded here by JavaScript -->
+                    <p class="text-center text-gray-500 col-span-full">Memuat rekomendasi...</p>
+                </div>
+            </section>
 
-    <!-- Footer Section -->
-    <footer class="bg-slate-900 text-white p-6 text-center mt-8 rounded-t-lg">
-        <p class="text-sm">&copy; 2025 Cyclocerine.</p>
-        <p class="text-xs mt-1">Kunjungi GitHub saya: <a href="https://github.com/cyclocerine/" target="_blank" class="text-blue-300 hover:underline">github.com/cyclocerine/</a></p>
-    </footer>
+            <!-- Disclaimer Section -->
+            <section class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg shadow-sm">
+                <h2 class="text-2xl font-semibold text-yellow-800 mb-4">Penting: Penolakan Tanggung Jawab (Disclaimer)
+                </h2>
+                <p class="text-yellow-700 text-sm">Rekomendasi ini bersifat pribadi dan bukan merupakan saran keuangan.
+                    Selalu lakukan riset Anda sendiri sebelum membuat keputusan investasi. Investasi saham mengandung
+                    risiko.</p>
+            </section>
+        </main>
 
-    <!-- Stock Data (JSON embedded in script tag) -->
-    <script id="stock-data" type="application/json">
+        <!-- Footer Section -->
+        <footer class="bg-slate-900 text-white p-6 text-center mt-8 rounded-t-lg">
+            <p class="text-sm">&copy; 2025 Cyclocerine.</p>
+            <p class="text-xs mt-1">Kunjungi GitHub saya: <a href="https://github.com/cyclocerine/" target="_blank"
+                    class="text-blue-300 hover:underline">github.com/cyclocerine/</a></p>
+        </footer>
+
+        <!-- Stock Data (JSON embedded in script tag) -->
+        <script id="stock-data" type="application/json">
         [
             {
                 "ticker": "BBCA",
@@ -129,48 +229,48 @@
         ]
     </script>
 
-    <!-- JavaScript for dynamic content loading -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const stocksContainer = document.getElementById('stocks-container');
-            const stockDataScript = document.getElementById('stock-data');
-            const lastUpdatedDateElement = document.getElementById('last-updated-date');
+        <!-- JavaScript for dynamic content loading -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const stocksContainer = document.getElementById('stocks-container');
+                const stockDataScript = document.getElementById('stock-data');
+                const lastUpdatedDateElement = document.getElementById('last-updated-date');
 
-            // Set the current date for "Diperbarui" timestamp
-            const today = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            lastUpdatedDateElement.textContent = today.toLocaleDateString('id-ID', options);
+                // Set the current date for "Diperbarui" timestamp
+                const today = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                lastUpdatedDateElement.textContent = today.toLocaleDateString('id-ID', options);
 
-            try {
-                // Parse the JSON data embedded in the script tag
-                const stocks = JSON.parse(stockDataScript.textContent);
+                try {
+                    // Parse the JSON data embedded in the script tag
+                    const stocks = JSON.parse(stockDataScript.textContent);
 
-                // Clear the "Loading recommendations..." message
-                stocksContainer.innerHTML = '';
+                    // Clear the "Loading recommendations..." message
+                    stocksContainer.innerHTML = '';
 
-                if (stocks.length === 0) {
-                    stocksContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">Belum ada rekomendasi saham minggu ini.</p>';
-                    return;
-                }
-
-                // Create and append stock cards
-                stocks.forEach(stock => {
-                    const stockCard = document.createElement('div');
-                    // Base Tailwind classes for card styling
-                    stockCard.classList.add(
-                        'p-6', 'rounded-lg', 'shadow-md', 'border', 'border-gray-200',
-                        'hover:shadow-lg', 'transform', 'hover:-translate-y-1', 'transition-all', 'duration-200'
-                    );
-
-                    // Add status-specific classes for visual hierarchy
-                    if (stock.status) {
-                        stockCard.classList.add(`card-${stock.status}`);
-                    } else {
-                        // Default background if no status is provided
-                        stockCard.classList.add('bg-white');
+                    if (stocks.length === 0) {
+                        stocksContainer.innerHTML = '<p class="text-center text-gray-500 col-span-full">Belum ada rekomendasi saham minggu ini.</p>';
+                        return;
                     }
 
-                    stockCard.innerHTML = `
+                    // Create and append stock cards
+                    stocks.forEach(stock => {
+                        const stockCard = document.createElement('div');
+                        // Base Tailwind classes for card styling
+                        stockCard.classList.add(
+                            'p-6', 'rounded-lg', 'shadow-md', 'border', 'border-gray-200',
+                            'hover:shadow-lg', 'transform', 'hover:-translate-y-1', 'transition-all', 'duration-200'
+                        );
+
+                        // Add status-specific classes for visual hierarchy
+                        if (stock.status) {
+                            stockCard.classList.add(`card-${stock.status}`);
+                        } else {
+                            // Default background if no status is provided
+                            stockCard.classList.add('bg-white');
+                        }
+
+                        stockCard.innerHTML = `
                         <h3 class="text-2xl font-bold text-slate-700 mb-2">${stock.ticker}</h3>
                         <p class="text-lg text-gray-700 mb-3">${stock.nama}</p>
                         <div class="text-sm text-gray-600 mb-2 space-y-1">
@@ -181,13 +281,46 @@
                         </div>
                         <p class="text-gray-600 italic text-sm mt-3">${stock.alasan}</p>
                     `;
-                    stocksContainer.appendChild(stockCard);
-                });
-            } catch (error) {
-                console.error('Error parsing stock data:', error);
-                stocksContainer.innerHTML = '<p class="text-center text-red-500 col-span-full">Gagal memuat rekomendasi saham. Data tidak valid.</p>';
+                        stocksContainer.appendChild(stockCard);
+                    });
+                } catch (error) {
+                    console.error('Error parsing stock data:', error);
+                    stocksContainer.innerHTML = '<p class="text-center text-red-500 col-span-full">Gagal memuat rekomendasi saham. Data tidak valid.</p>';
+                }
+            });
+        </script>
+        <script>
+            function initAtmosphere() {
+                const container = document.getElementById('atmosphere');
+                if (!container) return;
+                const particleCount = 20;
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('spirit-particle');
+                    container.appendChild(particle);
+                    animateParticle(particle);
+                }
             }
-        });
-    </script>
+            function animateParticle(el) {
+                const size = Math.random() * 5 + 2;
+                el.style.width = `${size}px`;
+                el.style.height = `${size}px`;
+                el.style.left = `${Math.random() * 100}vw`;
+                el.style.top = `${Math.random() * 100}vh`;
+                el.style.opacity = Math.random() * 0.5 + 0.1;
+                anime({ targets: el, translateY: [{ value: -100, duration: 3000 }, { value: 100, duration: 3000 }], translateX: [{ value: -50, duration: 3000 }, { value: 50, duration: 3000 }], opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }], easing: 'easeInOutSine', duration: 8000, complete: () => animateParticle(el) });
+            }
+            const cursor = document.querySelector('.cursor-outline');
+            if (window.matchMedia("(pointer: fine)").matches) {
+                document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+                document.querySelectorAll('a, button, input, select').forEach(el => {
+                    el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                    el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+                });
+            }
+            window.addEventListener('load', initAtmosphere);
+        </script>
+    </div> <!-- Close Relative Z-10 -->
 </body>
+
 </html>

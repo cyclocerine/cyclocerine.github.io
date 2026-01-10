@@ -4,22 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image & PDF Tools | Cyclocerine</title>
-    <meta name="description"
-        content="Free online tools for image and PDF processing. Compress, resize, convert, merge, split and more - all in your browser.">
+    <title>Image & PDF Tools | Cinematic</title>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+
     <style>
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-card: rgba(26, 26, 37, 0.8);
+            /* Cinematic Base */
+            --poster-title: 'Playfair Display', serif;
+            --poster-body: 'Lato', sans-serif;
+            --overlay-color-1: rgba(135, 206, 235, 0.3);
+            --overlay-color-2: rgba(255, 182, 193, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #2d3436;
+
+            /* Legacy Tools Remap (Dark -> Light Glass) */
+            --bg-primary: transparent;
+            --bg-secondary: transparent;
+            --bg-card: var(--glass-bg);
             --accent-primary: #6366f1;
             --accent-secondary: #8b5cf6;
             --accent-tertiary: #a855f7;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: rgba(99, 102, 241, 0.2);
+            --text-primary: var(--text-main);
+            --text-secondary: #555;
+            --text-muted: #777;
+            --border-color: var(--glass-border);
             --img-gradient: linear-gradient(135deg, #10b981, #059669);
             --pdf-gradient: linear-gradient(135deg, #ef4444, #dc2626);
             --math-gradient: linear-gradient(135deg, #F97316, #EA580C);
@@ -32,39 +49,84 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
+            font-family: var(--poster-body);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            background: none;
+            /* Override */
+            cursor: none;
         }
 
-        .bg-gradient {
+        /* Cinematic Elements */
+        .cursor-outline {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background:
-                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
-            animation: gradientShift 15s ease-in-out infinite;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
         }
 
-        @keyframes gradientShift {
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
             }
 
-            50% {
-                opacity: 0.8;
-                transform: scale(1.1);
+            body,
+            a {
+                cursor: auto !important;
             }
+        }
+
+        #atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, var(--overlay-color-1), transparent, var(--overlay-color-2));
+            pointer-events: none;
+        }
+
+        /* Typography Override */
+        h1,
+        h2,
+        h3 {
+            font-family: var(--poster-title);
+        }
+
+        /* Remove Old Backgrounds */
+        .bg-gradient,
+        .grid-pattern {
+            display: none;
         }
 
         .grid-pattern {
@@ -375,10 +437,13 @@
 </head>
 
 <body>
-    <div class="bg-gradient"></div>
-    <div class="grid-pattern"></div>
+    <!-- Background Layers -->
+    <div id="atmosphere"></div>
+    <img src="../assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="cinematic-overlay"></div>
+    <div class="cursor-outline"></div>
 
-    <div class="container">
+    <div class="container" style="position: relative; z-index: 10;">
         <header>
             <a href="../" class="back-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
@@ -387,7 +452,7 @@
                 </svg>
                 Back to Home
             </a>
-            <div class="logo-icon">🛠️</div>
+            <div class="logo-icon"><i class="fi fi-rr-settings-sliders"></i></div>
             <h1>Image & PDF Tools</h1>
             <p class="subtitle">Free online tools for image and PDF processing. All processing happens in your browser -
                 no files are uploaded to any server.</p>
@@ -396,12 +461,12 @@
         <!-- Image Tools Section -->
         <section class="section">
             <div class="section-header">
-                <div class="section-icon img">🖼️</div>
+                <div class="section-icon img"><i class="fi fi-rr-picture"></i></div>
                 <h2 class="section-title">Image Tools <span>10 tools available</span></h2>
             </div>
             <div class="tools-grid">
                 <a href="image/compress.html" class="tool-card img">
-                    <div class="tool-icon">📦</div>
+                    <div class="tool-icon"><i class="fi fi-rr-compress-alt"></i></div>
                     <h3 class="tool-title">Compress Image</h3>
                     <p class="tool-description">Reduce image file size while maintaining quality. Perfect for web
                         optimization.</p>
@@ -409,7 +474,7 @@
                 </a>
 
                 <a href="image/resize.html" class="tool-card img">
-                    <div class="tool-icon">📐</div>
+                    <div class="tool-icon"><i class="fi fi-rr-expand"></i></div>
                     <h3 class="tool-title">Resize Image</h3>
                     <p class="tool-description">Change image dimensions by pixels or percentage with aspect ratio lock.
                     </p>
@@ -417,56 +482,56 @@
                 </a>
 
                 <a href="image/crop.html" class="tool-card img">
-                    <div class="tool-icon">✂️</div>
+                    <div class="tool-icon"><i class="fi fi-rr-crop"></i></div>
                     <h3 class="tool-title">Crop Image</h3>
                     <p class="tool-description">Crop images with preset ratios or custom dimensions interactively.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/convert.html" class="tool-card img">
-                    <div class="tool-icon">🔄</div>
+                    <div class="tool-icon"><i class="fi fi-rr-refresh"></i></div>
                     <h3 class="tool-title">Convert Image</h3>
                     <p class="tool-description">Convert between JPG, PNG, WEBP, GIF and BMP formats easily.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/watermark.html" class="tool-card img">
-                    <div class="tool-icon">💧</div>
+                    <div class="tool-icon"><i class="fi fi-rr-opacity"></i></div>
                     <h3 class="tool-title">Add Watermark</h3>
                     <p class="tool-description">Add text or image watermarks with customizable position and opacity.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/rotate.html" class="tool-card img">
-                    <div class="tool-icon">🔃</div>
+                    <div class="tool-icon"><i class="fi fi-rr-rotate-right"></i></div>
                     <h3 class="tool-title">Rotate Image</h3>
                     <p class="tool-description">Rotate images 90°, 180°, 270° or flip horizontally/vertically.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/meme-generator.html" class="tool-card img">
-                    <div class="tool-icon">😂</div>
+                    <div class="tool-icon"><i class="fi fi-rr-laugh"></i></div>
                     <h3 class="tool-title">Meme Generator</h3>
                     <p class="tool-description">Create memes with top and bottom text, impact font style.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/photo-editor.html" class="tool-card img">
-                    <div class="tool-icon">🎨</div>
+                    <div class="tool-icon"><i class="fi fi-rr-palette"></i></div>
                     <h3 class="tool-title">Photo Editor</h3>
                     <p class="tool-description">Adjust brightness, contrast, saturation and apply filters.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/gif-maker.html" class="tool-card img">
-                    <div class="tool-icon">🎬</div>
+                    <div class="tool-icon"><i class="fi fi-rr-film"></i></div>
                     <h3 class="tool-title">GIF Maker</h3>
                     <p class="tool-description">Create animated GIFs from multiple images with custom delay.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="image/html-to-image.html" class="tool-card img">
-                    <div class="tool-icon">🌐</div>
+                    <div class="tool-icon"><i class="fi fi-rr-globe"></i></div>
                     <h3 class="tool-title">HTML to Image</h3>
                     <p class="tool-description">Convert HTML content to PNG or JPG image.</p>
                     <div class="tool-arrow">→</div>
@@ -477,12 +542,12 @@
         <!-- PDF Tools Section -->
         <section class="section">
             <div class="section-header">
-                <div class="section-icon pdf">📄</div>
+                <div class="section-icon pdf"><i class="fi fi-rr-document"></i></div>
                 <h2 class="section-title">PDF Tools <span>11 tools available</span></h2>
             </div>
             <div class="tools-grid">
                 <a href="pdf/merge.html" class="tool-card pdf">
-                    <div class="tool-icon">📑</div>
+                    <div class="tool-icon"><i class="fi fi-rr-duplicate"></i></div>
                     <h3 class="tool-title">Merge PDF</h3>
                     <p class="tool-description">Combine multiple PDF files into a single document with reorder support.
                     </p>
@@ -490,99 +555,117 @@
                 </a>
 
                 <a href="pdf/split.html" class="tool-card pdf">
-                    <div class="tool-icon">✂️</div>
+                    <div class="tool-icon"><i class="fi fi-rr-scissors"></i></div>
                     <h3 class="tool-title">Split PDF</h3>
                     <p class="tool-description">Extract specific pages or split PDF into individual pages.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/rotate.html" class="tool-card pdf">
-                    <div class="tool-icon">🔄</div>
+                    <div class="tool-icon"><i class="fi fi-rr-rotate-right"></i></div>
                     <h3 class="tool-title">Rotate PDF</h3>
                     <p class="tool-description">Rotate all or specific PDF pages by 90°, 180° or 270°.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/to-jpg.html" class="tool-card pdf">
-                    <div class="tool-icon">🖼️</div>
+                    <div class="tool-icon"><i class="fi fi-rr-picture"></i></div>
                     <h3 class="tool-title">PDF to JPG</h3>
                     <p class="tool-description">Convert PDF pages to high-quality JPG images.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/jpg-to-pdf.html" class="tool-card pdf">
-                    <div class="tool-icon">📄</div>
+                    <div class="tool-icon"><i class="fi fi-rr-document"></i></div>
                     <h3 class="tool-title">JPG to PDF</h3>
                     <p class="tool-description">Convert multiple images into a single PDF document.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/watermark.html" class="tool-card pdf">
-                    <div class="tool-icon">💧</div>
+                    <div class="tool-icon"><i class="fi fi-rr-opacity"></i></div>
                     <h3 class="tool-title">Watermark PDF</h3>
                     <p class="tool-description">Add text or image watermarks to PDF with custom position.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/page-numbers.html" class="tool-card pdf">
-                    <div class="tool-icon">#️⃣</div>
+                    <div class="tool-icon"><i class="fi fi-rr-hashtag"></i></div>
                     <h3 class="tool-title">Page Numbers</h3>
                     <p class="tool-description">Add page numbers to PDF with custom format and position.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/compress.html" class="tool-card pdf">
-                    <div class="tool-icon">📦</div>
+                    <div class="tool-icon"><i class="fi fi-rr-compress-alt"></i></div>
                     <h3 class="tool-title">Compress PDF</h3>
                     <p class="tool-description">Reduce PDF file size while maintaining readability.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/sign.html" class="tool-card pdf">
-                    <div class="tool-icon">✍️</div>
+                    <div class="tool-icon"><i class="fi fi-rr-edit"></i></div>
                     <h3 class="tool-title">Sign PDF</h3>
                     <p class="tool-description">Add digital signatures to PDF documents with draw canvas.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/protect.html" class="tool-card pdf">
-                    <div class="tool-icon">🔒</div>
+                    <div class="tool-icon"><i class="fi fi-rr-lock"></i></div>
                     <h3 class="tool-title">Protect PDF</h3>
                     <p class="tool-description">Add password protection to your PDF documents.</p>
                     <div class="tool-arrow">→</div>
                 </a>
 
                 <a href="pdf/organize.html" class="tool-card pdf">
-                    <div class="tool-icon">📋</div>
+                    <div class="tool-icon"><i class="fi fi-rr-clipboard"></i></div>
                     <h3 class="tool-title">Organize PDF</h3>
                     <p class="tool-description">Reorder, delete, and organize PDF pages visually.</p>
                     <div class="tool-arrow">→</div>
                 </a>
             </div>
         </section>
-
-        <!-- Math Tools Section -->
-        <section class="section">
-            <div class="section-header">
-                <div class="section-icon math">📐</div>
-                <h2 class="section-title">Math Tools <span>1 tool available</span></h2>
-            </div>
-            <div class="tools-grid">
-                <a href="math-graph/index.html" class="tool-card math">
-                    <div class="tool-icon">📈</div>
-                    <h3 class="tool-title">Math Graphing</h3>
-                    <p class="tool-description">Visualize mathematical functions with an interactive, Geogebra-like
-                        graphing tool.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-            </div>
-        </section>
-
         <footer>
             <p>🔒 Your files are processed locally in your browser. Nothing is uploaded to any server.</p>
             <p style="margin-top: 12px;">Built with ❤️ by <a href="../">Cyclocerine</a></p>
         </footer>
     </div>
+    <script>
+        function initAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            if (!container) return;
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('spirit-particle');
+                container.appendChild(particle);
+                animateParticle(particle);
+            }
+        }
+        function animateParticle(el) {
+            const size = Math.random() * 5 + 2;
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+            el.style.left = `${Math.random() * 100}vw`;
+            el.style.top = `${Math.random() * 100}vh`;
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+            anime({
+                targets: el, translateY: [{ value: -100, duration: anime.random(2000, 4000) }, { value: 100, duration: anime.random(2000, 4000) }],
+                translateX: [{ value: -50, duration: anime.random(2000, 4000) }, { value: 50, duration: anime.random(2000, 4000) }],
+                opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }],
+                easing: 'easeInOutSine', duration: anime.random(5000, 10000), complete: () => animateParticle(el)
+            });
+        }
+        const cursor = document.querySelector('.cursor-outline');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+            document.querySelectorAll('a, button, .tool-card').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+            });
+        }
+        window.addEventListener('load', initAtmosphere);
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Di Bawah Langit Jogja - Digital Reader</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --paper-warm: #fdf6e3;
+            --ghibli-sky: #87CEEB;
+            --ghibli-grass: #91c483;
+            --text-main: #2d3436;
+            --font-reader: 'Lora', serif;
+            --read-size: 1.15rem;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--paper-warm);
+            color: var(--text-main);
+            overflow-x: hidden;
+            transition: background-color 0.8s ease;
+        }
+
+
+
+        /* --- HOME / LANDING STYLE --- */
+        .ghibli-bg {
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 50%, var(--paper-warm) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dust-mote {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.6;
+            filter: blur(15px);
+            z-index: 1;
+        }
+
+        /* --- READER LAYOUT --- */
+        .reader-container {
+            max-width: 750px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reader-content {
+            flex: 1;
+            padding: 3rem 1.5rem 6rem;
+            line-height: 1.95;
+            font-size: var(--read-size);
+            font-family: var(--font-reader);
+        }
+
+        .reader-content p {
+            margin-bottom: 1.8rem;
+        }
+
+        /* Sidebar Drawer */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 320px;
+            height: 100%;
+            background: var(--paper-warm);
+            z-index: 1000;
+            box-shadow: 20px 0 60px rgba(0, 0, 0, 0.1);
+            transition: left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            padding: 2.5rem 1.5rem;
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .reader-nav {
+            position: sticky;
+            top: 0;
+            background: rgba(253, 246, 227, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+
+
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: var(--ghibli-grass);
+            z-index: 2000;
+        }
+
+        /* Interactive Elements */
+        .btn-ghibli {
+            background: white;
+            border: 1px solid var(--ghibli-grass);
+            color: var(--ghibli-grass);
+            padding: 0.75rem 1.5rem;
+            border-radius: 16px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-ghibli:hover {
+            background: var(--ghibli-grass);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(145, 196, 131, 0.2);
+        }
+
+        .code-block {
+            background: #2d3436;
+            color: #fab1a0;
+            padding: 1.25rem;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            margin: 2rem 0;
+            border-left: 4px solid var(--ghibli-grass);
+        }
+
+        .fade-up {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* --- PREMIUM FEATURES CSS --- */
+
+        /* Watercolor Effect */
+        .watercolor-blob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 30% 30%, rgba(145, 196, 131, 0.25), transparent 70%),
+                radial-gradient(circle at 70% 70%, rgba(135, 206, 235, 0.25), transparent 70%);
+            border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+            filter: blur(8px);
+            z-index: -1;
+            opacity: 0;
+            animation: blob-pulse 8s infinite alternate;
+        }
+
+        @keyframes blob-pulse {
+            0% {
+                border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            100% {
+                border-radius: 58% 42% 30% 70% / 55% 55% 45% 45%;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        /* Character Markers */
+        .char-bumi {
+            color: #2d3436;
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-color: #87CEEB;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+        }
+
+        .char-senja {
+            color: #2d3436;
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-color: #fab1a0;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 2px;
+        }
+
+
+
+        /* Reading Time Badge */
+        .reading-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #636e72;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <div id="reading-progress" class="reading-progress"></div>
+
+    <!-- Sidebar Drawer -->
+    <div id="drawer" class="drawer overflow-y-auto">
+        <h3 class="serif text-3xl font-bold mb-8 text-green-800">Daftar Isi</h3>
+        <div id="chapter-list" class="space-y-2 mb-10">
+            <!-- TOC injected via JS -->
+        </div>
+
+        <div class="border-t border-gray-200 pt-8">
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-6">Personalisasi Baca</p>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between bg-white/50 p-4 rounded-xl">
+                    <span class="text-sm font-bold">Ukuran Teks</span>
+                    <div class="flex gap-2">
+                        <button onclick="changeFontSize(-0.1)"
+                            class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center font-bold shadow-sm">-</button>
+                        <button onclick="changeFontSize(0.1)"
+                            class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center font-bold shadow-sm">+</button>
+                    </div>
+                </div>
+
+                <button onclick="toggleSerif()"
+                    class="w-full py-3 border-2 border-green-600/20 text-green-700 rounded-xl font-bold text-sm">Ganti
+                    Jenis Font</button>
+
+                <button id="drawer-music-btn" onclick="toggleMusic()"
+                    class="w-full py-3 border-2 border-green-600/20 text-green-700 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                    <span>Musik Latar</span>
+                    <span id="music-status" class="text-xs bg-green-100 px-2 py-1 rounded-full">OFF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm opacity-0 invisible z-[900] transition-all"
+        onclick="toggleDrawer()"></div>
+
+    <!-- Music Player Controls -->
+    <!-- Music Player Controls -->
+
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+        <!-- Placeholder Lo-Fi: "Lofi Study" by FASSounds from Pixabay -->
+    </audio>
+
+    <!-- MAIN APP -->
+    <div id="app">
+
+        <!-- HOME / LANDING VIEW -->
+        <section id="home-view"
+            class="ghibli-bg flex flex-col items-center justify-center text-center p-6 min-h-screen">
+            <div id="sky-elements"></div>
+            <div id="dust-layer"></div>
+
+            <div class="relative z-10 max-w-4xl px-4">
+                <h1 class="serif text-5xl md:text-8xl font-bold text-blue-900 mb-6 leading-tight fade-up"
+                    style="animation-delay: 0.2s">Di Bawah Langit Jogja</h1>
+                <p class="text-xl md:text-2xl text-blue-800/80 italic font-light mb-12 max-w-2xl mx-auto fade-up"
+                    style="animation-delay: 0.4s">
+                    "Tentang bising yang ia izinkan masuk, dan hangat yang ia rindukan di sela baris-baris kode."
+                </p>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-4 fade-up" style="animation-delay: 0.6s">
+                    <button onclick="openBook(0)"
+                        class="bg-orange-500 hover:bg-orange-600 text-white px-12 py-4 rounded-2xl font-bold shadow-2xl transition-all transform hover:-translate-y-1">Mulai
+                        Membaca</button>
+                    <button id="resume-btn" onclick="resumeReading()"
+                        class="bg-white/40 backdrop-blur-md border border-white/40 px-12 py-4 rounded-2xl font-bold hover:bg-white/60 transition-all hidden">
+                        Lanjut Membaca <span id="last-chap-num"></span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- READER VIEW -->
+        <div id="reader-view" class="hidden opacity-0">
+            <nav class="reader-nav py-5">
+                <div class="container max-w-4xl mx-auto px-6 flex justify-between items-center">
+                    <button onclick="toggleDrawer()" class="p-2 hover:bg-black/5 rounded-xl transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <div class="text-center">
+                        <h2 id="current-chapter-indicator" class="serif font-bold text-sm md:text-lg text-green-800">Bab
+                            1</h2>
+                        <div class="h-1 w-12 bg-green-300 mx-auto rounded-full mt-1"></div>
+                    </div>
+                    <button onclick="exitReader()" class="p-2 hover:bg-black/5 rounded-xl transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="reader-container">
+                <div id="chapter-content" class="reader-content text-gray-800">
+                    <!-- Konten Diinjeksi -->
+                </div>
+
+                <div class="flex justify-between items-center p-8 border-t border-gray-100 mb-20">
+                    <button id="prev-btn" onclick="prevChapter()" class="btn-ghibli opacity-0">← Sebelumnya</button>
+                    <button id="next-btn" onclick="nextChapter()" class="btn-ghibli">Selanjutnya →</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Bab Lengkap
+        const chapters = [
+            {
+                title: "Anomali di Tengah Hiruk-Pikuk Agustus", content: `<p>Agustus di Yogyakarta bukan sekadar nama bulan; ia adalah sebuah entitas yang bernapas. Udaranya tebal oleh debu proyek selokan mataram yang tak kunjung usai, bercampur asap knalpot ribuan motor mahasiswa baru yang memenuhi Jalan Seturan.</p><p>Di salah satu kamar kos berukuran 3x4 meter di lantai dua, Bumi sedang menikmati "kekacauan" pertamanya.</p><p>Kipas angin dinding merk Cosmos itu berputar dengan suara <i>gretek-gretek</i> yang ritmis, berusaha sia-sia mengusir hawa panas yang seolah terperangkap di plafon. Bumi duduk bersila di lantai, dikelilingi tumpukan buku yang baru saja ia keluarkan dari kardus. Bukan buku kuliah, tapi koleksi pribadinya: <i>Dunia Sophie</i>, beberapa komik <i>One Piece</i>, dan jurnal kosong yang belum terisi.</p><p>Ia menyeka keringat di pelipis. Panas. Gerah. Berisik. Suara tawa dari kamar sebelah terdengar jelas, disusul petikan gitar sumbang yang mencoba menyanyikan lagu <i>Sheila on 7</i>.</p><p>Jauh berbeda dari kamarnya di Bandung yang sejuk, hening, dan terletak di kawasan perumahan elit Dago. Di sana, AC selalu menyala 22 derajat. Di sana, ibunya selalu memastikan seprai diganti seminggu sekali oleh asisten rumah tangga.</p><p>Tapi di sini, di tengah panas yang menyengat ini, Bumi justru merasakan sesuatu yang aneh: Ketenangan.</p><p>Ini panas yang ia pilih. Ini bising yang ia izinkan masuk. Tidak ada ekspektasi untuk menjadi penerus firma hukum Ayah. Tidak ada tuntutan untuk selalu tampil "sempurna" di depan kolega Ibu. Hanya ada Bumi, kipas angin berisik, dan kebebasan untuk menentukan kapan ia mau makan malam (atau tidak makan sama sekali).</p><p>Bumi mengambil ponselnya yang tergeletak di atas kasur lipat. Layarnya menyala, menampilkan satu notifikasi WhatsApp dari nomor yang tidak dikenal.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p><b>+62 822-xxxx-xxxx</b>
+<i>6 Agustus, 06.11</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">halo bumi, kita satu gugus arjuna sama satu prodi, salam kenal ya<br>nama ku senja</div><p>Bumi menaikkan alis. <i>Gugus Arjuna</i>. Istilah ospek yang terdengar heroik sekaligus menggelikan. Ia menatap nama di layar. Senja.</p><p>Jari jempolnya melayang sesaat di atas keyboard. Ia bukan tipe orang yang antusias berbasa-basi dengan orang asing, tapi mengabaikan pesan teman satu gugus di minggu pertama kuliah adalah tindakan bunuh diri sosial.</p><p>Bumi mengetik balasan singkat, efisien, dan lowercase—gaya mengetik default-nya.</p><p><b>Bumi</b>
+<i>06 Agustus, 08.03</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">oo iya<br>asal mana?</div><p>Ia meletakkan ponsel kembali, lanjut menyusun buku ke rak kecil dari kayu partikel yang ia rakit sendiri tadi pagi—dengan sedikit perjuangan karena instruksinya memakai Bahasa Mandarin.</p><p><i>Tring.</i></p><p>Balasan kilat.</p><p><b>Senja</b>
+<i>06 Agustus, 08.04</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">asal banjar<br>kamu?</div><p>Banjar? Banjarmasin? Jauh juga.</p><p><b>Bumi</b>
+<i>06 Agustus, 08.05</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">asal bandung</div><p><b>Senja</b>
+<i>06 Agustus, 08.05</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">wah jauh juga ya<br>udah di jogja?</div><p><b>Bumi</b>
+<i>06 Agustus, 08.05</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">udah<br>lu?</div><p><b>Senja</b>
+<i>06 Agustus, 08.06</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">udaa nii<br>kamu kemaren keterima jalur apaa?<br>snbp kah?</div><p>Bumi mendengus pelan, setengah tertawa. Anak ini <i>chatty</i> sekali. Belum lima menit sudah bertanya jalur masuk. Tipikal maba yang sedang <i>over-excited</i> mencari validasi kesamaan nasib. Tapi entah kenapa, Bumi tidak merasa terganggu. Mungkin karena <i>username</i>-nya yang sederhana (<b>Senja</b>) atau foto profilnya yang cuma gambar kucing memakai kacamata hitam buram.</p><p>Ia membalas lagi, sedikit lebih santai kali ini. Percakapan mengalir membahas SNBP, pengambilan almet, dan pertanyaan klasik mahasiswa rantau: "Ngekos di mana?".</p><p>Ternyata Senja tinggal di daerah Condongcatur, menumpang di rumah almarhum mbahnya.</p><p><b>Bumi</b>
+<i>06 Agustus, 08.09</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">kok gak ngekos aja?<br>lebih bebas gak sih</div><p><b>Senja</b>
+<i>06 Agustus, 08.10</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">disuru mama nempatin rumah mbah<br>lumayan hemat biaya wkwk<br>mampir mampirr yaa</div><p>"Mampir," gumam Bumi membaca layar. Orang ini terlalu ramah atau memang polos? Mengajak cowok yang baru dikenal via chat lima menit lalu untuk mampir ke rumah.</p><p><b>Bumi</b>
+<i>06 Agustus, 08.11</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">nanti dah kapan kapan</div><p><b>Senja</b>
+<i>06 Agustus, 08.11</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">hah? kapan kapan apanya?</div><p>Bumi mengerutkan kening. Salah paham.</p><p><b>Bumi</b>
+<i>06 Agustus, 08.11</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">ooo gak kirain<br>suruh mampir ke rumah mbah mu</div><p><b>Senja</b>
+<i>06 Agustus, 08.12</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">oalaaa<br>iyaaa itu maksudnya<br>ehh, mau mutual ig gaa?</div><p>Agresif juga. Bumi terkekeh pelan. Ia mengetikkan username Instagram-nya, lalu melempar ponsel ke kasur. Ia butuh mencari makan siang. Angkringan di depan gang rasanya mulai buka.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Tiga kilometer dari Seturan, di sebuah rumah bergaya lawas di Condongcatur, Senja sedang berperang.</p><p>Lawan tandingnya adalah sebuah galon air mineral 19 liter yang masih tersegel rapat.</p><p>"Ayo dong, plis..." Senja menggeram, wajahnya memerah. Kedua tangannya mencengkeram leher galon, mencoba mengangkatnya ke atas dispenser <i>top-loading</i> yang tingginya sepinggang.</p><p>Tubuh mungilnya gemetar. <i>Satu, dua, ti—</i></p><p>BRUK.</p><p>Galon itu meleleset dari bibir dispenser, menghantam lantai keramik dengan bunyi gedebum yang mungkin terdengar sampai ke rumah tetangga. Air tumpah sedikit, membasahi ujung celana kargonya.</p><p>"Argh!" Senja menjatuhkan diri ke kursi kayu di dekat meja makan, napasnya memburu. Rambutnya yang diikat cepol awut-awutan, beberapa helai menempel di dahi yang berkeringat.</p><p>Rumah ini besar, tua, dan sunyi. Terlalu sunyi. Di Banjarmasin, rumahnya selalu ramai dengan suara adik-adiknya berteriak atau Mama yang memarahi kucing. Di sini, ia sendirian. Benar-benar sendirian.</p><p>Tadi pagi, ia hampir menangis karena tidak bisa menyalakan kompor gas lama peninggalan Mbah. Ia takut meledak. Akhirnya ia makan roti tawar tanpa selai. Sekarang, ia bahkan tidak bisa minum karena tidak kuat mengangkat galon.</p><p>"Masa gini doang nyerah, Ja," bisiknya pada diri sendiri, suaranya sedikit parau. "Katanya mau mandiri. Katanya nggak mau diasuh Mama terus."</p><p>Ia meraih ponselnya yang tergeletak di meja makan. Ada balasan dari cowok Bandung itu.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">instagram.com/bumi.aswan</div><p>Senja tersenyum kecut. Setidaknya ada satu hal yang berjalan lancar hari ini: dapet temen satu gugus. Meskipun cowok ini—Bumi—balas chatnya irit banget kayak  operator telegram jaman penjajahan.</p><p>Senja membuka profil Instagram Bumi. Feeds-nya estetik gelap-gelap, isinya foto gedung tua, kopi, dan satu foto siluet dia sedang mendaki gunung. <i>Cool</i>, tapi terkesan <i>effortless</i>. Beda banget sama Senja yang IG story-nya bisa titik-titik kayak jahitan karung goni kalau lagi curhat.</p><p>"Oke, <i>mutual</i> satu," Senja bergumam, jempolnya menekan tombol <i>Follow</i>.</p><p>Ia meletakkan ponsel, lalu berdiri lagi. Ditatapnya galon air yang tergeletak di lantai itu dengan tatapan bermusuhan.</p><p>"Gue nggak bakal mati kehausan cuma gara-gara lo berat," tantangnya pada benda mati itu.</p><p>Senja tidak menelepon Dito—teman SMA-nya yang juga kuliah di Jogja—untuk minta tolong. Ia tidak menelepon Papanya. Ia mengambil <i>dingklik</i> (kursi kecil) kayu, memposisikan dirinya lebih tinggi, menarik napas panjang, dan mencoba lagi.</p><p>Kali ini dengan teknik yang ia lihat di TikTok: angkat sebalah sisi, tumpu di paha, lalu dorong.</p><p><i>Hup!</i></p><p>Air di dalam galon bergolak hebat. Otot lengannya serasa mau putus. Tapi galon itu naik, mendarat <i>glug-glug-glug</i> di mulut dispenser. Sukses.</p><p>Senja merosot duduk di lantai basah, tertawa lega sendirian di dapur tua itu. Ia berhasil. Hal kecil, remeh, tapi berhasil.</p><p>Ponselnya bergetar lagi. Notifikasi baru.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Uda kemana aja selama di jogja?</div><p>Senja menyeka keringat di dahinya dengan punggung tangan, lalu mengetik balasan sambil tersenyum lebar.</p><p><b>Senja</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">umm akuu sekarang sekarang lebih sering keliling tanpa tujuan sii hafalin jalan</div><p><i>Bohong</i>, batinnya. <i>Gue nyasar melulu</i>. Tapi Bumi tidak perlu tahu itu. Belum.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Di Seturan, Bumi menyimpan nomor <b>Senja</b> itu bukan dengan nama "Senja Gugus Arjuna" seperti yang ia lakukan pada lima kontak lain hari ini.</p><p>Ia mengetik: <b>Senja (Banjar)</b>.</p><p>Entah kenapa, ada perasaan aneh bahwa percakapan mereka tidak akan berhenti di "sekadar kenal". Anak ini punya energi yang menular, bahkan lewat teks digital yang bisu. Dan di kota asing ini, di tengah riuh rendah suara motor dan panas yang memanggang, mungkin sedikit "energi" adalah apa yang Bumi butuhkan untuk tidak merasa terlalu sepi dalam kebebasannya.</p><p>Ia menutup ponsel, memakai sandalnya, dan melangkah keluar kamar. Mencari makan siang, di bawah langit Jogja yang biru menyengat.</p>` },
+            {
+                title: "Navigasi Tanpa Peta", content: `<p>Waktu di Yogyakarta berjalan dengan dua kecepatan berbeda. Lambat saat siang hari yang memanggang, dan terlalu cepat saat subuh menjelang.</p><p>Bumi terbangun pukul 03.45. Tanpa alarm. Tubuhnya seolah memiliki jam biologis yang sinkron dengan adzan pertama dari masjid di sebelah kosnya. Ia duduk sejenak di tepi kasur, mengumpulkan nyawa, lalu melipat selimutnya dengan presisi militer—kebiasaan lama dari didikan kakeknya yang pensiunan tentara.</p><p>Hari ini adalah hari pertama <i>Bela Negara</i>. Sejenis ospek semi-militer yang diwajibkan oleh kampus.</p><p>Bumi tidak keberatan dengan konsep disiplin. Yang ia keberatan adalah keharusan berinteraksi dengan ratusan manusia baru sepagi ini. Ia meraih ponsel. Ada pesan dari Senja semalam yang belum ia buka lagi setelah kesepakatan mereka.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p><b>Senja</b>
+<i>14 Agustus, 07.20</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">bumi<br>kamu besok bawa motor taa?</div><p><b>Bumi</b>
+<i>14 Agustus, 07.22</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">iya<br>mo bareng?</div><p><b>Senja</b>
+<i>14 Agustus, 07.22</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">aku bawa motor tapi gatau jalan<br>bareng di jalan nya pls</div><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Bumi menggeleng pelan mengingat percakapan itu. "Bawa motor tapi nggak tahu jalan." Kalimat yang merangkum esensi Senja sejauh ini: Nekat, tapi buta arah.</p><p>Mereka sepakat bertemu pukul 05.00 di Indomaret Point dekat persimpangan Ringroad.</p><p>Bumi mandi dengan cepat, air dingin menyengat kulitnya, membangunkannya sepenuhnya. Ia mengenakan kemeja putih yang sudah disetrika licin tadi malam (oleh <i>laundry</i>, tentu saja), celana bahan hitam, dan sepatu pantofel yang sedikit kekecilan. Ia menatap pantulan dirinya di cermin retak kamar mandi.</p><p>"Oke. Jangan telat," gumamnya.</p><p>Ia menyalakan motor matic-nya, membiarkan mesin memanas sejenak, memecah keheningan dini hari di seturan.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Sementara itu, di Condongcatur, Senja sedang dalam mode panik level siaga satu.</p><p>"Sepatu... sepatu mana sepatu?!"</p><p>Senja mengobrak-abrik rak sepatu di teras. Sepatu pantofel hitamnya hilang entah ke mana. Ia berlari kembali ke kamar, nyaris terpeleset keset. Waktu menunjukkan pukul 04.40.</p><p>"Mati gue, mati gue, mati gue."</p><p>Ia menemukan sepatu itu tergeletak di bawah kolong tempat tidur, berdebu. Sambil mengumpat pelan, ia mengelapnya asal-asalan dengan tisu basah.</p><p>Rambutnya sudah ia kuncir kuda, rapi namun kencang, membuatnya sedikit pusing. Kemeja putihnya—terima kasih Tuhan—masih bersih, meskipun ada sedikit noda air di ujung lengan bekas cuci muka tadi.</p><p>Senja menyambar kunci motor dan <i>totebag</i> berisi bekal roti tawar. Ia membuka Google Maps, mengetik "Indomaret Point Seturan".</p><p>Jantungnya berdegup kencang bukan karena takut ospek, tapi takut nyasar <i>sebelum</i> sampai di titik temu. Ia masih traumatis dengan kejadian kemarin lusa saat ia nyasar sampai ke daerah Tugu padahal cuma mau beli pulsa di konter dekat rumah.</p><p>"Bismillah. Fokus, Ja. Fokus."</p><p>Ia menaiki motor Scoopy-nya, menarik gas pelan-pelan menyusuri jalanan kampung yang masih gelap. Angin subuh Jogja menusuk tulang, tapi keringat dingin mengucur di punggungnya.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Pukul 04.55. Bumi sudah stand by di depan Indomaret Point. Ia duduk di atas motornya, helm diletakkan di pangkuan, matanya mengawasi jalanan yang mulai ramai oleh mahasiswa baru lain yang berseragam hitam-putih.</p><p>Sebuah motor Scoopy abu-abu melaju ragu-ragu dari arah utara. Pengendaranya—seorang gadis kecil dengan helm bogo kebesaran—tampak celingukan, hampir menabrak tukang sapu jalan.</p><p>Bumi menyipitkan mata. Instingnya mengatakan itu dia.</p><p>Gadis itu menepi, kakinya jinjit menahan motor, lalu membuka kaca helmnya. Wajahnya cemas, matanya bergerak liar mencari seseorang.</p><p>Bumi menegakkan punggung. Ia mengangkat tangan kanan, melambai singkat.</p><p>Gadis itu melihatnya. Wajah cemasnya seketika berubah cerah, seolah baru saja menemukan oase di padang pasir. Ia memutar motornya (dengan sedikit oleng) mendekati Bumi.</p><p>"Bumi?" tanyanya, suaranya sedikit teredam helm.</p><p>"Senja?"</p><p>Senja mengangguk antusias. "Hah... gila. Gue kira gue nyasar lagi." Ia membuka helmnya sebentar, merapikan poni yang berantakan.</p><p>Untuk pertama kalinya, Bumi melihat Senja secara langsung. Bukan lewat stiker WhatsApp atau foto profil buram. Dia... cantik. Wajah khas Indonesia, kulit kuning langsat, mata bulat yang ekspresif. Tapi ada aura "hidup" yang meletup-letup darinya, kontras dengan Bumi yang lempeng.</p><p>"Udah sarapan?" tanya Bumi basa-basi, standar sopan santun.</p><p>"Belum sempeeet! Gue bangun kesiangan gara-gara alarm gue mati—eh nggak mati ding, gue yang matiin tanpa sadar," cerocos Senja cepat. "Lo udah?"</p><p>"Udah seadanya." Bumi memasang helmnya kembali. "Yaudah, jalan sekarang? Takut macet di Babarsari."</p><p>"Oke, oke. Gue ngikut di belakang ya. Jangan ngebut plis, motor gue agak brebet kalau diajak ngebut."</p><p>Bumi mengangguk. "Santai."</p><p>Mereka mulai membelah jalanan Ringroad Utara. Bumi memimpin di depan, kecepatannya stabil di 40 km/jam. Sesekali ia melirik spion kanan, memastikan titik lampu motor Senja masih ada di sana.</p><p>Ada rasa tanggung jawab aneh yang tumbuh di dada Bumi. Ia tidak kenal gadis ini. Mereka baru bertemu tiga menit. Tapi melihat betapa <i>clumsy</i>-nya Senja mengendarai motor (lampu sein kanan menyala padahal jalan lurus), Bumi merasa harus menjaganya.</p><p>Di belakang, Senja mati-matian menjaga fokus.</p><p><i>Anjir, si Bumi wangi banget,</i> batinnya, meski terhalang jarak dan helm. Cowok itu terlihat tenang, bahunya tegap, cara dia menyalip angkot juga halus banget. Beda sama Senja yang kalau nyalip harus baca Ayat Kursi dulu.</p><p>Tiba-tiba, di lampu merah Condongcatur, motor Senja mati.</p><p><i>Grekk.</i></p><p>Senja panik. Ia menekan tombol starter. <i>Cekekekekek...</i> Tidak menyala.</p><p>Lampu berubah hijau. Klakson dari belakang mulai bersahutan.</p><p>"Woy jalan mbak!" teriak seorang bapak-bapak.</p><p>Muka Senja panas. Ia mencoba menstarter lagi. Nihil.</p><p>Bumi sudah melaju sekitar sepuluh meter di depan. Ia menyadari lampu motor di spionnya hilang. Ia menepi, menoleh ke belakang. Melihat Senja yang sedang diklaksoni massal.</p><p>Tanpa pikir panjang, Bumi memutar balik—melawan arus sedikit di bahu jalan—menghampiri Senja.</p><p>"Kenapa?" tanya Bumi, suaranya tenang di tengah kebisingan klakson.</p><p>"Mogookkk!" Senja setengah berteriak, matanya berkaca-kaca karena panik.</p><p>"Standar samping turunin dulu," instruksi Bumi. "Terus selah. Engkol."</p><p>"Hah? Keras banget engkolnya!"</p><p>Bumi turun dari motornya, menstandarkan motornya sendiri dengan cepat. "Minggir bentar."</p><p>Bumi mengambil alih kemudi motor Senja. Sekali hentakan kaki yang kuat pada kick starter. <i>Bruum.</i> Mesin menyala kembali.</p><p>Senja menghela napas panjang, bahunya merosot lega. "Makasih... sumpah makasih."</p><p>Bumi turun, menyerahkan kembali kemudi pada Senja. Ia tidak tersenyum, tapi tatapannya tidak menghakimi. "Standarnya naikin. Jangan panik. Kalau panik malah makin susah."</p><p>Senja mengangguk patuh seperti anak TK dimarahi guru.</p><p>"Udah? Yuk," ajak Bumi.</p><p>Mereka kembali melaju. Kali ini, Bumi berkendara lebih pelan lagi, dan lebih sering mengecek spion.</p><p>Di balik helmnya, Senja tersenyum tipis. Mungkin Jogja memang panas, macet, dan membingungkan. Tapi setidaknya pagi ini, ia punya satu penunjuk arah yang bisa diandalkan.</p><p>Dan bagi Bumi, melihat Senja yang berusaha mengejar di spion, ia sadar satu hal: Niatnya untuk menjadi <i>invisible man</i> alias mahasiswa kupukupu yang tak terlihat, sepertinya akan gagal total gara-gara cewek ceroboh ini.</p>` },
+            {
+                title: "Orbit yang Bersinggungan", content: `<p>Lapangan upacara itu seperti kuali raksasa yang mendidih.</p><p>Matahari Yogyakarta pukul dua belas siang tidak mengenal ampun. Sinar ultraviolet menghajar ratusan mahasiswa baru yang berbaris rapi dalam formasi <i>Bela Negara</i>. Baret ungu, seragam loreng-loreng kedodoran, dan teriakan senior yang menggema lewat toa membuat udara terasa semakin tipis.</p><p>Bumi berdiri di barisan ketiga pleton Arjuna. Keringat mengalir di punggungnya seperti sungai kecil. Ia diam, mematung, melakukan teknik pernapasan yang pernah diajarkan kakeknya untuk menekan detak jantung. Ia baik-baik saja. Fisiknya kuat. Mentalnya stabil.</p><p>Masalahnya ada di barisan sebelah kiri.</p><p>Senja terlihat seperti lilin yang diletakkan di samping kompor menyala. Wajahnya pucat pasi, bibirnya kering. Topi rimba-nya miring sedikit, dan ia berulang kali mengusap dahi.</p><p>"Pleton Arjuna! Tegak... Grak!"</p><p>Suara komandan pleton menggelegar.</p><p>Bumi melirik tajam. Senja bergerak lambat. Terlalu lambat. Tubuhnya limbung ke depan sepersekian detik sebelum ia menyeimbangkan diri lagi.</p><p><i>Anak ini kenapa nggak angkat tangan aja sih?</i> batin Bumi kesal. <i>Pura-pura sakit kek. Pingsan beneran baru tau rasa.</i></p><p>Bumi ingin sekali menegurnya, tapi aturan baris-berbaris melarang bicara. Ia hanya bisa mengawasi dengan ekor mata, siap-siap kalau—</p><p>"Istirahat di tempat... Grak!"</p><p>Akhirnya.</p><p>"Kalian punya waktu lima belas menit! Minum! Jangan ada yang pingsan!" perintah senior.</p><p>Massa bubar, berlari menyerbu botol minum masing-masing.</p><p>Bumi melihat Senja berjalan sempoyongan menjauh dari kerumunan, menuju arah pohon beringin di belakang gedung rektorat. Bukan ke tempat istirahat pleton.</p><p>Bumi mengambil botol air mineralnya, menenggak setengah, lalu meraih ponsel yang ia sembunyikan di saku celana PDL.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p><b>Bumi</b>
+<i>17 Agustus, 17.43</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">lah beneran<br>gua kira lu mau ngadem</div><p>Bumi mengetik pesan itu sambil berjalan menjauh dari pleton, mengikuti arah perginya Senja. Ia melihat gadis itu duduk bersandar di akar beringin besar, matanya terpejam.</p><p>Ponsel di tangan gadis itu bergetar. Senja membukanya dengan mata setengah merem.</p><p><b>Senja</b>
+<i>17 Agustus, 17.43</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">LAHH<br>kalo mau ngadem aja ya aku duduk aja kali gausa kebelakang</div><p><b>Senja</b>
+<i>17 Agustus, 17.44</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">dh detik detik mau pingsan gitu tadi juga</div><p>Bumi mendengus membaca balasan itu. "Detik-detik mau pingsan" katanya, tapi ngetik masih ngegas pakai capslock.</p><p>Ia melangkah mendekat. Bayangannya menutupi wajah Senja yang terkena bias sinar matahari. Senja mendongak, menyipitkan mata.</p><p>"Bumi?" suaranya lemah, serak.</p><p>Bumi berjongkok di depannya, menyodorkan botol air mineral yang masih sisa setengah. Airnya dingin karena Bumi menyimpannya di termos kecil.</p><p>"Minum," perintah Bumi singkat.</p><p>Senja tidak membantah. Ia menerima botol itu, meminumnya rakus. Air tumpah sedikit ke dagunya.</p><p>"Pelan-pelan," tegur Bumi. Ia mengambil alih botol itu sebelum Senja tersedak. "Kenapa nggak lapor medis?"</p><p>"Males," gumam Senja, menyeka bibirnya. "Nanti malah dirubung kating (kakak tingkat). Gue cuma butuh duduk bentar. Gula darah gue turun kayaknya."</p><p>"Makan tadi pagi?"</p><p>"Roti selembar."</p><p>"Pinter," sindir Bumi datar. Ia merogoh saku kargo-nya, mengeluarkan sebungkus <i>Soyjoy</i> yang sudah agak gepeng karena terhimpit seharian.</p><p>"Makan," ia melempar bungkusan itu ke pangkuan Senja.</p><p>Senja menatap <i>Soyjoy</i> itu, lalu menatap Bumi dengan mata berbinar. "Lo... malaikat ya?"</p><p>"Gue manusia. Cepet makan, lima menit lagi masuk."</p><p>Bumi berdiri, bersandar di batang pohon, memunggungi Senja. Ia bertindak sebagai tameng, menghalangi pandangan senior yang mungkin lewat dan melihat ada maba yang sedang 'enak-enakan' makan di luar jam makan siang.</p><p>Senja mengunyah snack itu dengan cepat. Energinya perlahan kembali. Ia memandangi punggung tegap Bumi. Kemeja PDL-nya basah oleh keringat, membentuk pola pulau-pulau abstrak di punggungnya.</p><p>"Bum," panggil Senja.</p><p>"Hm?"</p><p>"Lo kok tau gue di sini?"</p><p>"Gue punya mata."</p><p>"Makasih ya."</p><p>Bumi menoleh sedikit. "Besok sarapan nasi. Jangan sok diet atau sok hemat. Kalau lo pingsan di jalan pas kita konvoi, gue yang repot harus gotong lo."</p><p>Senja terkekeh pelan. "Iya, Bapak Negara."</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Sore harinya, saat apel pembubaran selesai.</p><p>Langit Jogja berwarna oranye pekat, bercampur ungu memar. Debu beterbangan disinari lampu jalan yang mulai menyala satu per satu.</p><p>Bumi sudah di atas motornya di parkiran Fakultas, memanaskan mesin. Ia menunggu.</p><p>Tak lama, Senja muncul dengan langkah gontai tapi wajah yang jauh lebih segar daripada tadi siang.</p><p>"Bawa motor kan tadi pulangnya?" tanya Bumi langsung saat Senja mendekat, mengacu pada percakapan chat mereka tadi sore.</p><p>"Si anjir, iyaa bawa motor," jawab Senja sambil cengar-cengir. "Tapi kawal lagi ya? Gue lupa jalan tikus yang tadi pagi kita lewatin."</p><p>Bumi menghela napas panjang, dramatis. "Lo itu navigasinya rusak permanen apa gimana sih?"</p><p>"Hehe. <i>Please?</i>" Senja menangkupkan kedua tangan.</p><p>Bumi memasang helm <i>full-face</i>-nya, menyembunyikan senyum simpul yang nyaris terbit di bibirnya.</p><p>"Yaudah. Di belakang. Jangan bengong."</p><p>Saat mereka melaju membelah kemacetan sore Jalan Kaliurang, ada ritme baru yang terbentuk. Senja tidak lagi panik tertinggal. Ia tahu Bumi akan selalu melirik spion, memastikan ia ada di sana. Dan Bumi, yang awalnya merasa terbebani, mulai menikmati peran barunya sebagai 'penjaga' orbit kecil Senja yang kacau balau ini.</p><p>Satu frekuensi, beda amplitudo. Yang satu tenang dan stabil, yang satu meledak-ledak dan tak terduga. Namun anehnya, mereka bergerak beriringan menuju arah pulang yang sama.</p>` },
+            {
+                title: "Relasi Many-to-Many", content: `<p>September datang membawa angin yang sedikit lebih dingin dan tugas kuliah yang jauh lebih panas.</p><p>Bumi duduk di meja sudut <i>Co-working space</i> perpustakaan, laptopnya menyala menampilkan diagram yang rumit. <i>Entity Relationship Diagram</i> (ERD). Tugas Basis Data yang sukses membuat separuh angkatan mengalami gangguan tidur minggu ini.</p><p>Di layar ponselnya, notifikasi beruntun masuk. Bukan dari grup kelas, tapi dari Senja.</p><p><i>06 September, 10.15</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Bumi<br>bumi<br>help<br>ini kardinalitas yg many to many gimana cara gambar di draw.io nya??</div><p>Bumi menghela napas. Gadis ini lagi. Sejak insiden <i>Bela Negara</i> bulan lalu, Senja seolah menobatkan Bumi sebagai <i>helpdesk</i> berjalan-nya.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Gabungan dari dua PK entitas yang berelasi. Jadi tabel baru.</div><p><b>Senja</b>
+<i>10.16</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Hah?<br>bingung<br>kalo tabel film ke genre itu many to many kan? satu film bisa banyak genre, satu genre bisa banyak film?<br>terus tabel gabungannya ditaruh mana?</div><p>Bumi memijat pelipisnya. Menjelaskan konsep abstraksi database lewat chat ke orang yang bahkan sering lupa naruh kunci motor adalah tantangan level dewa.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Bikin tabel baru di tengahnya. Namanya 'Film_Genre' atau apalah. Isinya PK Film sama PK Genre.<br>Itu namanya entitas asosiatif.</div><p><b>Senja</b>
+<i>10.20</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">ENTITAS ASOSIATIF<br>oke oke dicatet<br>makasih bapak asisten dosen (amin)</div><p>Bumi tersenyum tipis. "Amin," gumamnya pelan.</p><p>Ia menutup aplikasi WhatsApp, mencoba kembali fokus pada tugasnya sendiri. Tapi pikirannya melayang. Hubungan dia dan Senja ini... kardinalitasnya apa? <i>One-to-One</i>? Bukan, mereka bukan pacar. <i>One-to-Many</i>? Bumi merasa dia "mengurusi" banyak masalah Senja, tapi Senja juga membawa banyak warna (dan kekacauan) ke hidupnya.</p><p>Mungkin <i>Many-to-Many</i>. Banyak kejadian tak terduga yang menghubungkan dua entitas yang sebenarnya tidak punya <i>Primary Key</i> yang cocok ini. Dan mungkin, mereka sedang membentuk "tabel penghubung" mereka sendiri.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Malam harinya, pukul 19.30.</p><p>Bumi baru saja selesai mandi ketika ponselnya bergetar lagi.</p><p><b>Senja</b>
+<i>19.33</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Bumiiii<br>sibuk gaaa?<br>mau minta tolong anterin kei ke stasiun maguwo<br>plis aku gatau jalan malem malem takut nyasar ke ringroad barat</div><p>KEI. Teman satu geng Senja yang—kata Senja—anaknya kalem tapi kalau ngomong pedes.</p><p>Bumi menimbang-nimbang. Ia sebenarnya sudah berniat maraton <i>drkor</i> malam ini. Tapi membayangkan Senja nyasar sendirian di Ringroad malam-malam, lalu meneleponnya sambil nangis... lebih merepotkan.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">Y</div><p><b>Senja</b>
+<i>19.34</i></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">"Y" doang anjir<br>oke ditunggu di depan kosan kei ya! aku shareloc</div><p>Bumi menyambar jaket <i>hoodie</i> hitamnya. <i>Here we go again.</i></p><p>Perjalanan ke Stasiun Maguwo cukup lancar. Bumi memimpin di depan dengan Vario-nya, sementara Senja membonceng Kei di belakang menggunakan Scoopy-nya yang—ajaibnya—tidak mogok hari ini.</p><p>Sesampainya di stasiun, Kei turun. Gadis berkacamata itu menatap Bumi dan Senja bergantian dengan tatapan menyelidik.</p><p>"Makasih ya, Bum, Ja," kata Kei. "Kalian hati-hati pulangnya. Jangan mampir-mampir yang aneh."</p><p>"Siap. Ati-ati lu," jawab Senja riang.</p><p>Setelah Kei masuk ke peron, tinggal tersisa Bumi dan Senja di parkiran stasiun yang remang-remang. Suara kereta api terdengar di kejauhan.</p><p>"Udah makan?" tanya Bumi.</p><p>Senja menggeleng. "Belum. Laper banget sumpah. Tadi siang cuma makan cilok gara-gara pusing mikirin ERD."</p><p>"Yaudah. Cari makan," putus Bumi. "Burjo? Penyet?"</p><p>"Penyetan dooong. Yang sambelnya jahat."</p><p>Mereka berakhir di sebuah warung penyetan tenda di daerah Seturan. Asap ayam goreng mengepul, bercampur aroma sambal terasi yang menggugah selera. Mereka duduk lesehan di tikar.</p><p>"Gila ya tugas kuliah," Senja membuka percakapan sambil menyuwir ayam gorengnya. "Baru awal September udah disuruh bikin ERD bioskop. Mana gue nggak ngerti bedanya <i>attribute</i> sama <i>entity</i> awalnya."</p><p>"Lo masuk Informatika jalur apa sih?" ledek Bumi.</p><p>"Jalur <i>fated to love you</i>," jawab Senja asal, lalu tertawa sendiri. "Nggak deng. Gue suka komputer sebenernya. Cuma ya... logikanya kadang nggak nyampe."</p><p>Bumi mengunyah lele gorengnya. "Bisa kalau dibiasain. Database itu cuma soal ngerapihin data. Kayak lo ngerapihin lemari baju lo. Kaos sama kaos, celana sama celana. Jangan dicampur."</p><p>"Lemari gue berantakan, Bum."</p><p>"Pantes ERD lo berantakan."</p><p>Senja cemberut, melempar kulit timun ke arah piring Bumi. "Jahat banget mulutnya."</p><p>Bumi terkekeh. Kali ini tawa yang lepas, bukan cuma senyum simpul.</p><p>Senja tertegun sejenak melihatnya. Cowok ini... kalau ketawa ternyata manis juga.</p><p>"Eh, Bum," kata Senja tiba-tiba, suaranya sedikit lebih serius.</p><p>"Apa?"</p><p>"Makasih ya. Udah sering direpotin. Mulai dari ospek, galon, sampe sekarang nganterin Kei."</p><p>Bumi mengangkat bahu. "Santai. Gue juga butuh alesan buat keluar kos. Kalau nggak ada lo, gue mungkin cuma diem di kamar sampe jamur tumbuh di punggung gue."</p><p>"Jadi gue ini... alesan lo keluar?" goda Senja.</p><p>"Jangan ge-er. Lo itu <i>bug</i> di sistem gue yang rapi. Tapi... <i>bug</i> yang lumayan menghibur."</p><p>Senja tertawa. "Sialan. <i>I'll take that as a compliment</i>."</p><p>Malam semakin larut di Yogyakarta. Di bawah tenda penyetan itu, di antara sisa tulang ayam dan gelas es teh yang mencair, Bumi dan Senja menyadari satu hal. Relasi mereka bukan lagi sekadar teman satu gugus. Bukan lagi sekadar orang asing yang kebetulan bertemu.</p><p>Mereka adalah dua variabel yang mulai terikat dalam sebuah fungsi yang kompleks. Dan entah kenapa, Bumi tidak ingin menekan tombol <i>Delete</i> untuk menghapus <i>bug</i> bernama Senja ini.</p>` },
+            { title: "Eskapisme Virtual", content: `<p>Oktober merayap masuk, membawa gerimis pertama dan teror bernama Ujian Tengah Semester (UTS).</p><p>Perpustakaan pusat penuh sesak. Kafe-kafe di sekitar kampus berubah menjadi arena pertempuran di mana mahasiswa bertarung memperebutkan colokan listrik. Di dalam kamar kos 3x4-nya, Bumi sudah mencapai titik jenuh. Matanya perih menatap slide materi Aljabar Linear yang isinya cuma angka biner 1 dan 0 tapi pusingnya tak terhingga.</p><p>Ponselnya berbunyi. Notifikasi Discord.</p><p><b>Senja (Banjar)</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r">invite sent: <i>Rosblok Mabar Sambil Nangis</i></div><p>Bumi terkekeh pelan. Nama servernya sangat representatif. Ia melirik jam dinding. Pukul 21.15.  Ia butuh istirahat. Ia butuh sesuatu yang tidak masuk akal.</p><p>Bumi memasang headset, lalu mengklik 'Join'.</p><p>"HALO TES TES. MASUK GAK?"</p><p>Suara cempreng Senja langsung memecah gendang telinganya.</p><p>"Masuk, Ja. Kecilin dikit kenapa volumenya," protes Bumi sambil menyesuaikan pengaturan audio di laptopnya.</p><p>"Sori sori. Gue lagi <i>hype</i> banget nih. Otak gue udah ngebul ngafalin sintaks C++," sahut Senja. Di latar belakang, terdengar suara kunyahan keripik yang renyah. "Ayo main <i>The Mimic</i>. Gue butuh adrenalin biar nggak ngantuk."</p><p>"Yakin? Lo nonton <i>Annabelle</i> aja tutup mata."</p><p>"Itu kan film! Ini game! Beda! Di sini gue punya kendali!"</p><p>Lima menit kemudian, teori "gue punya kendali" itu terbukti salah besar.</p><p>"AAAAA BUMIII DI BELAKANG LO! DI BELAKANG LO ADA SETAN JEPANGNYA!"</p><p>Avatar Senja—karakter kotak-kotak dengan rambut kuncir kuda yang aneh—berlari berputar-putar menabrak tembok, sementara monster hantu wanita mengejarnya.</p><p>Bumi, yang karakternya berdiri tenang di pojokan sambil memegang lentera, hanya bisa geleng-geleng kepala (secara virtual dan harfiah).</p><p>"Ja, lo lari ke jalan buntu," kata Bumi tenang. "Puter balik. Ke arah gue."</p><p>"GABISAA KAKIKU LEMES... eh maksudnya tombol <i>shift</i> gue macet!"</p><p><i>JUMPSCARE.</i></p><p>Layar menjadi merah. Avatar Senja tewas mengenaskan.</p><p>"YAHHH MATI LAGI!" Senja merengek. "Curang ah setannya nge-cheat!"</p><p>"Setannya nggak nge-cheat, lo yang navigasinya buruk. Di dunia nyata nyasar, di game juga nyasar," ledek Bumi, tapi tangannya sibuk me-revive karakter Senja.</p><p>Mereka bermain selama dua jam. Teriakan panik Senja, tawa puas Bumi saat melihat Senja jatuh ke jurang <i>obby</i>, dan momen-momen konyol saat mereka mencoba menyelesaikan puzzle bersama, perlahan mengikis beban UTS yang menumpuk di pundak mereka.</p><p>Pukul 23.45. Mereka berhenti main game, tapi masih menyala di <i>Voice Channel</i>.</p><p>Hening sejenak. Hanya ada suara <i>lo-fi hip hop</i> yang diputar bot musik Discord.</p><p>"Bum," panggil Senja, suaranya kini jauh lebih pelan. Tidak ada lagi energi meledak-ledak sisa main game tadi.</p><p>"Hm?"</p><p>"Lo... takut nggak sih sama UTS?"</p><p>Bumi menyandarkan punggung ke kursi, menatap langit-langit kamarnya. "Takut apa? Nggak bisa jawab?"</p><p>"Takut ngecewain," jawab Senja lirih. "Gue jauh-jauh dari Banjar, biaya hidup di sini mahal, UKT mahal. Kalau gue gagal... rasanya gue nggak tau diri banget."</p><p>Bumi terdiam. Ia paham perasaan itu. Meski konteksnya berbeda. Ia takut gagal bukan karena biaya, tapi karena itu akan membuktikan bahwa ayahnya benar: <i>Bumi tidak bisa hidup tanpa privilese keluarga.</i></p><p>"Gue juga," aku Bumi akhirnya, jujur. "Gue takut kalau ternyata gue nggak sekuat yang gue pikir. Gue takut kalau keputusan gue buat kuliah di sini cuma bentuk pemberontakan remaja yang nggak mateng."</p><p>"Tapi lo pinter, Bum. Kelihatan."</p><p>"Pinter akademik belum tentu pinter hidup, Ja."</p><p>Senja tertawa kecil, tawa yang terdengar lelah tapi tulus. "Iya juga sih. Lo nyuci baju aja masih ke laundry kiloan."</p><p>"Diem lo."</p><p>"Tapi Bum..." jeda sejenak. "Makasih ya."</p><p>"Buat?"</p><p>"Buat nemenin gue malem ini. Gue tadinya mau nangis di pojokan kamar, tapi sekarang malah sakit perut ketawa gara-gara liat avatar lo jatoh."</p><p>Bumi tersenyum, meski Senja tidak bisa melihatnya. "Sama-sama. Gue juga butuh ini."</p><p>"Semangat belajar lagi besok, ya?"</p><p>"Iya. Tidur gih. Udah malem."</p><p>"Oke. <i>Good night</i>, Bumi."</p><p>"<i>Night</i>, Senja."</p><p>Bumi mematikan laptopnya. Kamarnya kembali sunyi, tapi kesunyian itu tidak lagi terasa mencekam. Ada kehangatan aneh yang tertinggal, sisa suara tawa dan obrolan jam dua belas malam yang entah bagaimana, terasa lebih intim daripada pertemuan tatap muka mana pun.</p><p>Di layar hitam laptopnya, pantulan wajah Bumi terlihat lebih rileks. Eskapisme virtual ini ternyata bukan sekadar lari dari kenyataan, tapi cara mereka mengisi bensin untuk menghadapinya lagi besok.</p>` },
+            { title: "Variabel Pengganggu", content: `<p>UTS berlalu dengan hasil yang... <i>mixed</i>. Tidak hancur lebur, tapi juga tidak <i>cumlaude</i>. Cukup untuk bernapas lega sejenak.</p><p>Namun, masa tenang pasca-UTS membawa tamu tak diundang ke dalam orbit Senja. Tamu itu bernama Dito.</p><p>Dito adalah definisi berjalan dari kata "Santuy". Mahasiswa Komunikasi semester tiga (dia kating, ternyata) yang Senja temui di sebuah pameran seni di Jogja National Museum. Rambutnya gondrong tanggung, kemejanya flanel <i>oversized</i>, dan dia selalu tahu tempat ngopi tersembunyi di Prawirotaman yang "vibes-nya dapet banget".</p><p>Sore itu, di kantin Fakultas yang riuh, Senja duduk satu meja dengan Bumi. Tapi matanya tidak ke arah Bumi, melainkan ke ponsel.</p><p>"Ja, tugas <i>Algoritma</i> yang <i>sorting</i> udah?" tanya Bumi sambil menyendok nasi ramesnya.</p><p>"Hah? Oh, belum," jawab Senja tanpa menoleh. "Gampang lah. Deadline masih besok lusa."</p><p>Bumi mengernyit. "Besok lusa itu Jumat. Jumat kita ada kuis Matdist. Kapan lo mau ngerjain?"</p><p>"Nanti malem bisa kali," Senja akhirnya meletakkan ponselnya, tersenyum lebar. "Eh Bum, nanti malem gue diajak Dito nongkrong di <i>Prawiro</i>. Katanya ada live music jazz gitu. Lo mau ikut gak?"</p><p>"Nggak," jawab Bumi cepat. "Gue mau ngerjain tugas. Dan lo harusnya juga."</p><p>Senja memutar bola matanya. "Ih, kaku banget sih lo, Pak Tua. Sekali-kali <i>refreshing</i> napa. Hidup di Jogja tuh dinikmatin, bukan cuma dipake buat ngerem di kamar kos sama perpus."</p><p>"Gue nikmatin Jogja dengan cara gue," balas Bumi dingin. "Dan cara gue nggak termasuk nongkrong nungguin pagi sambil nunda kewajiban."</p><p>"Dito bilang kuliah itu maraton, bukan lari sprint. Kalau lo terlalu ngegas di awal, ntar lo <i>burnout</i>," Senja membela diri, mengutip kata-kata bijak (yang terdengar seperti pembenaran malas) dari teman barunya itu.</p><p>Bumi meletakkan sendoknya dengan suara <i>klang</i> yang agak keras.</p><p>"Dito itu semester tiga, Ja. Dia udah tau celahnya. Lo semester satu. Lo bahkan belum tau bedanya <i>Bubble Sort</i> sama <i>Quick Sort</i>. Kalau lo mau ngikutin gaya hidup orang lain, pastiin dulu lo punya <i>safety net</i> yang sama kayak mereka."</p><p>Wajah Senja memerah. Ia merasa diserang. "Lo kok jadi nge-judge gue sih? Gue cuma mau main, Bum. Gue bukan robot kayak lo yang semua harus terprediksi!"</p><p>Senja berdiri, menyambar tasnya. "Terserah lo deh. Gue mau cabut. Dito udah nunggu di parkiran."</p><p>Ia melangkah pergi dengan hentakan kaki kesal, meninggalkan Bumi yang terdiam menatap piring nasi ramesnya yang baru termakan separuh.</p><p>Bumi menghela napas kasar.</p><p>Variabel pengganggu. Dalam koding, variabel tak dikenal bisa merusak seluruh fungsi jika tidak dideklarasikan dengan benar. Dan Dito... Dito adalah <i>bug</i> eksternal yang mulai mengacaukan sistem Senja yang baru saja mulai stabil.</p><p>Bumi bukan cemburu. Ia bersumpah ia tidak cemburu. Ia hanya... kecewa. Ia melihat Senja yang kemarin berjuang mati-matian belajar <i>coding</i> sampai jam 2 pagi, kini mulai menggampangkan sesuatu yang sulit ia raih.</p><p><i>Kalau dia mau jatuh, biar dia jatuh,</i> pikir Bumi egois.</p><p>Tapi jauh di lubuk hatinya, Bumi tahu ia tidak akan membiarkan itu terjadi. Ia adalah <i>debugger</i> di cerita ini, suka atau tidak. Dan ia harus mencari cara untuk menyadarkan Senja sebelum sistemnya benar-benar <i>crash</i>.</p>` },
+            {
+                title: "*System Crash*", content: `<p>Hukum Murphy berbunyi: <i>"Anything that can go wrong will go wrong."</i>
+Dalam kasus Senja, hukum itu bekerja dengan presisi menakutkan pada Jumat pagi yang mendung.</p><p>Senja terbangun bukan karena alarm ponselnya, melainkan karena suara gedoran pintu kos.</p><p>"Mbak Senja! Paket!"</p><p>Senja mengerjap, matanya terasa lengket dan kepalanya berdenyut nyeri sisa <i>ice coffee</i> dan kurang tidur semalam. Ia meraba-raba mencari ponsel di balik bantal.</p><p>Layar menyala. Pukul <b>09.15 WIB</b>.</p><p>Jantung Senja seolah berhenti berdetak, lalu menghantam rusuknya dengan brutal.
+Kuis Matematika Diskrit dimulai pukul <b>08.00</b>. Dosennya, Pak Haryo, terkenal dengan aturan <i>zero tolerance</i> untuk keterlambatan. Pintu dikunci dari dalam tepat saat jam kuliah dimulai.</p><p>"Mati gue."</p><p>Senja melompat dari kasur, nyaris tersandung kabel <i>charger</i>. Memori semalam berputar cepat di kepalanya seperti film rusak.
+<i>Prawirotaman. Live music. Dito yang bilang, "Santai elah, Ja. Kuis doang. Gue punya kating yang bisa dimintain bocoran soal." Senja yang tertawa, lupa waktu, dan baru pulang jam 2 pagi.</i></p><p>Ia tidak mandi. Ia hanya mencuci muka, menyambar hoodie terdekat (yang bau apek), dan memacu Scoopy-nya membelah jalanan Gejayan seperti orang kesurupan.</p><p>---</p><p>Koridor Gedung Informatika lantai 3 sunyi senyap. Perkuliahan sedang berlangsung.</p><p>Senja berdiri di depan pintu ruang 304. Napasnya memburu. Ia mengintip lewat kaca kecil di pintu. Di dalam, teman-temannya sedang menunduk serius mengerjakan lembar soal. Bumi ada di barisan depan, punggungnya tegak, tangannya bergerak lincah menulis jawaban.</p><p>Senja mengangkat tangan untuk mengetuk pintu, tapi tangannya gemetar.
+<i>Mau ngomong apa? Ban bocor? Sakit perut?</i> Pak Haryo benci pembohong.</p><p><i>Ceklek.</i></p><p>Pintu terbuka tiba-tiba. Pak Haryo keluar membawa tumpukan sisa soal. Dosen berambut putih itu menatap Senja dari balik kacamata tebalnya. Tatapan yang membuat nyali Senja menciut jadi seukuran atom.</p><p>"K-kamu... mahasiswi kelas ini?" tanya Pak Haryo datar.</p><p>"I-iya, Pak. Maaf saya telat... saya..."</p><p>"Jam berapa sekarang?" potong Pak Haryo.</p><p>"Sembilan... lewat dua puluh, Pak."</p><p>"Kuliah saya selesai sepuluh menit lagi. Kamu mau masuk buat apa? Numpang ngadem?"</p><p>Senja menelan ludah. Tenggorokannya kering. "Saya... saya kesiangan, Pak. Semalam saya..."</p><p>"Saya tidak butuh alasan kamu," Pak Haryo menutup pintu kelas di belakangnya, menghalangi pandangan Senja ke teman-temannya. "Di dunia profesional, klien tidak peduli kamu kesiangan atau ban kamu bocor. Kamu tidak hadir, kontrak batal. Nilai kuis kamu nol."</p><p>"Pak, tolong Pak... remedial..."</p><p>"Tidak ada remedial untuk kelalaian. Silakan pulang. Tidur lagi sana."</p><p>Pak Haryo berlalu pergi menuju ruang dosen, meninggalkan Senja yang mematung di koridor. Kakinya lemas. Air mata mulai menggenang di pelupuk mata, tapi ia tahan mati-matian.</p><p>Ponselnya bergetar. Pesan dari Dito.</p><p><b>Dito (Kating)</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Gimana Ja? Aman kuisnya? Ntar sore cabut lagi yuk, anak-anak mau ke Parangtritis.</i></div><p>Senja menatap layar itu dengan nanar. Aman? Apanya yang aman?
+Di kepalanya, terngiang ucapan Bumi kemarin sore: <i>"Kalau lo mau ngikutin gaya hidup orang lain, pastiin dulu lo punya safety net yang sama kayak mereka."</i></p><p>Senja merosot duduk di lantai koridor yang dingin.
+Sistemnya <i>crash</i>. Layar biru kematian (<i>Blue Screen of Death</i>) sedang tampil di kehidupannya yang baru berjalan tiga bulan. Dan kali ini, tidak ada tombol <i>restart</i>.</p>` },
+            {
+                title: "*Debugging*", content: `<p>Bumi menemukan Senja tiga jam kemudian. Bukan di kantin, bukan di parkiran.
+Tapi di <i>basement</i> perpustakaan, tempat paling sepi dan suram di seluruh kampus, duduk di sela-sela rak buku skripsi lama yang berdebu.</p><p>Gadis itu sedang memegang buku <i>Diktat Matematika Diskrit</i>, tapi matanya kosong menatap tembok.</p><p>Bumi tidak langsung menyapa. Ia berdiri di ujung lorong rak, mengamati.
+Tidak ada air mata. Senja tidak menangis. Wajahnya justru terlihat keras, marah. Marah pada keadaan, atau mungkin pada dirinya sendiri.</p><p>Bumi berjalan mendekat, langkah sepatunya menggema pelan. Ia meletakkan satu kaleng kopi dingin <i>Nescafe</i> di meja kecil di samping Senja.</p><p>Bunyi <i>tak</i> kaleng menyentuh meja membuat Senja tersentak. Ia menoleh.
+Melihat itu Bumi, bahu Senja yang tadi tegang perlahan turun. Tapi ia membuang muka lagi.</p><p>"Mau bilang 'I told you so', ya?" suara Senja serak. "Silakan. Gue emang goblok."</p><p>Bumi menarik kursi di seberang Senja, duduk dengan tenang. Ia membuka kaleng kopinya sendiri. <i>Ctrek. Pshhh.</i></p><p>"Nggak," jawab Bumi. "Gue cuma mau ngasih kopi. Lo kelihatan kayak zombie."</p><p>Senja mendengus, tapi tangannya meraih kaleng itu. Dinginnya kaleng sedikit mendinginkan kepalanya yang panas.</p><p>"Pak Haryo ngasih nilai nol," Senja memulai cerita tanpa diminta. "Nggak ada remedial. IPK semester satu gue terancam nasibnya."</p><p>"Masih ada UAS. Masih ada tugas besar," sahut Bumi logis. "Kuis cuma 15% dari total nilai."</p><p>"Ya tetep aja, Bum! Gue malu! Gue..." Senja meremas kaleng kopinya sampai penyok. "Gue ngerasa gagal. Gue ngerasa ngecewain Mama di Banjar. Gue ke sini buat kuliah, bukan buat jadi anak gaul Jakal yang hura-hura."</p><p>"Lo manusia, Ja. Lo bikin salah. Wajar."</p><p>Senja menatap Bumi tajam. "Lo nggak pernah bikin salah, Bum. Hidup lo rapi. Teratur. Lo nggak ngerti rasanya jadi gue yang gampang kebawa arus."</p><p>Bumi terdiam sejenak. Ia memutar-mutar kaleng kopinya di meja.</p><p>"Gue pernah kabur dari rumah pas SMA," kata Bumi tiba-tiba.</p><p>Mata Senja membelat. "Hah? Lo? Kabur?"</p><p>"Dua hari. Gue nginep di warnet. Gara-gara bokap maksa gue masuk Hukum, padahal gue maunya Teknik. Gue kira dengan kabur, bokap bakal luluh. Ternyata nggak. Gue malah kehabisan duit, kelaparan, dan akhirnya pulang sendiri kayak orang bego."</p><p>Bumi menatap Senja lurus. "Gue juga pernah bikin keputusan tolol, Ja. Bedanya, gue belajar kalau <i>rebellion</i> tanpa rencana itu cuma nyusahin diri sendiri."</p><p>Senja tertegun. Ia tidak pernah menyangka Bumi punya sisi "pemberontak" itu.</p><p>"Terus... gue harus gimana sekarang?" tanya Senja, suaranya melunak, berubah jadi cicitan putus asa. "Gue udah blokir Dito. Gue kesel sama dia, tapi gue lebih kesel sama diri gue sendiri yang mau aja diajakin."</p><p>"Bagus. Itu langkah pertama <i>debugging</i>," kata Bumi. "Isolasi penyebab <i>error</i>-nya."</p><p>Bumi mengeluarkan binder dari tasnya. Ia membuka halaman yang penuh dengan catatan rapi warna-warni. Rumus logika proposisi, teori himpunan, graf.</p><p>"Gue punya rangkuman materi Matdist dari awal semester. Lengkap sama contoh soal tahun lalu," Bumi menggeser binder itu ke hadapan Senja.</p><p>"Lo... mau minjemin gue?"</p><p>"Bukan minjemin. Kita belajar. Sekarang. Di sini."</p><p>Senja menatap binder itu, lalu menatap Bumi. Mata cowok itu tidak menawarkan belas kasihan, tapi menawarkan aliansi.</p><p>"Gue bakal galak," peringat Bumi. "Gue nggak bakal ngasih lo napas sampe lo ngerti bedanya permutasi sama kombinasi."</p><p>Senja tersenyum tipis. Senyum pertama hari ini. Ada genangan air mata di sudut matanya, tapi kali ini karena rasa haru.</p><p>"Siap, Pak Asdos," jawab Senja mantap. Ia membuka binder itu.</p><p>Sore itu, di <i>basement</i> perpustakaan yang bau buku tua, tidak ada drama romantis. Tidak ada pelukan di bawah hujan. Yang ada hanyalah rekonsiliasi dua mahasiswa yang berdebat soal rumus matematika, saling memaki pelan saat salah hitung, dan perlahan-lahan memperbaiki sistem yang sempat rusak.</p><p>Senja belajar satu hal penting hari itu: Teman yang baik bukan yang mengajakmu lari dari masalah sampai pagi, tapi yang duduk di sampingmu untuk membereskan kekacauan saat kamu jatuh.</p><p>Dan Bumi... Bumi belajar bahwa menjadi "rumah" bagi seseorang tidak harus dengan menjadi tempat berteduh yang nyaman. Kadang, menjadi rumah berarti menjadi bengkel yang kotor dan berisik, tempat segala kerusakan diperbaiki dengan sabar.</p>` },
+            {
+                title: "Merge Conflict", content: `<p>"Oke, untuk Tugas Besar Dasar Pemrograman, kalian harus membuat aplikasi manajemen data sederhana. Kelompoknya dua orang, bebas pilih sendiri," kata Pak Haryo, menutup kuliah pagi itu. "Deadline dua minggu dari sekarang. Jangan sampai ada yang <i>error</i> pas demo, atau nilai kalian saya <i>truncate</i> jadi nol."</p><p>Kelas langsung riuh. Mahasiswa mulai celingukan mencari pasangan.</p><p>Senja baru saja memasukkan buku ke dalam tas ketika ia sadar ia belum punya <i>partner</i>. Teman-teman sekelasnya yang dulu sering ia ajak ngobrol—geng Dito—sudah punya lingkaran sendiri, dan jujur saja, Senja masih canggung untuk mendekat.</p><p>Ia menghela napas. <i>Nasib, nasib. Palingan dapet sisaan lagi.</i></p><p>"Ja."</p><p>Senja menoleh. Bumi berdiri di samping mejanya, ransel tersampir di satu bahu.</p><p>"Lo sama gue."</p><p>Itu bukan pertanyaan. Itu pernyataan.</p><p>"Hah? Lo bukannya biasanya kerja sendiri? Atau sama si Faiq?" tanya Senja bingung.</p><p>"Faiq udah sama ceweknya. Dan gue males dapet <i>partner</i> random yang cuma numpang nama," jawab Bumi datar. "Seenggaknya gue tau lo punya utang budi sama gue soal Matdist kemarin, jadi lo nggak bakal berani <i>ghosting</i>."</p><p>Senja mendengus tertahan, tapi sudut bibirnya terangkat. "Sialan. Ya udah, ayo. Tapi gue nggak mau cuma jadi beban ya. Gue mau ngerjain bagian gue."</p><p>"Emang harus. Gue pegang <i>backend</i> sama logika utamanya. Lo urus <i>frontend</i>, desain antarmuka, sama validasi input. <i>Deal</i>?"</p><p>"Deal."</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Tiga hari kemudian, di sebuah <i>coworking space</i> daerah Demangan.</p><p>Suasana hening yang nyaman pecah oleh suara gebrak meja pelan.</p><p>"Bum, ini kenapa kodenya ribet banget sih?" protes Senja, menunjuk layar laptopnya. "Gue cuma mau nambahin warna <i>background</i> sama ganti <i>font</i> menu utama, tapi lo udah bikin struktur kelas segala macem yang bikin gue pusing bacanya!"</p><p>Bumi melepaskan <i>headphone</i>-nya dengan tenang. "Itu namanya <i>Encapsulation</i>, Senja. Kode itu harus rapi, terstruktur. Jangan campur aduk logika tampilan sama logika data. Nanti kalau mau dikembangin jadi aplikasi beneran, bakal susah <i>maintenance</i>-nya."</p><p>"Ya tapi ini kan cuma Tugas Besar! Yang penting jalan, yang penting tampilannya bagus pas demo!" balas Senja tidak mau kalah. "Lo terlalu kaku. Liat nih, <i>mockup</i> gue jadi nggak bisa diaplikasiin gara-gara <i>struct</i> lo yang kaku itu."</p><p>Bumi memijat pelipisnya. "Kode lo itu kayak kamar lo, Ja. Berantakan. Estetik dari luar, tapi kalau lemari dibuka, baju tumpah semua. Gue nggak bisa kerja dengan kode yang <i>spaghetti</i> kayak gitu."</p><p>"Dan kode lo itu kayak hati lo, Bum!" seru Senja, suara sedikit meninggi. Beberapa orang di meja sebelah menoleh. Senja menurunkan volume suaranya, tapi nadanya tetap tajam. "Dingin. Kaku. Nggak ada seninya. <i>Reliable</i> sih, tapi ngebosenin."</p><p>Hening.</p><p>Bumi menatap Senja lama. Senja balas menatap, dagu terangkat menantang.</p><p>"Oke," kata Bumi akhirnya. "Kita <i>merge conflict</i> sekarang. Kita cari jalan tengah. Lo boleh atur tampilan sesuka lo, tapi jangan ubah fungsi inti di <i>file</i> \`main.cpp\` sama \`database.h\`. Sisanya, terserah lo. Gue nggak bakal protes soal <i>font</i> Comic Sans lo itu, asal programnya nggak <i>crash</i>."</p><p>"Gue nggak pake Comic Sans, ya! Itu Helvetica!"</p><p>"Mirip," gumam Bumi sambil memakai <i>headphone</i>-nya lagi.</p><p>Meski kesal, Senja tahu Bumi mengalah. Dan meski gengsi, Senja tahu Bumi benar soal struktur kode. Mereka kembali bekerja dalam diam, tapi kali ini diam yang berisi gencatan senjata.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>H-1 Deadline. Pukul 02.00 dini hari.
+Lokasi: Teras kostan Bumi.</p><p>Langit Jogja gelap pekat, tanpa bintang. Yang menyala hanya layar laptop dan lampu teras 5 watt yang remang-remang. Bungkus bekas mie instan dan kaleng kopi berserakan di meja.</p><p>"Ancur. Ancur semua," racau Senja. Rambutnya yang biasanya rapi kini dicepol asal-asalan. "Gue coba tambahin fitur <i>search</i>, malah <i>infinite loop</i>. Sekarang aplikasinya nggak bisa dibuka sama sekali."</p><p>Ia menelungkupkan wajah ke meja. "Gue bego banget sih. Harusnya gue nurut sama struktur lo dari awal."</p><p>Bumi, yang sedang menyeduh kopi ronde kedua, meletakkan gelas di dekat tangan Senja.</p><p>"Bangun. Jangan drama," suaranya tenang.</p><p>Bumi menarik kursi mendekat ke samping Senja. "Mana liat."</p><p>Senja mengangkat wajah, matanya merah karena mengantuk dan frustrasi. Ia menggeser laptopnya ke arah Bumi.</p><p>Jari-jari Bumi menari cepat di atas <i>keyboard</i>. Matanya memindai baris demi baris kode yang ditulis Senja. Tidak ada omelan, tidak ada decak kesal.</p><p>"Ini," tunjuk Bumi ke layar. "Baris 89. Lo pake \`while\` tapi lupa <i>increment</i> variabel <i>counter</i>-nya. Makanya dia muter terus nggak berhenti."</p><p>"Ya ampun..." Senja menepuk jidatnya sendiri. "Hal sepele gitu..."</p><p>"Dalam <i>coding</i>, nggak ada yang sepele, Ja. Satu titik koma hilang, satu logika meleset, sistem berhenti. Persis kayak kepercayaan. Sekali lo bohong, susah buat <i>compile</i> ulang kepercayaan orang."</p><p>Senja menoleh menatap profil samping wajah Bumi yang diterangi cahaya layar. Kalimat itu terdengar personal.</p><p>"Maaf ya, Bum. Gue banyak ngerpotin lo semester ini."</p><p>Bumi berhenti mengetik sejenak. Ia tidak menoleh, tapi bahunya sedikit rileks. "Lo nggak ngerepotin. Lo cuma... perlu banyak <i>update patch</i>."</p><p>Senja tertawa kecil. Tawa yang lelah tapi tulus.</p><p>"Sini, gue benerin <i>loop</i>-nya. Lo lanjutin desain <i>output</i> laporannya. Kita kejar tayang."</p><p>"Siap, <i>Captain</i>."</p><p>Sisa malam itu dihabiskan dalam ritme yang harmonis. Suara ketikan <i>keyboard</i> mereka bersahutan seperti musik jazz yang sering Senja dengar, tapi kali ini lebih terstruktur. Senja bertanya, Bumi menjawab. Bumi memberi saran, Senja mengeksekusi dengan sentuhan visualnya.</p><p>Pukul 04.30 pagi, tepat saat azan Subuh berkumandang dari masjid terdekat.</p><p>"Coba <i>run</i>," perintah Bumi.</p><p>Senja menekan tombol <i>Build & Run</i>.</p><p>Layar hitam terminal muncul.
+<i>Loading data... Success.</i>
+<i>Menu Utama muncul.</i>
+<i>Input data baru... Success.</i>
+<i>Cari data... Found.</i></p><p>"Jalan!" pekik Senja tertahan, takut membangunkan tetangga kost. "Bum! Jalan, Bum!"</p><p>Refleks, Senja mengangkat tangan untuk <i>high-five</i>. Bumi, yang biasanya kaku, menyambut tepukan tangan itu.</p><p><i>Plak!</i></p><p>Telapak tangan mereka bertemu. Hangat.
+Dan untuk beberapa detik, tangan mereka tidak langsung terlepas. Mata mereka bertemu. Ada rasa lega, bangga, dan sesuatu yang lain yang menyusup di antara baris-baris kode biner itu. Rasa nyaman karena memiliki satu sama lain sebagai <i>partner</i>.</p><p>"Keren," kata Bumi pelan. "Desain lo... lumayan juga. Nggak bikin sakit mata."</p><p>"Logika lo juga," balas Senja tersenyum lebar. "Lumayan. Nggak bikin sakit hati."</p><p>Aplikasi mereka mungkin sederhana. Tapi malam itu, mereka berhasil melakukan <i>merge</i> dua kepribadian yang berbeda menjadi satu tim yang solid. Tanpa konflik yang berarti.</p>` },
+            { title: "Release Candidate", content: `<p>Stasiun Tugu, Sabtu pagi.</p><p>Hiruk-pikuk wisatawan dan mahasiswa yang hendak mudik memenuhi peron. Suara pengumuman keberangkatan kereta bergema, bersahutan dengan bunyi roda koper yang beradu dengan lantai keramik.</p><p>Senja berdiri di depan pintu masuk keberangkatan, memegang tiket kereta Prameks (untuk oper ke YIA) dan koper pink-nya. Di sebelahnya, Bumi berdiri dengan tangan dimasukkan ke saku jaket denim, terlihat kontras dengan keramaian di sekitarnya yang heboh.</p><p>"Hati-hati," kata Bumi singkat.</p><p>"Iya. Lo juga. <i>Safe flight</i> ke Bandung nanti sore," balas Senja.</p><p>Hening sejenak. Ada kecanggungaan yang menggantung di antara mereka. Ini pertama kalinya mereka akan berpisah setelah tiga bulan terakhir hampir setiap hari bertemu—entah itu di kampus, di burjo, atau di perpustakaan.</p><p>"Jangan lupa oleh-oleh," canda Senja, mencoba mencairkan suasana.</p><p>"Hm. Kue balok?"</p><p>"Boleh. Gue bawain amplang nanti."</p><p>Bumi mengangguk. Ia menatap Senja lurus tepat di mata. "Kabarin kalau udah sampai. Jangan bengong di bandara."</p><p>"Siap, Pak Asdos."</p><p>Senja terkekeh, tapi tawanya terdengar agak hampa. Ia ingin memeluk Bumi—sebagai teman, tentu saja—tapi rasanya terlalu berlebihan. Jadi ia hanya melambaikan tangan canggung dan berbalik menuju pintu keberangkatan.</p><p>Saat ia menoleh ke belakang sekali lagi sebelum tiketnya diperiksa, Bumi masih di sana. Berdiri diam di tengah arus manusia, menatap kepergiannya.</p><p>Senja buru-buru membuang muka, dadanya terasa sesak. <i>Kenapa rasanya berat banget, ya?</i></p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p><b>Banjarmasin, Kalimantan Selatan.</b></p><p>Rumah Senja riuh rendah. Aroma soto Banjar menguar dari dapur. Mama Senja sibuk memotong ketupat, sementara Ayahnya sedang menonton berita sore di TV.</p><p>"Gimana kuliahnya, Ka? Lancar?" tanya Mama sambil menaruh mangkuk soto di depan Senja.</p><p>"Lancar, Ma. Kemarin dapet A untuk tugas besar Pemrograman," jawab Senja bangga.</p><p>"Wah, hebat anak Mama! Sendirian ngerjainnya?"</p><p>Senja tersenyum tipis, teringat malam-malam di teras kosan Bumi. "Nggak, Ma. Berdua. Sama... temen."</p><p>"Temen apa temen?" goda Ayahnya tanpa menoleh dari TV.</p><p>"Temen, Yah! Namanya Bumi. Dia pinter banget. Dia yang ngajarin Kaka <i>coding</i> sampe ngerti."</p><p>"Bagus dong. Cari temen yang bawa pengaruh baik. Jangan kayak yang dulu-dulu, cuma ngajak main game doang," nasihat Mama.</p><p>Senja mengangguk. Di rumah ini, di tengah kehangatan keluarga dan aroma masakan rumah, Senja merasa aman. Tapi ada bagian dirinya yang tertinggal di Jogja. Ia rindu suara motor Bumi. Ia rindu debat soal algoritma. Ia rindu diam yang nyaman itu.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p><b>Bandung, Jawa Barat.</b></p><p>Suasana di meja makan rumah Bumi terasa dingin, sedingin udara Dago malam itu.</p><p>Tidak ada aroma masakan rumah yang mengundang selera. Makanan dipesan dari restoran mahal, ditata rapi di atas piring porselen.</p><p>"IPK kamu berapa semester ini?" suara berat ayah Bumi memecah keheningan.</p><p>"3.9, Pa," jawab Bumi tanpa mengangkat wajah dari piringnya.</p><p>"Kenapa nggak 4.0?" tanya ibunya tajam. "Anak teman Mama di ITB dapet 4.0 lho."</p><p>Bumi meletakkan sendoknya perlahan. Dentingnya terdengar nyaring. "Ada satu mata kuliah umum yang dosennya emang susah ngasih nilai A, Ma."</p><p>"Alasan. Kalau kamu kuliah di Bandung, Mama bisa patau belajar kamu. Di Jogja kamu pasti kebanyakan main."</p><p>Bumi mengepalkan tangan di bawah meja. Ia ingin berteriak bahwa di Jogja dia menjadi asisten dosen. Bahwa dia membantu teman-temannya lulus. Bahwa dia sedang membangun portofolio <i>software house</i> kecil-kecilan.</p><p>Tapi ia tahu percuma. Bagi orang tuanya, pencapaian di luar skenario mereka adalah <i>error</i>, bukan fitur.</p><p>"Bumi mau ke kamar. Capek."</p><p>Ia beranjak pergi tanpa menunggu izin. Di kamarnya yang luas tapi terasa kosong, Bumi melempar tubuh ke kasur. Ia menatap langit-langit kamar.</p><p>Ponselnya bergetar.</p><p><b>Senja</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Foto: Mangkuk Soto Banjar</i><br>Pamer dikit. Enak tauuu :p Lo makan apa di Bandung?</div><p>Bumi tersenyum. Senyum pertama yang ia miliki sejak menginjakkan kaki di rumah ini.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Steak dingin.</i></div><p><b>Senja</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Ih, mahal. Tapi kedengerannya nggak enak wkwk. Sabar ya. Nanti balik Jogja kita makan Indomie tante lagi.</i></div><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Gue tunggu.</i></div><p>Dua kata itu diketik dengan cepat, tapi Bumi menahannya lama sebelum menekan tombol kirim. <i>Gue tunggu.</i> Bukan cuma Indomie-nya. Tapi orangnya.</p><p>Jarak 800 kilometer antara Bandung dan Banjarmasin malam itu terasa menyiksa. Tapi di saat yang sama, notifikasi di layar ponsel mereka menjadi satu-satunya benang penghubung yang menjaga kewarasan masing-masing.</p><p>Mereka adalah <i>Release Candidate</i>—versi pratinjau dari sebuah hubungan yang siap untuk diluncurkan, tapi masih menunggu waktu yang tepat untuk <i>Go Live</i>.</p>` },
+            {
+                title: "The Update Patch", content: `<p>Februari di Jogja, awan kelabu masih menggantung rendah, tapi udara terasa sedikit lebih hangat. Semester genap dimulai.</p><p>Senja turun dari kereta Prameks di Stasiun Tugu, menyeret koper pink-nya yang kini terasa lebih berat—berisi stok amplang dan kerupuk ikan pesanan anak-anak kos.</p><p>Ting.
+Ponselnya berbunyi.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Gue di parkiran selatan. Pake helm yang bener, jangan kayak turis nyasar.</i></div><p>Senja tersenyum. Selama liburan satu bulan ini, chat mereka memang intens. Mulai dari Bumi yang mengomentari <i>story</i> Senja makan soto Banjar, sampai Senja yang <i>video call</i> (dengan alasan minta ajarin install ulang Windows) dan melihat Bumi di kamarnya yang rapi di Bandung.</p><p>Tapi <i>chatting</i> dan bertemu langsung adalah dua <i>environment</i> yang berbeda.</p><p>Saat Senja melihat sosok jangkung itu bersandar di motor matic-nya, jantungnya berdegup kencang. Bumi memakai jaket denim yang sama, tapi rambutnya sedikit lebih panjang. Dia terlihat... lebih dewasa?</p><p>"Woy," sapa Senja, berusaha terdengar santai.</p><p>Bumi menoleh. Dia menatap Senja dari ujung kaki sampai ujung kepala. Tatapan itu berlangsung dua detik lebih lama dari biasanya.</p><p>"Lo beda," komentar Bumi.</p><p>"Hah? Beda gimana? Makin gendut ya kebanyakan makan ketupat?" Senja panik memegang pipinya.</p><p>"Makin... <i>tan</i>," Bumi menunjuk lengan Senja. "Main ke pantai mulu sih."</p><p>"Yee, biarin. Eksotis tau."</p><p>Bumi menyodorkan helm helm bogo warna krem—helm cadangan yang dia beli semester lalu, entah untuk siapa (Senja curiga itu memang disiapkan untuknya).</p><p>"Naik. Amplang gue mana?"</p><p>"Di koper! Sabar elah. Dasar rentenir."</p><p>Perjalanan ke kosan Senja di Condongcatur terasa canggung. Biasanya mereka akan ngobrol teriak-teriak di atas motor, membahas dosen <i>killer</i> atau tugas. Tapi kali ini, mereka diam.</p><p>Senja bisa mencium aroma parfum Bumi—campuran <i>sandalwood</i> dan hujan—yang entah kenapa terasa lebih tajam hari ini. Ia sadar, jarak fisik mereka di atas jok motor ini jauh lebih intim daripada ribuan <i>byte</i> data yang mereka kirim selama liburan.</p><p>Sesampainya di depan gerbang kos Senja, Bumi menurunkan koper.</p><p>"Thanks ya, Bum. Udah repot-repot jemput."</p><p>"Santai. Kebetulan gue lagi nyari makan di sekitar sini," dusta Bumi. Senja tahu itu bohong karena Seturan (kosan Bumi) dan area stasiun itu berlawanan arah. Tapi dia diam saja.</p><p>"Makan apa?" tanya Senja.</p><p>"Pengen Burjo. Kangen nasi telor."</p><p>"Yaudah, gue taruh koper dulu, terus kita cari makan? Gue juga laper."</p><p>Bumi mengangguk.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Warung Burjo Andean, lima belas menit kemudian.</p><p>Mereka duduk berhadapan, dipisahkan oleh dua gelas es teh manis dan piring nasi telor.</p><p>"So..." Senja memulai, mengaduk es tehnya. "Gimana Bandung? Dingin?"</p><p>"Dingin. Sepi. Ngebosenin," jawab Bumi singkat. "Makanannya sih enak, tapi suasananya... <i>glitchy</i>."</p><p>"Maksudnya?"</p><p>"Ya gitu. Gue ngerasa kayak aplikasi yang dipaksa jalan di OS lama. Nggak kompatibel."</p><p>Senja tertawa. Metafora IT Bumi selalu berhasil membuatnya merasa <i>relate</i>. "Terus sekarang balik ke Jogja, udah <i>compatible</i> lagi?"</p><p>Bumi menatap Senja. Tatapannya dalam, menembus pertahanan Senja.</p><p>"Lumayan. Ada fitur baru yang menarik."</p><p>Pipi Senja memanas. <i>Fitur baru? Apa maksudnya?</i></p><p>"Apaan tuh?" tanya Senja pura-pura bego.</p><p>"Lo," jawab Bumi lugas. "Lo kelihatan lebih... hidup. Semester lalu lo kayak mayat hidup yang <i>survive</i> modal nekat. Sekarang lo kayak... <i>user</i> yang udah baca <i>manual book</i>."</p><p>Senja tergelak. "Sialan lo. Itu pujian apa hinaan?"</p><p>"Observasi."</p><p>Mereka tertawa bersama. Kecanggungan di stasiun tadi perlahan mencair. Rasanya seperti menginstall <i>patch</i> pembaruan (<i>update patch</i>) pada perangkat lunak. Ada beberapa penyesuaian di awal, sistem terasa agak berat, tapi setelah <i>restart</i>, performanya jadi lebih mulus.</p><p>Tapi di balik tawa itu, ada pertanyaan besar yang menggantung di udara. Status mereka apa?
+Mereka bukan pacar. Mereka 'cuma' teman kuliah yang saling jemput, saling curhat, dan saling menunggu selama liburan.</p><p><i>Undefined Variable</i>.</p><p>Di dunia <i>programming</i>, variabel yang tidak didefinisikan bisa menyebabkan <i>error</i>. Tapi untuk saat ini, Senja membiarkan variabel itu kosong. Karena rasanya nyaman.</p><p>Namun, Senja tidak tahu. Di saku celananya, ponselnya bergetar pelan. Sebuah pesan masuk dari nomor tidak dikenal.</p><p><b>+62812xxxx</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Ja, gue denger lo kuliah di Jogja? Gue lagi di Malioboro nih. Ketemuan yuk? - Arga</i></div><p>Sistem pertahanan (<i>Firewall</i>) Senja baru saja mendeteksi ancaman intrusi. Dan kali ini, ancaman itu datang dari masa lalu yang ia kira sudah terhapus permanen.</p>` },
+            { title: "Phishing Attempt", content: `<p>Pesan dari Arga itu seperti tautan <i>email</i> yang masuk ke folder <i>Inbox</i> utama, bukan <i>Spam</i>. Terlihat resmi, mendesak, dan—yang paling berbahaya—terlihat aman.</p><p>Senja setuju untuk bertemu. Bukan karena dia masih cinta. Demi Tuhan, tidak. Tapi karena rasa penasaran. Dan mungkin, sedikit kebutuhan untuk validasi: <i>Lihat aku sekarang, aku baik-baik saja tanpamu.</i></p><p>Lokasinya di sebuah <i>coffee shop</i> estetik di kawasan Kotabaru. Tempat yang tenang, mahal, dan wangi biji kopi arabika. Kontras sekali dengan Burjo Andean tempat dia makan nasi telor bersama Bumi kemarin.</p><p>"Ja! Sini!"</p><p>Arga melambaikan tangan dari meja di sudut. Senja nyaris tidak mengenalinya. Arga yang dulu—yang sering memakai kaos band metal dan celana sobek—kini mengenakan kemeja flanel rapi yang digulung sesiku, jam tangan <i>smartwatch</i>, dan rambut yang dipotong gaya <i>comma hair</i>. Dia terlihat... sukses.</p><p>"Hai, Ga," sapa Senja kaku, duduk di hadapannya.</p><p>"Gila, lo makin cantik, Ja. Sumpah. Jogja <i>looks good on you</i>," puji Arga sambil menyodorkan buku menu. "Pesen apa aja. <i>My treat</i>."</p><p>"Gue pesen <i>Latte</i> aja."</p><p>"Oke. Gue pesenin <i>Caramel Macchiato</i> kesukaan lo dulu ya? Eh, atau lo sekarang udah jadi anak kopi pahit?"</p><p>Senja tersenyum tipis. Arga masih ingat detail kecil itu. "Masih manis, kok."</p><p>Setelah pesanan datang, Arga tidak langsung membahas masa lalu. Dia bercerita tentang kepindahannya ke Jogja.</p><p>"Gue ambil S2 Manajemen, Ja. Sambil bantu-bantu bisnis bokap yang mau buka cabang di sini. Ternyata dunia bisnis seru juga ya, beda sama pas gue masih nge-band nggak jelas dulu."</p><p>Arga tertawa, tawa yang renyah dan terdengar dewasa. "Gue nyesel, Ja. Dulu gue terlalu sibuk sama ego gue sendiri. Gue nggak ngehargain lo. Gue kasar. Gue minta maaf ya, Ja. Tulus dari hati gue."</p><p>Senja tertegun. Dia sudah menyiapkan seribu tameng untuk menghadapi arogansi Arga, tapi dia tidak siap menghadapi kerendahan hati ini.</p><p>"Gue... udah maafin kok, Ga. Itu masa lalu."</p><p>"Baguslah," Arga tersenyum lega. Dia mencondongkan tubuhnya sedikit. "Gue denger dari nyokap lo, lo aktif di himpunan ya sekarang? Belajar <i>coding</i> juga?"</p><p>"Iya, dikit-dikit. Masih belajar."</p><p>"Keren banget. Asli. Cewek di IT itu langka dan <i>high value</i> banget. Eh, kebetulan, temen gue lagi cari <i>freelance</i> buat desain UI aplikasi <i>start-up</i> dia. Bayarannya lumayan banget buat nambah uang jajan. Lo mau gue kenalin?"</p><p>Senja terlonjak. Dia memang sedang butuh uang tambahan untuk membeli <i>upgrade</i> RAM laptopnya yang mulai lemot.</p><p>"Serius, Ga? Tapi gue masih pemula banget..."</p><p>"Ah, elah. Lo tuh berbakat, Ja. Gue tau selera visual lo bagus dari dulu. Nanti gue bantuin ngomong. Anggap aja ini cara gue nebus kesalahan gue dulu."</p><p>Tawaran itu terdengar sangat menggiurkan. Kesempatan karier. Uang tambahan. Dan validasi bahwa dia berbakat.</p><p><i>Klik.</i></p><p>Tanpa sadar, Senja mengklik tautan itu.</p><p>"Boleh deh, Ga. <i>Thanks</i> banget ya."</p><p>"Sama-sama, cantik." Arga tersenyum, senyum yang membuat mata sipitnya melengkung. Dulu, senyum itu adalah rumah bagi Senja. Sekarang, senyum itu terasa seperti notifikasi: <i>Password Incorrect, Please Try Again.</i></p><p>Di perjalanan pulang, Senja merasa ada yang mengganjal. Dia seharusnya senang. Dia dapat tawaran kerja, dia dapat permintaan maaf. Tapi kenapa perasaannya tidak tenang?</p><p>Ponselnya bergetar. Chat dari Bumi.</p><p><b>Bumi</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Posisi? Nanti malem jadi ngerjain tugas Jarkom?</i></div><p>Jari Senja melayang di atas <i>keyboard</i>. Seharusnya dia cerita soal pertemuannya dengan Arga. Bumi pasti paham... kan?</p><p>Tapi kemudian dia teringat Bumi pernah bilang dia tidak suka "drama masa lalu". Kalau Senja cerita dia ketemu mantan, Bumi pasti <i>bad mood</i>. Dan tawaran <i>freelance</i> itu... Senja ingin membuktikan dia bisa dapat kerjaan sendiri tanpa bantuan Bumi.</p><p><b>Senja</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Jadi. Ini baru balik dari kampus.</i></div><p><i>Send.</i></p><p>Senja tidak sadar. Dia baru saja mematikan <i>Firewall</i>-nya. Dan <i>malware</i> bernama "Masa Lalu" sudah mulai menginfeksi sistem, perlahan tapi pasti.</p>` },
+            {
+                title: "Comparative Analysis", content: `<p>Dalam rekayasa perangkat lunak, <i>Comparative Analysis</i> adalah proses membandingkan dua sistem untuk mengevaluasi fitur, kinerja, dan kesesuaian. Hasilnya biasanya berupa tabel data obyektif.</p><p>Tapi bagi manusia, perbandingan jarang sekali obyektif. Dan seringnya, menyakitkan.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Siang itu panas terik. Senja sedang duduk di koridor Fakultas Teknik, mencoba menyelesaikan <i>mockup</i> desain aplikasi pesanan Arga. Laptopnya menderu kepanasan, seakan protes dipaksa <i>rendering</i> di ruangan tanpa AC.</p><p>"Woy, Ja!"</p><p>Senja mendongak. Di ujung koridor, Bumi berjalan ke arahnya. Tapi dia tidak sendiri.</p><p>Di sebelahnya, berjalan seorang gadis.</p><p>Gadis itu tidak memakai <i>hoodie</i> kebesaran atau celana jins belel seperti Senja. Dia memakai kemeja linen warna <i>earth tone</i> yang rapi, rok plisket yang jatuh sempurna, dan <i>tote bag</i> kanvas yang terlihat mahal. Rambutnnya hitam lurus, dijepit sederhana tapi elegan.</p><p>Satu kata yang muncul di kepala Senja: <i>Clean.</i> Gadis itu seperti kode yang ditulis dengan dokumentasi sempurna, tanpa <i>bug</i>, tanpa <i>redundancy</i>.</p><p>"Kenalin, ini Rara," kata Bumi saat mereka sampai di depan Senja. "Rara, ini Senja. Temen sekelas aku."</p><p>Rara tersenyum. Senyumnya ramah, tulus, dan menampakkan deretan gigi yang rapi. "Halo, Senja. Aku Rara. Temen main Bumi dari jaman masih ingusan di Bandung."</p><p>"Senja," jawab Senja, menjabat tangan Rara yang terasa halus dan sejuk. Tangan Senja sendiri terasa lengket oleh keringat.</p><p>"Rara ini anak Kedokteran UGM. Kebetulan lagi main ke sini mau ngembaliin buku catetan gue yang kebawa dia pas liburan," jelas Bumi. Nada bicaranya santai, tapi ada keakraban yang tidak bisa disembunyikan.</p><p>"Wah, Kedokteran. Keren banget," puji Senja tulus, meski dadanya terasa mencelos.</p><p>"Biasa aja kok," Rara merendah. "Eh, kamu Informatika juga ya sama kayak Bumi? Bumi sering cerita lho soal temen-temennya yang seru. Katanya kamu jago desain ya?"</p><p>Senja melirik Bumi. <i>Bumi cerita soal gue?</i></p><p>"Dikit-dikit sih, Mbak. Masih belajar."</p><p>"Jangan panggil Mbak dong, kita seumuran," tawa Rara renyah. "Desain itu <i>skill</i> penting banget lho. Di dunia medis juga sekarang butuh visualisasi data yang bagus. Kapan-kapan ajarin aku ya?"</p><p>Obrolan berlanjut. Rara dan Bumi mulai membahas topik-topik yang tidak Senja pahami. Tentang teman-teman SMA mereka di Bandung yang kuliah di luar negeri. Tentang rencana Rara mengambil spesialisasi bedah syaraf. Tentang investasi saham yang sedang Rara coba pelajari.</p><p>Senja hanya diam, sesekali mengangguk sopan. Dia merasa seperti aplikasi <i>Beta Version</i> yang sedang disandingkan dengan <i>Enterprise Edition</i>.</p><p>Rara punya masa lalu dengan Bumi (Legacy Data).
+Rara punya kesetaraan intelektual dengan Bumi (Compatibility).
+Rara punya masa depan yang terencana (Roadmap).</p><p>Sedangkan Senja? Dia cuma punya proyek <i>freelance</i> dari mantan <i>toxic</i>-nya, nilai Matdist yang nyaris E, dan perasaan yang tidak terdefinisi.</p><p>"Eh, udah jam satu," Rara melirik jam tangannya. "Bum, anterin ke parkiran yuk. Aku ada janji sama dosen pembimbing."</p><p>"Yuk," jawab Bumi. Dia menoleh ke Senja. "Ja, gue balik duluan ya. Jangan lupa itu laptop dikasih <i>cooler</i>, kasian udah kayak setrikaan."</p><p>"O-oke. Hati-hati."</p><p>Senja menatap punggung mereka yang menjauh. Mereka terlihat serasi. Langkah kaki mereka selaras. Bahkan tas mereka seakan senada.</p><p>Senja kembali menatap layar laptopnya. Desain UI yang tadi dia banggakan, sekarang terlihat norak dan amatir di matanya sendiri.</p><p>Ponselnya bergetar. Pesan dari Arga.</p><p><b>Arga</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Ja, klien suka banget sama draft awal lo! Katanya warnanya 'bold' dan berani. Mereka mau nambah budget kalau lo bisa kelarin minggu ini. Gimana?</i></div><p>Senja membaca pesan itu. Di saat dia merasa kecil dan tidak berharga di hadapan "standar emas" bernama Rara, Arga datang membawa validasi instan. Arga memujinya. Arga membutuhkannya.</p><p>Tanpa berpikir panjang, Senja mengetik balasan.</p><p><b>Senja</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Gas, Ga. Gue kerjain sekarang.</i></div><p>Jika dia tidak bisa menjadi <i>software</i> yang sempurna seperti Rara, setidaknya dia bisa menjadi <i>freelancer</i> yang sukses dan punya uang sendiri. Itu namanya kompensasi sistem. Atau mungkin... pelarian.</p>` },
+            {
+                title: "Firewall Breach", content: `<p><b>Peringatan Keamanan: Aktivitas Mencurigakan Terdeteksi.</b></p><p>Sistem Senja sedang <i>overheat</i>.</p><p>Sudah tiga hari dia tidur kurang dari empat jam per malam. Bukan karena <i>coding</i> untuk kuliah, tapi karena revisi desain dari Arga yang tidak ada habisnya.</p><p><i>"Geser dikit logonya, Ja."</i>
+<i>"Warnanya kurang 'pop', coba ganti palet."</i>
+<i>"Bisa kelar malem ini kan? Investor mau liat besok pagi."</i></p><p>Senja mengiyakan semuanya. Demi pujian "Keren, Ja". Demi rasa dibutuhkan. Demi membuktikan bahwa dia punya nilai lebih.</p><p>Di sisi lain, tugas kelompok Jaringan Komputer dengan Bumi terbengkalai.</p><p>Senja melirik ponselnya.
+<b>Bumi (5 pesan belum dibaca)</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Ja, laporan bab 3 udah?</i><br><i>Kita harus submit jam 12 malem ini.</i><br><i>Ja?</i><br><i>Lo di mana?</i><br><i>Gue ke kosan lo.</i></div><p>Senja panik. Dia masih di <i>coffee shop</i> bareng Arga, menyelesaikan revisi terakhir. Jam menunjukkan pukul 20.00.</p><p>"Bentar ya, Ga. Ada urusan mendadak," Senja membereskan laptopnya buru-buru.</p><p>"Yah, padahal baru mau gue pesenin makan malem. Yaudah, ati-ati ya. <i>Thanks</i> banget lho ini," Arga tersenyum manis.</p><p>Senja memacu motornya ke kampus, tempat janji temu darurat dengan Bumi. Pikirannya kemana-mana.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Lobi Gedung Informatika, pukul 20.30.</p><p>Bumi duduk di bangku panjang, laptop terbuka, tapi layarnya gelap. Dia tidak sedang mengetik. Dia sedang menunggu. Wajahnya datar, tipe ekspresi yang paling Senja takuti.</p><p>"Maaf! Maaf banget Bum, gue telat!" Senja berlari kecil, napasnya ngos-ngosan. "Gue... gue ketiduran tadi."</p><p>Bohong.</p><p>Bumi menatap Senja tajam. "Ketiduran di <i>coffee shop</i> Kotabaru?"</p><p>Jantung Senja berhenti.</p><p>"Gue liat Story IG temen lo. Ada lo di latar belakang."</p><p>Senja terdiam. Lidahnya kelu.</p><p>"Mana laporannya?" tagih Bumi dingin.</p><p>"Gue... gue belum selesai, Bum. Dikit lagi. Nanti malem gue lembur..."</p><p>"Nggak usah," potong Bumi. Dia memutar laptopnya, memperlihatkan dokumen laporan yang sudah <i>completed</i>. "Udah gue kerjain semua. Lo tinggal terima nilai."</p><p>"Bum, jangan gitu dong... Gue kan mau kontribusi..."</p><p>"Kontribusi apa, Ja? Seminggu ini lo ilang-ilangan. Pas ketemu, lo nggak fokus. Mata lo ke HP terus. Kualitas kode lo berantakan kayak orang yang baru belajar <i>Hello World</i>."</p><p>Bumi berdiri, memasukkan laptopnya ke tas dengan gerakan kasar.</p><p>"Gue nggak masalah ngerjain tugas sendirian. Gue udah biasa. Yang gue masalahin adalah alasan lo."</p><p>Bumi melangkah mendekat, menatap mata Senja dalam-dalam. "Lo jalan sama Arga lagi, kan?"</p><p>Senja tersentak. "K-kok lo tau?"</p><p>"Jogja sempit, Ja. Dan pola lo kebaca. Lo kayak <i>user</i> yang <i>uninstall</i> antivirus cuma buat <i>download</i> aplikasi bajakan yang penuh <i>malware</i>, gara-gara iming-iming fitur gratis."</p><p>"Jaga omongan lo ya, Bum!" emosi Senja tersulut. Rasa lelah bercampur rasa bersalah meledak jadi amarah. "Arga tuh udah berubah! Dia nawarin gue kerjaan! Dia ngehargain <i>skill</i> desain gue! Bukan kayak lo yang bisanya cuma ngeritik!"</p><p>"Dia manfaatin lo, Senja! Dia tau lo butuh validasi, dan dia kasih remah-remah biar lo balik lagi ke dia!"</p><p>"LO NGGAK NGERTI!" teriak Senja. Suaranya menggema di lobi sepi. Matanya panas.</p><p>"Lo enak ngomong gitu karena lo sempurna, Bum! Lo pinter, lo asdos, masa depan lo cerah! Lo punya Rara yang selevel sama lo! Sempurna, cantik, pinter!"</p><p>Bumi tertegun mendengar nama Rara disebut.</p><p>"Gue minder, Bum," suara Senja bergetar, air mata mulai jatuh. "Tiap liat lo sama Rara, gue ngerasa kayak <i>bug</i> yang harusnya dihapus. Gue ngerasa nggak pantes temenan sama lo. Makanya pas Arga dateng dan bilang gue hebat... gue butuh itu. Gue butuh ngerasa berharga."</p><p>Hening.</p><p>Napas Senja memburu. Air matanya deras. Pertahanan dirinya (<i>Firewall</i>) hancur lebur malam itu. Semua <i>insecurity</i> yang dia enkripsi rapat-rapat, kini terbongkar dalam bentuk <i>plaintext</i> yang menyedihkan.</p><p>Bumi menatap Senja dengan pandangan yang sulit diartikan. Marah, kecewa, tapi juga... sedih.</p><p>"Jadi standar harga diri lo cuma segitu, Ja?" tanya Bumi pelan, nyaris berbisik. "Lo butuh pengakuan dari orang yang pernah ngerusak lo, cuma karena lo ngerasa kalah saing sama Rara?"</p><p>Senja tidak bisa menjawab. Dia hanya menunduk, menangis.</p><p>"Gue kecewa, Ja. Bukan karena lo ngerjain tugas sama Arga. Tapi karena lo ngerendahin diri lo sendiri."</p><p>Bumi berbalik badan.</p><p>"Tugas Jarkom udah aman. Lo pulang, istirahat. Besok gue nggak mau liat muka lo dulu. Gue butuh <i>space</i>."</p><p>Bumi berjalan pergi, meninggalkan Senja sendirian di lobi yang dingin. Langkah kaki Bumi terdengar tegas, menjauh, membawa serta rasa aman yang selama ini Senja nikmati.</p><p>Malam itu, Senja sadar. Dia tidak hanya membiarkan <i>firewall</i>-nya jebol. Dia sendiri yang membukakan pintu untuk peretas, dan sekarang seluruh sistemnya <i>corrupt</i>.</p>` },
+            {
+                title: "Patching & Hardening", content: `<p>Malam itu, Senja tidak tidur. Tapi kali ini bukan untuk mengerjakan revisi Arga.
+Dia duduk bersila di atas kasur, menatap layar laptopnya yang menampilkan riwayat <i>chat</i> dengan Arga selama dua minggu terakhir.</p><p>Dia melakukan <i>log analysis</i>.</p><p><i>Arga: "Ja, ini logonya kurang nendang. Revisi ya. Cepet."</i> (Tanpa kata tolong).
+<i>Arga: "Budget dari investor dipotong nih. Fee lo gue adjust jadi 50% dulu ya. Nanti kalau launch sukses gue tambah."</i> (Manipulasi).
+<i>Arga: "Udahlah Ja, gausah dengerin si Bumi. Dia tuh cemburu doang lo bisa sukses tanpa dia."</i> (Isolasi).</p><p>Senja tertawa miris. Bodoh. Dia benar-benar bodoh.
+Selama ini dia mengira sedang membangun portofolio, padahal dia cuma jadi sapi perah. Dia membiarkan dirinya dieksploitasi hanya karena haus validasi dari orang yang dulu pernah membuangnya.</p><p>Senja menarik napas panjang. Dia membuka aplikasi desainnya. Bukan untuk merevisi, tapi untuk menghapus <i>file</i> mentah proyek itu.
+Lalu dia membuka WhatsApp.</p><p><b>Senja</b></p><div class="bg-gray-50 border-l-4 border-green-400 p-4 my-4 italic text-gray-700 rounded-r"><i>Ga, sori. Gue cancel project ini. Silakan cari desainer lain yang mau dibayar pake "exposure" dan janji manis.</i><br><i>Dan satu lagi: Stop hubungin gue. Gue bukan cadangan lo pas lo bosen, dan gue bukan bawahan lo.</i></div><p><i>Block.</i></p><p>Rasanya... melegakan. Seperti membersihkan <i>cache</i> sampah yang sudah menumpuk bertahun-tahun.
+Sistemnya sekarang lebih ringan.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Besoknya, Senja mencari Bumi.
+Dia menemukannya di kantin Fakultas Teknik, sedang makan soto sendirian sambil membaca buku tebal.</p><p>Senja duduk di hadapannya tanpa permisi.
+Bumi mendongak. Wajahnya masih datar, tapi dia tidak mengusir Senja.</p><p>"Gue udah blokir Arga," kata Senja langsung. Tidak ada <i>basa-basi</i>.</p><p>Bumi menaikkan alisnya sebelah. "Terus?"</p><p>"Gue sadar lo bener. Dia cuma <i>malware</i>." Senja menunduk, memainkan ujung jilbabnya (kalau dia pakai, atau ujung rambutnya). "Gue minta maaf, Bum. Bukan cuma soal tugas Jarkom. Tapi soal gue yang... murah. Gue yang ngerasa nggak berharga cuma karena gue nggak sekeren Rara."</p><p>Bumi meletakkan sendoknya. Dia menghela napas panjang.</p><p>"Ja, dengerin gue."</p><p>Bumi mencondongkan badan ke depan.</p><p>"Rara itu temen gue dari orok. Kita tumbuh bareng. Dia emang pinter, dia emang sukses. Tapi dia... <i>legacy system</i>. Gue sama dia itu kayak Windows XP. Stabil, klasik, tapi masa depannya bukan di sana."</p><p>Senja mengangkat wajah, menatap mata Bumi.</p><p>"Terus... gue apa?"</p><p>"Lo?" Bumi tersenyum tipis, sangat tipis. "Lo itu <i>Open Source Project</i> yang baru rilis versi Alpha. Masih banyak <i>bug</i>, sering <i>crash</i>, dokumentasinya berantakan, bikin pusing."</p><p>Senja cemberut. "Kok hinaan lagi sih?"</p><p>"Belum selesai," potong Bumi. "Tapi... lo punya potensi. Fitur lo unik. Dan yang paling penting: gue penasaran sama lo. Gue pengen jadi <i>main contributor</i> yang bantuin lo <i>fixing bugs</i> sampe lo jadi <i>stable release</i>."</p><p>Pipi Senja memerah padam. Itu adalah kalimat paling romantis (dan paling <i>nerd</i>) yang pernah dia dengar seumur hidup.</p><p>"Jadi... kita apa sekarang?" tanya Senja memberanikan diri. "Masih <i>undefined variable</i>?"</p><p>Bumi menggeleng.</p><p>"Kita <i>define</i> sekarang."</p><p>Bumi mengambil tangan Senja (atau menyentuh punggung tangannya di meja).</p><p>"\`const partner = 'Bumi';\`" ucap Bumi. "Variabel konstan. Nggak bisa diubah, nggak bisa dihapus, read-only buat orang lain."</p><p>Senja tertawa, air mata haru menggenang di pelupuk matanya.
+"Lo aneh banget sumpah."</p><p>"Lo suka kan?"</p><p>"Iya. Suka banget."</p><p>Siang itu, di kantin yang riuh dan panas, Senja melakukan <i>Hardening</i> pada hatinya. Dia menutup celah keamanan dari masa lalu, menginstall <i>firewall</i> baru berupa harga diri, dan menetapkan satu-satunya <i>user</i> yang memiliki akses <i>root</i> ke hatinya.</p><p>Bumi.</p><p>Dan kali ini, koneksinya aman. Terenkripsi sempurna.</p>` },
+            {
+                title: "Commit & Push", content: `<p>Minggu tenang sebelum UAS.
+Tapi bagi Senja dan Bumi, ini bukan sekadar minggu tenang akademis. Ini adalah minggu tenang setelah badai <i>emotional damage</i> yang baru saja mereka lalui.</p><p>Sore itu, langit Jogja berwarna ungu kemerahan. Senja baru saja selesai bimbingan revisi desain (kali ini untuk organisasi kampus, <i>pro bono</i>, tapi hatinya senang).</p><p>"Makan yuk. Laper."
+Pesan singkat dari Bumi masuk.</p><p>"Di mana?"</p><p>"Tempat biasa. Tempat kita <i>merge conflict</i> pertama kali."</p><p>Senja tersenyum. Warmindo di daerah Demangan.</p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p>Warung itu masih sama. Ramai, berisik suara TV, aroma indomie goreng yang dominan.
+Mereka duduk di meja pojok, dekat jendela yang menghadap jalanan padat merayap.</p><p>"Gimana persiapan UAS?" tanya Bumi setelah memesan (Indomie Tante tanpa cabe untuk Senja, Nasi Goreng Magelangan pedas mampus untuk Bumi).</p><p>"Aman. Matdist doang yang agak ngeri-ngeri sedap," jawab Senja jujur. "Tapi gue udah baca rangkuman lo tiga kali bolak-balik. Semoga nyantol."</p><p>"Bagus. Jangan sampe kejadian <i>System Crash</i> lagi."</p><p>"Dih, jangan diingetin!" Senja melempar kerupuk ke arah Bumi. Bumi menangkapnya dengan mulut. <i>Skill</i> baru yang tidak berguna tapi mengesankan.</p><p>Mereka makan dalam diam sejenak. Tapi kali ini, diamnya berbeda. Bukan canggung, bukan tegang. Tapi nyaman. Seperti <i>server</i> yang berjalan stabil di <i>uptime</i> 99.9%.</p><p>Setelah piring mereka kosong, Bumi tidak langsung mengajak pulang. Dia mengeluarkan laptopnya.</p><p>"Gue mau kasih liat sesuatu."</p><p>Senja mendekat. "Apaan? Nilai Jarkom? Jangan bilang dapet C."</p><p>"Bukan."</p><p>Bumi membuka terminal <i>command prompt</i>. Layar hitam dengan tulisan hijau.
+Dia mengetikkan beberapa baris perintah.</p><p>\`git status\`</p><p>Layar menampilkan daftar <i>file</i>.
+\`modified: hubungan_kita.txt\`
+\`modified: perasaan_senja.log\`
+\`modified: status_bumi.config\`</p><p>Senja mengerutkan kening. "Ini apaan si, Bum? Lo nge-<i>hack</i> laptop gue?"</p><p>"Baca dulu," kata Bumi pelan.</p><p>Di layar, Bumi mengetik perintah selanjutnya.</p><p>\`git commit -m "Resolved conflicts with internal insecurities and external malware (Arga). Fixed communication bugs. Ready for production."\`</p><p>Senja membaca pesan <i>commit</i> itu. Jantungnya berdetak kencang. Dia menatap Bumi, yang kini tidak menatap layar, tapi menatapnya.</p><p>"Di Git," Bumi memulai penjelasannya dengan suara yang sedikit bergetar, "Kalau kita udah yakin sama perubahan kode kita, kalau kita udah yakin <i>bug</i>-nya ilang dan fiturnya jalan... kita lakukan <i>commit</i>. Kita simpan <i>state</i> itu secara permanen."</p><p>Bumi mengambil tangan Senja di atas meja yang lengket.</p><p>"Gue mau <i>commit</i> sama lo, Ja. Gue mau simpan momen ini, perasaan ini. Gue nggak mau ini cuma jadi <i>draft</i> atau <i>stash</i> yang sewaktu-waktu bisa ilang."</p><p>Senja terpaku. Matanya berkaca-kaca. Cowok di depannya ini baru saja menembaknya dengan cara paling <i>nerd</i> sedunia, di warung burjo, bau bawang goreng.
+Dan itu sempurna.</p><p>"Terus... abis <i>commit</i>, ngapain?" tanya Senja serak.</p><p>Bumi tersenyum. Dia mengetik satu perintah terakhir di layar.</p><p>\`git push origin master\`</p><p>"Kita <i>push</i>. Kita umumin ke server pusat. Kita jadiin ini resmi."</p><p>Entah siapa yang memulai, jari mereka bertautan erat. Di tengah hiruk-pikuk Warmindo, di antara teriakan pesanan "Es teh dua!" dan suara knalpot motor, Bumi dan Senja meresmikan versi 1.0 dari hubungan mereka.</p><p>"Jadi... kita pacaran?" tanya Senja meyakinkan.</p><p>"Definisikan 'pacaran'," goda Bumi.</p><p>"Ih, Bum!"</p><p>"Iya, Senja. Kita pacaran. <i>Official. Deployed.</i>"</p><p>Senja tertawa lebar, air mata kebahagiaan akhirnya tumpah satu tetes.
+"Dasar <i>programmer</i> bucin."</p><p>"Biarin. Yang penting sistem gue sekarang lengkap."</p><p>Di luar, langit Jogja perlahan menggelap. Lampu-lampu jalan mulai menyala, menerangi kota pelajar yang menjadi saksi ribuan kisah cinta.
+Tapi bagi Bumi dan Senja, kisah mereka baru saja dimulai.
+Banyak <i>bug</i> yang mungkin akan muncul di masa depan. <i>Crash</i> tak terduga, <i>error</i> tak terduga.
+Tapi selama mereka punya satu sama lain sebagai <i>partner</i> untuk melakukan <i>debugging</i>, mereka tahu mereka akan baik-baik saja.</p><p><b>[END OF VOLUME 1]</b></p><div class="flex justify-center my-8"><span class="text-green-300 tracking-widest text-xl">✦ ✦ ✦</span></div><p><b>TEASER VOLUME 2: RUNTIME ERROR</b></p><p>Dua tahun kemudian.</p><p>"Ja, lo di mana? Anak-anak KKN udah nungguin di balai desa. Pak Kades marah gara-gara proker kita gagal total."</p><p>Senja menatap layar ponselnya di tengah hutan karet yang gelap gulita. Hujan deras mengguyur tubuhnya. Motornya mogok. Sinyal hilang timbul.</p><p>"Bum... tolong..."</p><p>Tapi pesan itu gagal terkirim.
+Di layar ponselnya, hanya ada satu notifikasi:
+<i>No Network Connection.</i></p><p>Dan untuk pertama kalinya dalam dua tahun, Senja merasa sendirian lagi.</p>` },
+        ];
+
+        let currentChap = 0;
+        let fontSize = 1.15;
+        let isSerif = true;
+        let isMusicPlaying = false;
+
+        // --- VISUAL FX ---
+        function setupGhibli() {
+            const dustLayer = document.getElementById('dust-layer');
+            const skyLayer = document.getElementById('sky-elements');
+
+            for (let i = 0; i < 35; i++) {
+                const mote = document.createElement('div');
+                mote.className = 'dust-mote';
+                const size = Math.random() * 4 + 1;
+                mote.style.width = size + 'px';
+                mote.style.height = size + 'px';
+                mote.style.left = Math.random() * 100 + '%';
+                mote.style.top = Math.random() * 100 + '%';
+                dustLayer.appendChild(mote);
+                animateMote(mote);
+            }
+
+            for (let i = 0; i < 5; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                const w = Math.random() * 200 + 150;
+                cloud.style.width = w + 'px';
+                cloud.style.height = (w / 2.5) + 'px';
+                cloud.style.top = Math.random() * 70 + '%';
+                cloud.style.left = Math.random() * 100 + '%';
+                skyLayer.appendChild(cloud);
+                animateCloud(cloud);
+            }
+        }
+
+        function animateMote(el) {
+            anime({
+                targets: el,
+                translateX: () => anime.random(-100, 100),
+                translateY: () => anime.random(-100, 100),
+                opacity: [0, 0.5, 0],
+                duration: anime.random(4000, 10000),
+                easing: 'easeInOutQuad',
+                loop: true,
+                delay: anime.random(0, 5000)
+            });
+        }
+
+        function animateCloud(el) {
+            anime({
+                targets: el,
+                translateX: [0, 200],
+                duration: anime.random(40000, 70000),
+                easing: 'linear',
+                loop: true,
+                direction: 'alternate'
+            });
+        }
+
+        // --- APP LOGIC ---
+        function openBook(index) {
+            currentChap = index;
+            renderChapter();
+
+            anime({
+                targets: '#home-view',
+                opacity: 0,
+                scale: 1.1,
+                duration: 800,
+                easing: 'easeInOutQuad',
+                complete: () => {
+                    document.getElementById('home-view').classList.add('hidden');
+                    const reader = document.getElementById('reader-view');
+                    reader.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+
+
+
+                    anime({
+                        targets: '#reader-view',
+                        opacity: [0, 1],
+                        translateY: [20, 0],
+                        duration: 800
+                    });
+                }
+            });
+        }
+
+        function exitReader() {
+
+
+            anime({
+                targets: '#reader-view',
+                opacity: 0,
+                translateY: 20,
+                duration: 500,
+                complete: () => {
+                    document.getElementById('reader-view').classList.add('hidden');
+                    document.getElementById('reader-view').classList.add('hidden');
+
+                    const home = document.getElementById('home-view');
+                    home.classList.remove('hidden');
+                    anime({ targets: '#home-view', opacity: [0, 1], scale: [0.95, 1], duration: 800 });
+                }
+            });
+        }
+
+        function renderChapter() {
+            const chap = chapters[currentChap];
+            document.getElementById('current-chapter-indicator').innerText = `Bab ${currentChap + 1}`;
+
+            // Calculate Reading Time
+            const wordCount = chap.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+            const readTime = Math.ceil(wordCount / 200); // 200 wpm
+
+            // Highlight Characters (Regex safe replace)
+            let formattedContent = chap.content
+                .replace(/Bumi/g, '<span class="char-bumi">Bumi</span>')
+                .replace(/Senja/g, '<span class="char-senja">Senja</span>');
+
+            document.getElementById('chapter-content').innerHTML = `
+                <div class="text-center mb-16 relative">
+                    <div class="watercolor-blob"></div>
+                    <span class="text-xs uppercase tracking-widest text-green-600 font-bold">Bagian ${currentChap + 1}</span>
+                    <h1 class="serif text-4xl md:text-5xl font-bold mt-2 text-gray-900 relative z-10">${chap.title}</h1>
+                    <div class="reading-time mt-4">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        ${readTime} menit membaca
+                    </div>
+                </div>
+                <div class="serif leading-relaxed relative z-10">
+                    ${formattedContent}
+                </div>
+            `;
+
+            // Animate Blob
+            anime({
+                targets: '.watercolor-blob',
+                opacity: [0, 0.8],
+                scale: [0.5, 1],
+                duration: 1000,
+                easing: 'easeOutElastic(1, .8)'
+            });
+
+            document.getElementById('prev-btn').style.opacity = currentChap === 0 ? "0" : "1";
+            document.getElementById('next-btn').innerText = currentChap === chapters.length - 1 ? "Selesai Baca" : "Selanjutnya →";
+
+            localStorage.setItem('lastRead', currentChap);
+            updateProgress();
+        }
+
+        function nextChapter() {
+            if (currentChap < chapters.length - 1) {
+                currentChap++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                renderChapter();
+            } else { exitReader(); }
+        }
+
+        function prevChapter() {
+            if (currentChap > 0) {
+                currentChap--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                renderChapter();
+            }
+        }
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            drawer.classList.toggle('open');
+            overlay.classList.toggle('invisible');
+            overlay.classList.toggle('opacity-100');
+        }
+
+        function renderTOC() {
+            const list = document.getElementById('chapter-list');
+            chapters.forEach((chap, i) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left text-sm p-4 rounded-xl hover:bg-green-50 hover:text-green-700 transition-all font-medium border border-transparent hover:border-green-100";
+                btn.innerText = `${i + 1}. ${chap.title}`;
+                btn.onclick = () => { openBook(i); toggleDrawer(); };
+                list.appendChild(btn);
+            });
+        }
+
+        function changeFontSize(val) {
+            fontSize += val;
+            document.documentElement.style.setProperty('--read-size', fontSize + 'rem');
+        }
+
+        function toggleSerif() {
+            isSerif = !isSerif;
+            document.documentElement.style.setProperty('--font-reader', isSerif ? "'Lora', serif" : "'Quicksand', sans-serif");
+        }
+
+
+
+        function updateProgress() {
+            window.onscroll = () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById("reading-progress").style.width = scrolled + "%";
+            };
+        }
+
+        function resumeReading() {
+            const last = localStorage.getItem('lastRead');
+            if (last) openBook(parseInt(last));
+        }
+
+        // --- NEW LOGIC ---
+        function toggleMusic() {
+            const audio = document.getElementById('bg-music');
+            const statusLabel = document.getElementById('music-status');
+            const btn = document.getElementById('drawer-music-btn');
+
+            if (isMusicPlaying) {
+                audio.pause();
+                statusLabel.innerText = "OFF";
+                statusLabel.className = "text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-500";
+                btn.classList.add('border-gray-200', 'text-gray-500');
+                btn.classList.remove('border-green-600/20', 'text-green-700');
+            } else {
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log("Audio autoplay restriction handled"));
+                statusLabel.innerText = "ON";
+                statusLabel.className = "text-xs bg-green-100 px-2 py-1 rounded-full text-green-700";
+                btn.classList.remove('border-gray-200', 'text-gray-500');
+                btn.classList.add('border-green-600/20', 'text-green-700');
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            const readerView = document.getElementById('reader-view');
+            if (readerView.classList.contains('hidden')) return;
+
+            if (e.key === 'ArrowRight') nextChapter();
+            if (e.key === 'ArrowLeft') prevChapter();
+        });
+
+        window.onload = () => {
+            setupGhibli();
+            renderTOC();
+
+            anime({
+                targets: '.fade-up',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                delay: anime.stagger(200),
+                duration: 1000,
+                easing: 'easeOutQuart'
+            });
+
+            const last = localStorage.getItem('lastRead');
+            if (last) {
+                document.getElementById('resume-btn').classList.remove('hidden');
+                document.getElementById('last-chap-num').innerText = `Bab ${parseInt(last) + 1}`;
+            }
+        };
+    </script>
+</body>
+
+</html>

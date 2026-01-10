@@ -1,42 +1,190 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Kuliah IF-A</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    <title>Jadwal Kuliah IF-A | Cinematic Format</title>
 
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Playfair Display (Title), Lato (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <style>
+        /* --- MERGED CINEMATIC THEME --- */
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #f8f9fa;
-            --text-color: #343a40;
-            --border-color: #e9ecef;
-            --card-bg: #ffffff;
-            --current-day-bg: #ffd700;
+            /* Cinematic Vars */
+            --poster-title: 'Playfair Display', serif;
+            --poster-body: 'Lato', sans-serif;
+            --overlay-color-1: rgba(135, 206, 235, 0.3);
+            --overlay-color-2: rgba(255, 182, 193, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #2d3436;
+
+            /* Legacy Mapping */
+            --primary-color: #0984e3;
+            --secondary-color: transparent;
+            --text-color: var(--text-main);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --card-bg: var(--glass-bg);
+            --current-day-bg: rgba(255, 234, 167, 0.8);
             --reminder-dot-color: #e74c3c;
-            --today-bg: #d6eaff;
+            --today-bg: rgba(129, 236, 236, 0.3);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 2rem;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: var(--poster-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+            cursor: none;
+            /* Hide default cursor */
+            background: none;
             min-height: 100vh;
         }
 
+        /* --- Custom Cursor --- */
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Mobile Cursor Reset */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
+            }
+
+            body,
+            a,
+            button,
+            input {
+                cursor: auto !important;
+            }
+        }
+
+        /* Desktop Strict Cursor */
+        a,
+        button,
+        [role="button"],
+        input,
+        select,
+        textarea {
+            cursor: none !important;
+        }
+
+        /* --- Background Layers --- */
+        #atmosphere {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--overlay-color-1) 0%, transparent 50%, var(--overlay-color-2) 100%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* --- Glass Components --- */
+        .card {
+            background-color: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+        }
+
+        /* --- Typography --- */
+        h1,
+        h2,
+        h3 {
+            font-family: var(--poster-title);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-main);
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--glass-border);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        /* --- Layout Utils --- */
         .container {
             width: 100%;
             max-width: 1200px;
             display: grid;
             grid-template-columns: 1fr;
             gap: 2rem;
+            position: relative;
+            z-index: 10;
         }
 
         @media (min-width: 768px) {
@@ -45,148 +193,29 @@
             }
         }
 
-        .card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            margin-bottom: 2rem;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-        
-        h3 {
-            font-size: 1.25rem;
-            color: var(--text-color);
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
+        /* --- Calendar Specifics --- */
         .schedule ul {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
             margin: 0;
         }
 
         .schedule li {
-            background-color: var(--secondary-color);
+            background-color: rgba(255, 255, 255, 0.5);
             border-left: 5px solid var(--primary-color);
             margin-bottom: 0.75rem;
             padding: 1rem;
             border-radius: 6px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease-in-out;
-        }
-        
-        #today-schedule li {
-            background-color: var(--today-bg);
+            transition: transform 0.2s;
         }
 
         .schedule li:hover {
             transform: translateX(5px);
         }
 
-        .schedule .time {
-            font-weight: 700;
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-        
-        .schedule .details {
-            font-size: 0.95rem;
-        }
-
-        .calendar-section {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 1rem;
-        }
-
-        #current-month-year {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        #calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-            text-align: center;
-        }
-
-        .day-header {
-            font-weight: 600;
-            color: var(--primary-color);
-            padding: 0.5rem 0;
-        }
-
-        .day-cell {
-            position: relative;
-            padding: 0.75rem 0;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-
-        .day-cell.current-day {
-            background-color: var(--current-day-bg);
-            font-weight: 700;
-            border-color: #f7b801;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
-            transform: scale(1.05);
-        }
-
-        .day-cell:not(.empty):hover {
-            background-color: var(--border-color);
-            transform: scale(1.05);
-        }
-
-        .day-cell.empty {
-            background-color: transparent;
-            border: 1px solid transparent;
-            cursor: default;
-        }
-        
-        /* Titik pengingat */
-        .day-cell.has-reminder::after {
-            content: '';
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            width: 8px;
-            height: 8px;
-            background-color: var(--reminder-dot-color);
-            border-radius: 50%;
+        #today-schedule li {
+            background-color: var(--today-bg);
         }
 
         .button {
@@ -196,35 +225,53 @@
             padding: 0.75rem 1rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s;
+            font-family: var(--poster-body);
         }
 
         .button:hover {
-            background-color: #0056b3;
-        }
-        
-        .add-reminder-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
+            background-color: #00cec9;
+            transform: scale(1.05);
         }
 
-        .add-reminder-form input[type="date"],
-        .add-reminder-form input[type="text"] {
-            padding: 0.75rem;
+        /* Calendar Grid */
+        #calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .day-cell {
+            padding: 0.75rem 0;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .add-reminder-form input[type="text"] {
-            flex-grow: 1;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        /* Modal / pop-up untuk pengingat */
+        .day-cell:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .day-cell.current-day {
+            background-color: var(--current-day-bg);
+            font-weight: bold;
+            border-color: #ff9f43;
+        }
+
+        .day-cell.has-reminder::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 6px;
+            height: 6px;
+            background: var(--reminder-dot-color);
+            border-radius: 50%;
+        }
+
+        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -232,12 +279,14 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: center;
             align-items: center;
             visibility: hidden;
             opacity: 0;
-            transition: visibility 0s, opacity 0.3s;
+            transition: all 0.3s;
+            z-index: 10000;
         }
 
         .modal.show {
@@ -251,94 +300,129 @@
             border-radius: 12px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             position: relative;
         }
 
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        .close-button:hover {
-            color: #333;
-        }
-
-        .modal-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
         .modal-list li {
-            background-color: var(--secondary-color);
-            padding: 0.75rem;
+            background-color: #f1f2f6;
+            padding: 0.5rem;
             margin-bottom: 0.5rem;
             border-radius: 4px;
         }
-
-        .modal-title {
-            margin-top: 1rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Bagian Kiri: Jadwal -->
-        <div class="schedule-section">
-            <h1 class="main-title">Jadwal Kuliah IF-A</h1>
 
-            <div class="card">
-                <h2>Jadwal Hari Ini</h2>
-                <div id="today-schedule" class="schedule">
-                    <p>Tidak ada kegiatan hari ini.</p>
+<body class="scroll-smooth">
+    <!-- Background Layers -->
+    <div id="atmosphere"></div>
+    <img src="../assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="cinematic-overlay"></div>
+    <div class="cursor-outline"></div>
+
+    <div class="relative z-10 p-6 md:p-12 min-h-screen">
+        <div class="container">
+            <!-- Bagian Kiri: Jadwal -->
+            <div class="schedule-section">
+                <h1 class="main-title">Jadwal Kuliah IF-A</h1>
+
+                <div class="card">
+                    <h2>Jadwal Hari Ini</h2>
+                    <div id="today-schedule" class="schedule">
+                        <p>Tidak ada kegiatan hari ini.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Jadwal Mingguan</h2>
+                    <div id="schedule-if-a" class="schedule"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Kontak Dosen</h2>
+                    <div id="lecturer-contacts" class="schedule"></div>
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Jadwal Mingguan</h2>
-                <div id="schedule-if-a" class="schedule"></div>
-            </div>
+            <!-- Bagian Kanan: Kalender -->
+            <div class="card calendar-section">
+                <h2>Kalender</h2>
+                <div class="calendar-nav">
+                    <button id="prev-month" class="button"> &lt; </button>
+                    <div id="current-month-year"></div>
+                    <button id="next-month" class="button"> &gt; </button>
+                </div>
+                <div id="calendar-grid"></div>
 
-            <div class="card">
-                <h2>Kontak Dosen</h2>
-                <div id="lecturer-contacts" class="schedule"></div>
+                <div class="card add-reminder-form">
+                    <h2>Tambah Pengingat</h2>
+                    <input type="date" id="reminder-date">
+                    <input type="text" id="reminder-text" placeholder="Masukkan pengingat">
+                    <button id="add-reminder-button" class="button">Tambah Pengingat</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal untuk pengingat -->
+        <div id="reminder-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3 id="modal-date"></h3>
+                <div id="modal-content-list"></div>
             </div>
         </div>
 
-        <!-- Bagian Kanan: Kalender -->
-        <div class="card calendar-section">
-            <h2>Kalender</h2>
-            <div class="calendar-nav">
-                <button id="prev-month" class="button"> &lt; </button>
-                <div id="current-month-year"></div>
-                <button id="next-month" class="button"> &gt; </button>
-            </div>
-            <div id="calendar-grid"></div>
+    </div> <!-- Close .relative wrapper -->
 
-            <div class="card add-reminder-form">
-                <h2>Tambah Pengingat</h2>
-                <input type="date" id="reminder-date">
-                <input type="text" id="reminder-text" placeholder="Masukkan pengingat">
-                <button id="add-reminder-button" class="button">Tambah Pengingat</button>
-            </div>
-        </div>
-    </div>
+    <!-- Cinematic Scripts -->
+    <script>
+        function initAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            if (!container) return;
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('spirit-particle');
+                container.appendChild(particle);
+                animateParticle(particle);
+            }
+        }
 
-    <!-- Modal untuk pengingat -->
-    <div id="reminder-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3 id="modal-date"></h3>
-            <div id="modal-content-list"></div>
-        </div>
-    </div>
+        function animateParticle(el) {
+            const size = Math.random() * 5 + 2;
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+            el.style.left = `${Math.random() * 100}vw`;
+            el.style.top = `${Math.random() * 100}vh`;
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+
+            anime({
+                targets: el,
+                translateY: [{ value: -100, duration: anime.random(2000, 4000) }, { value: 100, duration: anime.random(2000, 4000) }],
+                translateX: [{ value: -50, duration: anime.random(2000, 4000) }, { value: 50, duration: anime.random(2000, 4000) }],
+                opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }],
+                easing: 'easeInOutSine',
+                duration: anime.random(5000, 10000),
+                complete: () => animateParticle(el)
+            });
+        }
+
+        // Custom Cursor Logic
+        const cursor = document.querySelector('.cursor-outline');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+            // Add listeners to existing interactive elements
+            document.querySelectorAll('a, button, .day-cell').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+            });
+        }
+
+        window.addEventListener('load', initAtmosphere);
+    </script>
 
     <script>
         // Data jadwal dalam format JavaScript object
@@ -375,7 +459,7 @@
             '2025-5-28': ['Ujian Tengah Semester Kalk1'],
             '2025-6-1': ['Libur Hari Raya'],
         };
-        
+
         // Data kontak dosen lengkap yang Anda berikan
         const allLecturers = [
             { name: 'Dr. Awang Hendrianto Pratomo, S.T, M.T', email: 'awang@upnyk.ac.id', phone: '+62 819-3176-7489' },
@@ -437,16 +521,16 @@
                     container.appendChild(dayList);
                 }
             }
-            
+
             function renderTodaySchedule() {
                 const today = new Date();
                 const todayDateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
                 const todayDayName = today.toLocaleDateString('id-ID', { weekday: 'long' });
-                
+
                 const container = document.getElementById('today-schedule');
                 container.innerHTML = '';
                 let hasContent = false;
-                
+
                 const todaySchedule = schedules['if-a'][todayDayName];
                 if (todaySchedule) {
                     const ul = document.createElement('ul');
@@ -470,7 +554,7 @@
                     container.appendChild(ul);
                     hasContent = true;
                 }
-                
+
                 if (!hasContent) {
                     container.innerHTML = '<p>Tidak ada kegiatan hari ini.</p>';
                 }
@@ -480,7 +564,7 @@
             function renderLecturerContacts() {
                 const container = document.getElementById('lecturer-contacts');
                 const ul = document.createElement('ul');
-                
+
                 // Dapatkan nama-nama dosen unik dari jadwal
                 const scheduledLecturerNames = new Set();
                 for (const day in schedules['if-a']) {
@@ -493,7 +577,7 @@
 
                 // Filter data dosen untuk hanya menampilkan yang ada di jadwal
                 const filteredLecturers = allLecturers.filter(lecturer => scheduledLecturerNames.has(lecturer.name));
-                
+
                 if (filteredLecturers.length > 0) {
                     filteredLecturers.forEach(lecturer => {
                         const li = document.createElement('li');
@@ -532,19 +616,19 @@
             const addReminderButton = document.getElementById('add-reminder-button');
 
             let currentDate = new Date();
-            
+
             function renderCalendar() {
                 calendarGrid.innerHTML = '';
                 const month = currentDate.getMonth();
                 const year = currentDate.getFullYear();
-                
+
                 currentMonthYear.textContent = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(currentDate);
 
                 const firstDay = new Date(year, month, 1);
                 const lastDay = new Date(year, month + 1, 0);
                 const daysInMonth = lastDay.getDate();
-                const startDayOfWeek = firstDay.getDay(); 
-                
+                const startDayOfWeek = firstDay.getDay();
+
                 const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
                 dayNames.forEach(day => {
                     const dayHeader = document.createElement('div');
@@ -564,25 +648,25 @@
                     const dayCell = document.createElement('div');
                     dayCell.className = 'day-cell';
                     dayCell.textContent = i;
-                    
+
                     const dateObj = new Date(year, month, i);
                     const dateKey = `${year}-${month + 1}-${i}`;
                     const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
 
                     const hasSchedule = schedules['if-a'][dayName];
                     const hasReminder = reminders[dateKey] && reminders[dateKey].length > 0;
-                    
+
                     if (hasSchedule || hasReminder) {
                         dayCell.classList.add('has-reminder');
                     }
-                    
+
                     if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                         dayCell.classList.add('current-day');
                     }
                     calendarGrid.appendChild(dayCell);
                 }
             }
-            
+
             prevButton.addEventListener('click', () => {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 renderCalendar();
@@ -600,7 +684,7 @@
                 if (date && text) {
                     const [year, month, day] = date.split('-').map(Number);
                     const dateKey = `${year}-${month}-${day}`;
-                    
+
                     if (!reminders[dateKey]) {
                         reminders[dateKey] = [];
                     }
@@ -608,7 +692,7 @@
                     saveReminders();
                     renderCalendar();
                     renderTodaySchedule();
-                    
+
                     reminderTextInput.value = '';
                     // showModal(`Pengingat berhasil ditambahkan untuk tanggal ${new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}!`);
                 } else {
@@ -631,7 +715,7 @@
 
                     const scheduleDataA = schedules['if-a'][dayName];
                     const reminderData = reminders[dateKey];
-                    
+
                     let hasContent = false;
 
                     if (scheduleDataA) {
@@ -656,7 +740,7 @@
                         reminderTitle.className = 'modal-title';
                         reminderTitle.textContent = 'Pengingat Tambahan';
                         modalContentList.appendChild(reminderTitle);
-                        
+
                         const ul = document.createElement('ul');
                         ul.className = 'modal-list';
                         reminderData.forEach(reminder => {
@@ -692,4 +776,5 @@
         });
     </script>
 </body>
+
 </html>

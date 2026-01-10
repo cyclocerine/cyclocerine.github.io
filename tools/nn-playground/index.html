@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Network Playground</title>
+    <title>Neural Network Playground | Cinematic</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,11 +16,150 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
+    <!-- Cinematic Deps -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <!-- Custom Styles -->
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        :root {
+            --poster-title: 'Playfair Display', serif;
+            --poster-body: 'Lato', sans-serif;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --dark-glass-bg: rgba(30, 30, 30, 0.85);
+            /* For Viz */
+            --text-main: #2d3436;
+        }
+
+        body {
+            font-family: var(--poster-body);
+            background: none !important;
+            cursor: none;
+            color: var(--text-main) !important;
+        }
+
+        /* Layout overrides */
+        header,
+        .controls-bar,
+        .glass-panel {
+            background: var(--glass-bg) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* Dark Viz Container */
+        .viz-container {
+            background: var(--dark-glass-bg) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+        }
+
+        /* Text Fixes for Light Mode */
+        h1,
+        h2,
+        label,
+        span,
+        .text-gray-400,
+        .text-gray-500,
+        .text-gray-200 {
+            color: var(--text-main) !important;
+        }
+
+        /* Exceptions for Dark Container */
+        .viz-container span,
+        .viz-container div,
+        .viz-container button {
+            /* Keep internal viz text distinct/light if needed, or let it inherit if contrasting enough */
+            /* Actually, the viz creates SVG elements. We let those be. */
+        }
+
+        /* Controls Bar Specifics */
+        .bg-\[\#181818\] {
+            background: var(--glass-bg) !important;
+        }
+
+        .bg-gray-800 {
+            background: rgba(255, 255, 255, 0.3) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        select,
+        option {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #000 !important;
+        }
+
+        /* Cinematic Elements */
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
+            }
+
+            body,
+            a {
+                cursor: auto !important;
+            }
+        }
+
+        #atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.3), transparent, rgba(255, 182, 193, 0.3));
+            pointer-events: none;
+        }
+    </style>
 </head>
 
 <body class="bg-[#121212] text-gray-200 h-screen flex flex-col overflow-hidden">
+    <!-- Background Layers -->
+    <div id="atmosphere"></div>
+    <img src="../../assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="cinematic-overlay"></div>
+    <div class="cursor-outline"></div>
 
     <!-- Header -->
     <header class="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#1e1e1e]">
@@ -244,6 +383,38 @@
 
     <!-- App Scripts -->
     <script type="module" src="js/app.js"></script>
+
+    <script>
+        function initAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            if (!container) return;
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('spirit-particle');
+                container.appendChild(particle);
+                animateParticle(particle);
+            }
+        }
+        function animateParticle(el) {
+            const size = Math.random() * 5 + 2;
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+            el.style.left = `${Math.random() * 100}vw`;
+            el.style.top = `${Math.random() * 100}vh`;
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+            anime({ targets: el, translateY: [{ value: -100, duration: 3000 }, { value: 100, duration: 3000 }], translateX: [{ value: -50, duration: 3000 }, { value: 50, duration: 3000 }], opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }], easing: 'easeInOutSine', duration: 8000, complete: () => animateParticle(el) });
+        }
+        const cursor = document.querySelector('.cursor-outline');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+            document.querySelectorAll('a, button, input, select, .feature-check').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+            });
+        }
+        window.addEventListener('load', initAtmosphere);
+    </script>
 </body>
 
 </html>

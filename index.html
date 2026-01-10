@@ -4,297 +4,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faiq Hammam | IT Engineer & AI Enthusiast</title>
+    <title>Faiq Hammam - IT Engineer</title>
 
-    <!-- Meta Tags for SEO -->
-    <meta name="description"
-        content="Portfolio of Faiq Hammam Mutaqin, an IT Engineer and AI Enthusiast with expertise in Machine Learning and Web Development.">
-    <meta name="author" content="Faiq Hammam Mutaqin">
-    <meta name="keywords"
-        content="Faiq Hammam, Faiq Hammam Mutaqin, Fa'iq Hammam, Fa'iq Hammam Mutaqin, Portfolio, Web Developer, UI/UX Designer, IT Engineer, AI Enthusiast, Machine Learning, Programmer">
-    <meta name="robots" content="index, follow">
-
-    <!-- Favicon with F.H. initials -->
+    <!-- Favicon: Dark Square with Serif 'F.H.' -->
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23F97316'></rect><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='50' font-family='Sora, sans-serif' font-weight='bold' fill='white'>F.H.</text></svg>">
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a1a1a'></rect><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='45' font-family='serif' font-weight='bold' fill='white'>F.H.</text></svg>">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Sora -->
+    <!-- Google Fonts: Playfair Display (Title), Lato (Body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
 
-    <!-- Font Awesome for Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <!-- Typed.js -->
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+
     <style>
-        /* Core font and color settings */
-        body {
-            font-family: 'Sora', sans-serif;
-            background-color: #121212;
-            color: #E0E0E0;
+        :root {
+            --poster-title: 'Playfair Display', serif;
+            --poster-body: 'Lato', sans-serif;
+            --overlay-color-1: rgba(135, 206, 235, 0.3);
+            /* Soft Blue */
+            --overlay-color-2: rgba(255, 182, 193, 0.3);
+            /* Soft Pink */
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #2d3436;
         }
 
-        /* Canvas for particle animation */
-        #particle-canvas {
+        body {
+            font-family: var(--poster-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+            cursor: none;
+            /* Hide default cursor */
+        }
+
+        /* Force hide cursor on interactive elements to strictly use custom cursor */
+        a,
+        button,
+        [role="button"],
+        input,
+        select,
+        textarea {
+            cursor: none !important;
+        }
+
+        /* --- Custom Cursor --- */
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hide cursor on mobile devices */
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
+            }
+
+            body,
+            a,
+            button,
+            [role="button"],
+            input,
+            select,
+            textarea {
+                cursor: auto !important;
+            }
+        }
+
+        /* --- Atmosphere --- */
+        #atmosphere {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
         }
 
-        /* New logic for custom cursor */
-        /* Hide default cursor if body has 'has-mouse' class */
-        body.has-mouse {
-            cursor: none;
+        .spirit-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
-        body.has-mouse a,
-        body.has-mouse button {
-            cursor: none;
-        }
-
-        .cursor-dot,
-        .cursor-outline {
-            display: none;
-            /* Hide by default */
+        /* --- Layers --- */
+        .cinematic-bg {
             position: fixed;
             top: 0;
             left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            /* Blurred background as requested */
+            transform: scale(1.1);
+            /* Prevent blur edges */
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--overlay-color-1) 0%, transparent 50%, var(--overlay-color-2) 100%);
+            z-index: -2;
             pointer-events: none;
-            z-index: 10000;
-            transition: opacity 0.3s, transform 0.3s;
         }
 
-        /* Display cursor only if body has 'has-mouse' class */
-        body.has-mouse .cursor-dot,
-        body.has-mouse .cursor-outline {
-            display: block;
+        /* --- Typography --- */
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-heading {
+            font-family: var(--poster-title);
         }
 
-        .cursor-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #F97316;
+        .movie-title {
+            font-size: 5rem;
+            line-height: 0.9;
+            color: #1a1a1a;
+            letter-spacing: -2px;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
         }
 
-        .cursor-outline {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #F97316;
-            transition: transform 0.1s;
-        }
-
-        /* Cursor hover effect */
-        .cursor-hover {
-            transform: translate(-50%, -50%) scale(1.5);
-            opacity: 0.5;
-        }
-
-        /* Accent color (orange) settings */
-        .accent-color {
-            color: #F97316;
-            /* Tailwind orange-500 */
-        }
-
-        /* Cursor for typing effect */
-        .typed-cursor {
-            color: #F97316;
-            opacity: 1;
-            animation: typedjsBlink 0.7s infinite;
-        }
-
-        @keyframes typedjsBlink {
-            50% {
-                opacity: 0.0;
+        @media (min-width: 1024px) {
+            .movie-title {
+                font-size: 8rem;
             }
         }
 
-        /* Main button with glow effect */
-        .glow-button-orange {
-            background-color: #F97316;
-            color: #121212;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
         }
 
-        .glow-button-orange:hover {
-            box-shadow: 0 0 25px rgba(249, 115, 22, 0.7);
-            transform: scale(1.05);
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #1a1a1a;
         }
 
-        /* Glassmorphism effect for cards */
-        .content-card {
-            background: rgba(30, 30, 30, 0.5);
-            /* #1E1E1E with transparency */
+        /* --- Glassmorphism --- */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* --- Navigation --- */
+        .nav-link {
+            font-family: var(--poster-body);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #1a1a1a;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            border-color: #1a1a1a;
+        }
+
+        .scrolled-nav {
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(249, 115, 22, 0.2);
-            /* Transparent orange border */
-            border-radius: 1rem;
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .content-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(249, 115, 22, 0.5);
-            /* Brighter orange border on hover */
-            background: rgba(30, 30, 30, 0.7);
-        }
-
-        /* Fade-in animation on scroll */
-        .reveal-on-scroll {
+        /* --- Animations --- */
+        .fade-in-up {
             opacity: 0;
-            transform: translateY(40px);
+            transform: translateY(30px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
 
-        .reveal-on-scroll.visible {
+        .fade-in-up.visible {
             opacity: 1;
             transform: translateY(0);
-        }
-
-        /* Glassmorphism effect for navbar on scroll */
-        .scrolled-nav {
-            background-color: rgba(18, 18, 18, 0.7);
-            /* #121212 with transparency */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(45, 45, 45, 0.5);
         }
     </style>
 </head>
 
-<body class="w-full overflow-x-hidden">
+<body>
 
-    <!-- Custom Cursor Elements -->
-    <div class="cursor-dot"></div>
+    <!-- Custom Cursor -->
     <div class="cursor-outline"></div>
 
-    <!-- Particle Animation Background -->
-    <canvas id="particle-canvas"></canvas>
+    <!-- Fixed Assets -->
+    <img src="assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="cinematic-overlay"></div>
+    <div id="atmosphere"></div>
 
-    <!-- Header / Navbar -->
-    <header class="fixed top-0 left-0 w-full z-50 transition-all duration-300" id="navbar">
-        <div class="container mx-auto px-6 py-5 flex justify-between items-center relative z-10">
-            <a href="#" class="text-2xl font-bold text-white">F.H.</a>
-            <nav class="hidden md:flex items-center space-x-8 text-sm">
-                <a href="#about" class="hover:text-orange-500 transition-colors duration-300">About Me</a>
-                <a href="#skills" class="hover:text-orange-500 transition-colors duration-300">Skills</a>
-                <a href="#projects" class="hover:text-orange-500 transition-colors duration-300">Projects</a>
-                <a href="#contact" class="hover:text-orange-500 transition-colors duration-300">Contact</a>
-                <a href="/tools/" class="hover:text-orange-500 transition-colors duration-300">Tools</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <a href="https://github.com/cyclocerine" target="_blank"
-                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
-                        class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank"
-                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
-                        class="fab fa-linkedin"></i></a>
-                <a href="https://open.spotify.com/user/d70i4umn8pce6gi650yd8ujpo?si=3158421eeea842b4" target="_blank"
-                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
-                        class="fa-brands fa-spotify"></i></a>
-            </div>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full p-4 lg:p-8 z-50 flex justify-between items-center transition-all duration-300"
+        id="navbar">
+        <a href="#home" class="text-2xl font-bold font-heading tracking-tighter">F.H.</a>
+        <div class="hidden md:flex gap-8">
+            <a href="#about" class="nav-link">About</a>
+            <a href="#skills" class="nav-link">Skills</a>
+            <a href="#projects" class="nav-link">Projects</a>
+            <!-- <a href="tools/" class="nav-link">Tools</a> -->
+            <!-- <a href="utility/" class="nav-link">Utility</a> -->
+            <a href="#contact" class="nav-link">Contact</a>
         </div>
-    </header>
+        <div class="flex gap-4">
+            <a href="https://github.com/cyclocerine" target="_blank"
+                class="text-xl hover:scale-110 transition-transform"><i class="fab fa-github"></i></a>
+            <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank"
+                class="text-xl hover:scale-110 transition-transform"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </nav>
 
-    <main class="relative z-10">
-        <!-- Hero Section -->
-        <section id="home" class="min-h-screen flex items-center justify-center text-center pt-20">
-            <div class="container mx-auto px-6">
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight">
-                    Faiq Hammam
+    <!-- Main Content -->
+    <main>
+
+        <!-- Hero Section (Full Screen) -->
+        <section id="home"
+            class="min-h-screen flex items-center justify-center lg:justify-start px-6 lg:px-24 pt-20 relative">
+            <div class="max-w-4xl z-10">
+                <!-- <p class="text-xl italic text-gray-700 mb-2 fade-in-up-load">Since 202x</p> -->
+                <h1 class="movie-title mb-6 fade-in-up-load">
+                    Faiq<br>Hammam
                 </h1>
-                <!-- Element for the typing effect -->
-                <p class="mt-4 text-xl md:text-3xl accent-color font-semibold">
+                <div class="text-2xl md:text-3xl font-light mb-8 flex items-center gap-3 fade-in-up-load">
+                    <span class="w-12 h-0.5 bg-black"></span>
                     <span id="typing-effect"></span>
-                </p>
-                <p class="mt-6 text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
-                    I transform complex ideas into elegant and efficient technological solutions.
-                </p>
+                </div>
+
                 <a href="#projects"
-                    class="glow-button-orange mt-10 inline-block font-bold py-3 px-8 rounded-full text-lg">
-                    View My Projects
+                    class="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest text-sm font-bold hover:bg-gray-800 transition-colors fade-in-up-load">
+                    View Project Gallery
                 </a>
             </div>
         </section>
 
         <!-- About Section -->
-        <section id="about" class="py-24">
-            <div class="container mx-auto px-6 reveal-on-scroll">
-                <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-                    <div class="lg:col-span-2 flex justify-center">
-                        <!-- Circular profile picture -->
-                        <div
-                            class="w-60 h-60 lg:w-72 lg:h-72 rounded-full overflow-hidden border-2 border-orange-500/50 p-2 bg-black/20">
-                            <img src="https://a.top4top.io/p_3537vlrkw1.png" alt="Faiq Hammam Mutaqin"
-                                class="w-full h-full object-cover rounded-full">
+        <section id="about" class="py-24 px-6 lg:px-24">
+            <div class="container mx-auto">
+                <h2 class="section-title reveal-on-scroll">The Protagonist</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center reveal-on-scroll">
+                    <!-- Profile Image -->
+                    <div class="lg:col-span-4 flex justify-center lg:justify-start">
+                        <div class="relative w-64 h-64 lg:w-80 lg:h-80">
+                            <div class="absolute inset-0 bg-white/30 rounded-full blur-xl transform scale-110"></div>
+                            <img src="https://a.top4top.io/p_3537vlrkw1.png" alt="Faiq Hammam"
+                                class="relative w-full h-full object-cover rounded-full border-4 border-white shadow-2xl">
                         </div>
                     </div>
-                    <div class="lg:col-span-3">
-                        <h2 class="text-3xl font-bold text-white mb-4">A Little More About Me</h2>
-                        <p class="text-gray-300 leading-relaxed">
-                            An IT Engineer with a passion for tech, tinkering, and turning coffee into code. From
-                            building IoT projects to crafting smart solutions, I’m always exploring ways to bring ideas
-                            to life (sometimes with a soldering iron in one hand and a coffee mug in the other).
-                        </p>
+
+                    <!-- Bio -->
+                    <div class="lg:col-span-8">
+                        <div class="glass-panel">
+                            <h3 class="text-2xl font-bold mb-4 font-heading">Faiq Hammam Mutaqin</h3>
+                            <p class="text-lg leading-relaxed text-gray-800">
+                                An IT Engineer with a passion for tech, tinkering, and turning coffee into code. From
+                                building IoT projects to crafting smart solutions, I’m always exploring ways to bring
+                                ideas
+                                to life (sometimes with a soldering iron in one hand and a coffee mug in the other).
+                            </p>
+                            <p class="mt-4 text-lg leading-relaxed text-gray-800">
+                                Currently exploring the frontiers of Machine Learning and Web Technologies.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Skills Section -->
-        <section id="skills" class="py-24">
-            <div class="container mx-auto px-6 reveal-on-scroll">
-                <h2 class="text-3xl font-bold text-center text-white mb-12">Core Skills</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- AI / ML Card -->
-                    <div class="content-card p-8">
-                        <h3 class="text-2xl font-bold text-white mb-6">AI / ML</h3>
-                        <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Python</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Tensorflow & Keras</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Data Handling (Pandas)</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Math & Statistics</li>
+        <section id="skills" class="py-24 px-6 lg:px-24">
+            <div class="container mx-auto">
+                <h2 class="section-title reveal-on-scroll">Special Abilities</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reveal-on-scroll">
+                    <!-- Skill 1 -->
+                    <div class="glass-panel hover:-translate-y-2">
+                        <div class="text-4xl mb-4 text-indigo-600"><i class="fa-solid fa-brain"></i></div>
+                        <h3 class="text-xl font-bold mb-4 font-heading">AI / ML</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>Python</li>
+                            <li>Tensorflow & Keras</li>
+                            <li>Data Handling (Pandas)</li>
+                            <li>Math & Statistics</li>
                         </ul>
                     </div>
-                    <!-- Web Development Card -->
-                    <div class="content-card p-8">
-                        <h3 class="text-2xl font-bold text-white mb-6">Web Development</h3>
-                        <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                HTML, CSS, JavaScript</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                UI/UX Design</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i> PHP
-                            </li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                React.js</li>
+
+                    <!-- Skill 2 -->
+                    <div class="glass-panel hover:-translate-y-2">
+                        <div class="text-4xl mb-4 text-pink-600"><i class="fa-solid fa-code"></i></div>
+                        <h3 class="text-xl font-bold mb-4 font-heading">Web Development</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>HTML, CSS, JavaScript</li>
+                            <li>UI/UX Design</li>
+                            <li>PHP</li>
+                            <li>React.js</li>
                         </ul>
                     </div>
-                    <!-- Soft Skills Card -->
-                    <div class="content-card p-8">
-                        <h3 class="text-2xl font-bold text-white mb-6">Soft Skills</h3>
-                        <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Team Collaboration</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Technical Communication</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Problem Solving</li>
-                            <li class="flex items-center"><i class="fa-solid fa-check-circle accent-color mr-3"></i>
-                                Project Management</li>
+
+                    <!-- Skill 3 -->
+                    <div class="glass-panel hover:-translate-y-2">
+                        <div class="text-4xl mb-4 text-teal-600"><i class="fa-solid fa-users"></i></div>
+                        <h3 class="text-xl font-bold mb-4 font-heading">Soft Skills</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>Team Collaboration</li>
+                            <li>Technical Communication</li>
+                            <li>Problem Solving</li>
+                            <li>Project Management</li>
                         </ul>
                     </div>
                 </div>
@@ -302,88 +369,207 @@
         </section>
 
         <!-- Projects Section -->
-        <section id="projects" class="py-24">
-            <div class="container mx-auto px-6 reveal-on-scroll">
-                <h2 class="text-3xl font-bold text-center text-white mb-12">Featured Projects</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <section id="projects" class="py-24 px-6 lg:px-24">
+            <div class="container mx-auto">
+                <h2 class="section-title reveal-on-scroll">Featured Works</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reveal-on-scroll">
+
                     <!-- Project 1 -->
-                    <a href="https://github.com/cyclocerine/HedgeFund" target="_blank"
-                        class="block group content-card overflow-hidden">
-                        <img src="https://f.top4top.io/p_34101fmv01.png" alt="AI Hedge Fund Project"
-                            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
-                        <div class="p-6">
-                            <p class="accent-color text-sm font-semibold">Machine Learning</p>
-                            <h3 class="text-xl font-bold text-white mt-2">AI Hedge Fund</h3>
+                    <a href="https://github.com/cyclocerine/HedgeFund" target="_blank" class="group">
+                        <div class="glass-panel p-0 overflow-hidden h-full">
+                            <div class="h-48 overflow-hidden relative">
+                                <div
+                                    class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                                <img src="https://f.top4top.io/p_34101fmv01.png" alt="HedgeFund"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6">
+                                <span class="text-xs font-bold tracking-widest uppercase text-indigo-600">Machine
+                                    Learning</span>
+                                <h3 class="text-2xl font-bold mt-2 mb-2 font-heading group-hover:underline">AI Hedge
+                                    Fund</h3>
+                                <p class="text-sm text-gray-600">Automated trading strategies utilizing reinforcement
+                                    learning.</p>
+                            </div>
                         </div>
                     </a>
+
                     <!-- Project 2 -->
-                    <a href="https://github.com/cyclocerine/Stock-Price-Prediction" target="_blank"
-                        class="block group content-card overflow-hidden">
-                        <img src="https://j.top4top.io/p_3410wtivt1.png" alt="Stock Predictor Project"
-                            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
-                        <div class="p-6">
-                            <p class="accent-color text-sm font-semibold">Machine Learning</p>
-                            <h3 class="text-xl font-bold text-white mt-2">Stock Predictor</h3>
+                    <a href="https://github.com/cyclocerine/Stock-Price-Prediction" target="_blank" class="group">
+                        <div class="glass-panel p-0 overflow-hidden h-full">
+                            <div class="h-48 overflow-hidden relative">
+                                <div
+                                    class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                                <img src="https://j.top4top.io/p_3410wtivt1.png" alt="Stock"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6">
+                                <span class="text-xs font-bold tracking-widest uppercase text-pink-600">Analytics</span>
+                                <h3 class="text-2xl font-bold mt-2 mb-2 font-heading group-hover:underline">Stock
+                                    Predictor</h3>
+                                <p class="text-sm text-gray-600">Time-series forecasting models for financial markets.
+                                </p>
+                            </div>
                         </div>
                     </a>
+
                     <!-- Project 3 -->
-                    <a href="https://github.com/cyclocerine/Sudoku-Solver" target="_blank"
-                        class="block group content-card overflow-hidden">
-                        <img src="https://a.top4top.io/p_3410y8zte1.png" alt="Sudoku Solver Project"
-                            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
-                        <div class="p-6">
-                            <p class="accent-color text-sm font-semibold">Logic</p>
-                            <h3 class="text-xl font-bold text-white mt-2">Sudoku Solver</h3>
+                    <a href="https://github.com/cyclocerine/Sudoku-Solver" target="_blank" class="group">
+                        <div class="glass-panel p-0 overflow-hidden h-full">
+                            <div class="h-48 overflow-hidden relative">
+                                <div
+                                    class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10">
+                                </div>
+                                <img src="https://a.top4top.io/p_3410y8zte1.png" alt="Sudoku"
+                                    class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6">
+                                <span class="text-xs font-bold tracking-widest uppercase text-teal-600">Logic</span>
+                                <h3 class="text-2xl font-bold mt-2 mb-2 font-heading group-hover:underline">Sudoku
+                                    Solver</h3>
+                                <p class="text-sm text-gray-600">Efficient backtracking algorithm visualization.</p>
+                            </div>
                         </div>
                     </a>
+
                 </div>
             </div>
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="py-24">
-            <div class="container mx-auto px-6 text-center reveal-on-scroll">
-                <h2 class="text-3xl font-bold text-white mb-4">Interested in Working Together?</h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-                    Let's discuss your next project. I'm ready to help bring your vision to life.
-                </p>
-                <a href="mailto:hammamfaiq@protonmail.com"
-                    class="glow-button-orange inline-block font-bold py-4 px-10 rounded-full text-xl">
-                    Contact Me
-                </a>
+        <section id="contact" class="py-24 px-6 lg:px-24 mb-20">
+            <div class="container mx-auto max-w-2xl text-center reveal-on-scroll">
+                <div class="glass-panel">
+                    <h2 class="text-4xl font-bold mb-6 font-heading">Credits Scene?</h2>
+                    <p class="text-lg text-gray-700 mb-8">
+                        The story doesn't end here. Let's collaborate on the sequel.
+                    </p>
+                    <a href="mailto:hammamfaiq@protonmail.com"
+                        class="inline-block bg-black text-white px-10 py-4 text-lg font-bold hover:bg-gray-800 transition-all rounded shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        Contact Me
+                    </a>
+                </div>
             </div>
         </section>
+
+        <!-- Footer -->
+        <footer class="py-6 text-center text-sm font-bold tracking-widest uppercase opacity-60">
+            &copy; 2025 Cyclocerine.
+        </footer>
     </main>
 
-    <!-- Footer -->
-    <footer class="py-8 border-t border-white/10 relative z-10">
-        <div class="container mx-auto px-6 text-center text-gray-500">
-            <div class="flex justify-center items-center space-x-6 mb-4">
-                <a href="https://github.com/cyclocerine" target="_blank"
-                    class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i
-                        class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/faiqhammam/" target="_blank"
-                    class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i
-                        class="fab fa-linkedin"></i></a>
-                <a href="mailto:hammamfaiq@protonmail.com"
-                    class="hover:text-orange-500 transition-colors duration-300 text-2xl"><i
-                        class="fas fa-envelope"></i></a>
-                <a href="https://open.spotify.com/user/d70i4umn8pce6gi650yd8ujpo?si=3158421eeea842b4" target="_blank"
-                    class="hover:text-orange-500 transition-colors duration-300 text-lg"><i
-                        class="fa-brands fa-spotify"></i></a>
-            </div>
-            <p>&copy; 2025 Faiq Hammam Mutaqin. Crafted with passion and code.</p>
-        </div>
-    </footer>
-
-    <!-- Three.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Typed.js Library for Typing Effect -->
-    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
-
-    <!-- JavaScript for Animations -->
     <script>
-        // --- Navbar scroll effect ---
+        // --- Typed JS ---
+        new Typed('#typing-effect', {
+            strings: ['IT Engineer', 'AI Enthusiast', 'Programmer', 'Problem Solver', 'Economyc Observer', 'Blockchain Dev'],
+            typeSpeed: 50,
+            backSpeed: 30,
+            backDelay: 2000,
+            loop: true
+        });
+
+        // --- Animations ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target.classList.contains('grid-stagger')) {
+                        // Animate children staggers
+                        anime({
+                            targets: entry.target.children,
+                            translateY: [50, 0],
+                            opacity: [0, 1],
+                            easing: 'easeOutExpo',
+                            delay: anime.stagger(150)
+                        });
+                    } else {
+                        // Animate self
+                        entry.target.classList.add('visible');
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Observe section titles and grids
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+
+        // Setup grids for staggering
+        const skillsGrid = document.querySelector('#skills .grid');
+        const projectsGrid = document.querySelector('#projects .grid');
+
+        if (skillsGrid) {
+            skillsGrid.classList.add('grid-stagger');
+            // Hide children initially for stagger
+            Array.from(skillsGrid.children).forEach(c => c.style.opacity = '0');
+            observer.observe(skillsGrid);
+        }
+
+        if (projectsGrid) {
+            projectsGrid.classList.add('grid-stagger');
+            Array.from(projectsGrid.children).forEach(c => c.style.opacity = '0');
+            observer.observe(projectsGrid);
+        }
+
+        // Initial load animation
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.fade-in-up-load').forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add('visible');
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                    el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                }, index * 200);
+            });
+
+            initAtmosphere();
+        });
+
+        // 2. Atmospheric Particles
+        function initAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            if (!container) return;
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('spirit-particle');
+                container.appendChild(particle);
+                animateParticle(particle);
+            }
+        }
+
+        function animateParticle(el) {
+            const size = Math.random() * 5 + 2;
+            el.style.width = `${size}px`;
+            el.style.height = `${size}px`;
+            el.style.left = `${Math.random() * 100}vw`;
+            el.style.top = `${Math.random() * 100}vh`;
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+
+            anime({
+                targets: el,
+                translateY: [
+                    { value: -100, duration: anime.random(2000, 4000) },
+                    { value: 100, duration: anime.random(2000, 4000) }
+                ],
+                translateX: [
+                    { value: -50, duration: anime.random(2000, 4000) },
+                    { value: 50, duration: anime.random(2000, 4000) }
+                ],
+                opacity: [
+                    { value: 0.8, duration: 1000 },
+                    { value: 0, duration: 1000 }
+                ],
+                easing: 'easeInOutSine',
+                duration: anime.random(5000, 10000),
+                complete: () => animateParticle(el)
+            });
+        }
+
+        // Navbar Scroll
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -393,189 +579,21 @@
             }
         });
 
-        // --- Fade-in animation on scroll ---
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-
-        const elementsToReveal = document.querySelectorAll('.reveal-on-scroll');
-        elementsToReveal.forEach(el => observer.observe(el));
-
-        // --- Particle background animation with Three.js ---
-        let scene, camera, renderer, particles, lines;
-        const canvas = document.getElementById('particle-canvas');
-        const particleCount = 200;
-        const maxDistance = 35;
-        const initialCameraZ = 70;
-        const finalCameraZ = 45;
-
-        // Function to create a solid circle texture
-        function createCircleTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 32;
-            canvas.height = 32;
-            const context = canvas.getContext('2d');
-            context.beginPath();
-            context.arc(16, 16, 16, 0, 2 * Math.PI);
-            context.fillStyle = '#F97316'; // Orange color
-            context.fill();
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = initialCameraZ;
-
-            renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            // Particle geometry
-            const particlesGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(particleCount * 3);
-            for (let i = 0; i < particleCount * 3; i++) {
-                positions[i] = (Math.random() - 0.5) * 200;
-            }
-            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-            // Particle material
-            const particlesMaterial = new THREE.PointsMaterial({
-                size: 1.5,
-                opacity: 0.8,
-                sizeAttenuation: true,
-                map: createCircleTexture(),
-                alphaTest: 0.5,
-                transparent: true
-            });
-
-            particles = new THREE.Points(particlesGeometry, particlesMaterial);
-            scene.add(particles);
-
-            // Geometry and material for connecting lines
-            const lineGeometry = new THREE.BufferGeometry();
-            const lineMaterial = new THREE.LineBasicMaterial({
-                color: new THREE.Color('#F97316'),
-                transparent: true,
-                opacity: 0.185
-            });
-            lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-            scene.add(lines);
-
-
-            document.addEventListener('mousemove', onDocumentMouseMove);
-            window.addEventListener('resize', onWindowResize);
-            window.addEventListener('scroll', onScroll);
-        }
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        function onDocumentMouseMove(event) {
-            mouseX = (event.clientX - window.innerWidth / 2) / 50;
-            mouseY = (event.clientY - window.innerHeight / 2) / 50;
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        }
-
-        // Function to handle zoom animation on scroll
-        function onScroll() {
-            const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-            camera.position.z = initialCameraZ - (scrollPercent * (initialCameraZ - finalCameraZ));
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const elapsedTime = new Date().getTime() * 0.00005;
-
-            // Animate particles
-            particles.rotation.y = elapsedTime * 0.5;
-
-            // Update connecting lines
-            const positions = particles.geometry.attributes.position.array;
-            const lineVertices = [];
-
-            for (let i = 0; i < particleCount; i++) {
-                for (let j = i + 1; j < particleCount; j++) {
-                    const dx = positions[i * 3] - positions[j * 3];
-                    const dy = positions[i * 3 + 1] - positions[j * 3 + 1];
-                    const dz = positions[i * 3 + 2] - positions[j * 3 + 2];
-                    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-                    if (dist < maxDistance) {
-                        lineVertices.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
-                        lineVertices.push(positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]);
-                    }
-                }
-            }
-
-            lines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(lineVertices, 3));
-            lines.rotation.copy(particles.rotation);
-
-            // Parallax camera movement
-            camera.position.x += (mouseX - camera.position.x) * 0.02;
-            camera.position.y += (-mouseY - camera.position.y) * 0.02;
-
-            renderer.render(scene, camera);
-        }
-
         // --- Custom Cursor Logic ---
+        const cursor = document.querySelector('.cursor-outline');
+
+        // Only activate custom cursor if pointer is fine (mouse)
         if (window.matchMedia("(pointer: fine)").matches) {
-            document.body.classList.add('has-mouse');
-
-            const cursorDot = document.querySelector('.cursor-dot');
-            const cursorOutline = document.querySelector('.cursor-outline');
-
-            window.addEventListener('mousemove', (e) => {
-                const posX = e.clientX;
-                const posY = e.clientY;
-
-                cursorDot.style.left = `${posX}px`;
-                cursorDot.style.top = `${posY}px`;
-
-                cursorOutline.animate({
-                    left: `${posX}px`,
-                    top: `${posY}px`
-                }, { duration: 300, fill: 'forwards' });
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
             });
 
-            const interactiveElements = document.querySelectorAll('a, button');
-            interactiveElements.forEach(el => {
-                el.addEventListener('mouseover', () => {
-                    cursorOutline.classList.add('cursor-hover');
-                });
-                el.addEventListener('mouseleave', () => {
-                    cursorOutline.classList.remove('cursor-hover');
-                });
+            document.querySelectorAll('a, button').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
             });
         }
-
-        // --- Initialize all scripts after the page loads ---
-        window.onload = function () {
-            // Initialize Typed.js
-            new Typed('#typing-effect', {
-                strings: ['IT Engineer', 'AI Enthusiast', 'Programmer', 'Economic Observer'],
-                typeSpeed: 50,
-                backSpeed: 30,
-                backDelay: 2000,
-                loop: true
-            });
-
-            // Initialize particle animation
-            init();
-            animate();
-        };
     </script>
 </body>
 

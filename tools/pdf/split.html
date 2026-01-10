@@ -4,20 +4,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Split PDF | PDF Tools</title>
-    <meta name="description" content="Split PDF into individual pages or extract specific page ranges online for free.">
+    <title>Cinematic Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
         :root {
-            --bg-primary: #0a0a0f;
-            --bg-card: rgba(26, 26, 37, 0.8);
+            /* Cinematic Base */
+            --poster-title: 'Playfair Display', serif;
+            --poster-body: 'Lato', sans-serif;
+            --overlay-color-1: rgba(135, 206, 235, 0.3);
+            --overlay-color-2: rgba(255, 182, 193, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #2d3436;
+
+            /* Remaps */
+            --bg-primary: transparent;
+            --bg-secondary: transparent;
+            --bg-card: var(--glass-bg);
             --accent-primary: #ef4444;
-            --accent-secondary: #dc2626;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: rgba(239, 68, 68, 0.2);
+            --accent-secondary: #ef4444;
+            /* Simplify */
+            --border-color: var(--glass-border);
+            --text-primary: var(--text-main);
+            --text-secondary: #555;
+            --text-muted: #777;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--poster-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: none;
+            cursor: none;
+        }
+
+        /* Essential Cinematic Styles */
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
+            }
+
+            body,
+            a {
+                cursor: auto !important;
+            }
+        }
+
+        #atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, var(--overlay-color-1), transparent, var(--overlay-color-2));
+            pointer-events: none;
+        }
+
+        .bg-gradient {
+            display: none;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3 {
+            font-family: var(--poster-title);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--poster-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: none;
+            cursor: none;
+        }
+
+        /* Essential Cinematic Styles */
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+
+        .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .cursor-outline {
+                display: none;
+            }
+
+            body,
+            a {
+                cursor: auto !important;
+            }
+        }
+
+        #atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .cinematic-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -3;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .cinematic-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: linear-gradient(135deg, var(--overlay-color-1), transparent, var(--overlay-color-2));
+            pointer-events: none;
+        }
+
+        .bg-gradient {
+            display: none;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3 {
+            font-family: var(--poster-title);
         }
 
         * {
@@ -264,8 +447,11 @@
 </head>
 
 <body>
-    <div class="bg-gradient"></div>
-    <div class="container">
+    <div id="atmosphere"></div>
+    <img src="../../assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="cinematic-overlay"></div>
+    <div class="cursor-outline"></div>
+    <div class="container" style="position: relative; z-index: 10;">
         <a href="../index.html" class="back-link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -407,6 +593,78 @@
                 splitBtn.textContent = 'Split PDF';
             }
         });
+    </script>
+    <script>
+        function initAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            if (!container) return;
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('spirit-particle');
+                container.appendChild(particle);
+                animateParticle(particle);
+            }
+        }
+        function animateParticle(el) {
+            const size = Math.random() * 5 + 2;
+            el.style.width = ${ size } px;
+            el.style.height = ${ size } px;
+            el.style.left = ${ Math.random() * 100 } vw;
+            el.style.top = ${ Math.random() * 100 } vh;
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+            anime({
+                targets: el, translateY: [{ value: -100, duration: anime.random(2000, 4000) }, { value: 100, duration: anime.random(2000, 4000) }],
+                translateX: [{ value: -50, duration: anime.random(2000, 4000) }, { value: 50, duration: anime.random(2000, 4000) }],
+                opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }],
+                easing: 'easeInOutSine', duration: anime.random(5000, 10000), complete: () => animateParticle(el)
+            });
+        }
+        const cursor = document.querySelector('.cursor-outline');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+            document.querySelectorAll('a, button, input, select, .upload-area').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+            });
+        }
+        window.addEventListener('load', initAtmosphere);
+    </script>
+    <script>
+        function initAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            if (!container) return;
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('spirit-particle');
+                container.appendChild(particle);
+                animateParticle(particle);
+            }
+        }
+        function animateParticle(el) {
+            const size = Math.random() * 5 + 2;
+            el.style.width = ${ size } px;
+            el.style.height = ${ size } px;
+            el.style.left = ${ Math.random() * 100 } vw;
+            el.style.top = ${ Math.random() * 100 } vh;
+            el.style.opacity = Math.random() * 0.5 + 0.1;
+            anime({
+                targets: el, translateY: [{ value: -100, duration: anime.random(2000, 4000) }, { value: 100, duration: anime.random(2000, 4000) }],
+                translateX: [{ value: -50, duration: anime.random(2000, 4000) }, { value: 50, duration: anime.random(2000, 4000) }],
+                opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }],
+                easing: 'easeInOutSine', duration: anime.random(5000, 10000), complete: () => animateParticle(el)
+            });
+        }
+        const cursor = document.querySelector('.cursor-outline');
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+            document.querySelectorAll('a, button, input, select, .upload-area').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+            });
+        }
+        window.addEventListener('load', initAtmosphere);
     </script>
 </body>
 
