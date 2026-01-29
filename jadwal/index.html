@@ -7,18 +7,23 @@ import {
   Gamepad2, 
   Footprints, 
   ClipboardCheck, 
-  ChevronRight,
-  ChevronLeft,
-  Moon,
-  Sun
+  CheckCircle2,
+  Circle,
+  TrendingUp,
+  MapPin,
+  User,
+  Zap,
+  LayoutDashboard,
+  AlertCircle // Menambahkan AlertCircle yang sebelumnya kurang
 } from 'lucide-react';
 
 const App = () => {
   const [activeDay, setActiveDay] = useState(new Date().getDay() === 0 ? 6 : new Date().getDay() - 1);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [completedTasks, setCompletedTasks] = useState({});
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -29,79 +34,120 @@ const App = () => {
       day: 'Senin',
       focus: 'Push Day (Dada, Bahu, Tricep)',
       events: [
-        { time: '09:00 - 10:00', title: 'OR II', loc: 'Lap. K', type: 'kuliah' },
-        { time: '10:30 - 12:30', title: 'Prakt. Jaringan', loc: 'Lab Jaringan', type: 'kuliah' },
-        { time: '15:00 - 17:30', title: 'Statistika', loc: 'Patt.I-3A', type: 'kuliah' },
-        { time: '18:00 - 19:30', title: 'Makan & Istirahat', type: 'rest' },
-        { time: '20:00 - 21:30', title: 'GYM: Push Session', type: 'gym' },
+        { id: 's1', time: '09:00 - 10:00', title: 'OR II', loc: 'Lap. K', lecturer: 'Hanafi Mustofa', type: 'kuliah' },
+        { id: 's2', time: '10:30 - 12:30', title: 'Prakt. Jaringan', loc: 'Lab Jaringan (A)', lecturer: 'Instruktur', type: 'kuliah' },
+        { id: 's3', time: '15:00 - 17:30', title: 'Statistika', loc: 'Patt.I-3A', lecturer: 'Bambang Yuwono', type: 'kuliah' },
+        { id: 's4', time: '18:00 - 19:30', title: 'Makan & Istirahat', type: 'rest' },
+        { id: 's5', time: '20:00 - 21:30', title: 'GYM: Push Session', type: 'gym' },
       ]
     },
     {
       day: 'Selasa',
       focus: 'Pull Day + Lari Tipis',
       events: [
-        { time: '07:30 - 09:15', title: 'Bhs Inggris', loc: 'Patt.III-3A', type: 'kuliah' },
-        { time: '10:00 - 13:00', title: 'Deep Work: Tugas Statistika/Jaringan', type: 'tugas' },
-        { time: '14:00 - 16:00', title: 'Waktu Bebas / Main', type: 'main' },
-        { time: '20:00 - 21:45', title: 'GYM: Pull + Lari (15m)', type: 'gym' },
+        { id: 'sl1', time: '07:30 - 09:15', title: 'Bhs Inggris', loc: 'Patt.III-3A', lecturer: 'Daniel Eliazar L', type: 'kuliah' },
+        { id: 'sl2', time: '10:00 - 13:00', title: 'Deep Work: Tugas IF', type: 'tugas' },
+        { id: 'sl3', time: '14:00 - 16:00', title: 'Waktu Bebas / Main', type: 'main' },
+        { id: 'sl4', time: '20:00 - 21:45', title: 'GYM: Pull + Lari (15m)', type: 'gym' },
       ]
     },
     {
       day: 'Rabu',
       focus: 'Rest & Recovery',
       events: [
-        { time: '10:00 - 11:45', title: 'Kalkulus Lanjut', loc: 'Patt.III-3A', type: 'kuliah' },
-        { time: '12:30 - 15:00', title: 'STI', loc: 'Patt.III-3C', type: 'kuliah' },
-        { time: '15:00 - 17:30', title: 'Jaringan Komputer', loc: 'Patt.I-3C', type: 'kuliah' },
-        { time: '19:00 - 22:30', title: 'FULL MAIN / GAMING', type: 'main' },
+        { id: 'r1', time: '10:00 - 11:45', title: 'Kalkulus Lanjut', loc: 'Patt.III-3A', lecturer: 'Ahmad Taufiq Akbar', type: 'kuliah' },
+        { id: 'r2', time: '12:30 - 15:00', title: 'STI', loc: 'Patt.III-3C', lecturer: 'Aldila Putri L', type: 'kuliah' },
+        { id: 'r3', time: '15:00 - 17:30', title: 'Jaringan Komputer', loc: 'Patt.I-3C', lecturer: 'Rifki Indra P', type: 'kuliah' },
+        { id: 'r4', time: '19:00 - 22:30', title: 'FULL MAIN / GAMING', type: 'main' },
       ]
     },
     {
       day: 'Kamis',
       focus: 'Leg Day (Kaki)',
       events: [
-        { time: '10:00 - 11:45', title: 'AP Lanjut', loc: 'Patt.II-3C', type: 'kuliah' },
-        { time: '13:00 - 15:00', title: 'Prakt. AP Lanjut', loc: 'Lab Komp', type: 'kuliah' },
-        { time: '15:00 - 16:45', title: 'Matriks & RV', loc: 'Patt.II-3C', type: 'kuliah' },
-        { time: '20:00 - 21:30', title: 'GYM: Leg Day', type: 'gym' },
+        { id: 'k1', time: '10:00 - 11:45', title: 'AP Lanjut', loc: 'Patt.II-3C', lecturer: 'Wilis Kaswidjanti', type: 'kuliah' },
+        { id: 'k2', time: '13:00 - 15:00', title: 'Prakt. AP Lanjut', loc: 'Lab Komputasi (A)', lecturer: 'Instruktur', type: 'kuliah' },
+        { id: 'k3', time: '15:00 - 16:45', title: 'Matriks & RV', loc: 'Patt.II-3C', lecturer: 'Budi Santosa', type: 'kuliah' },
+        { id: 'k4', time: '20:00 - 21:30', title: 'GYM: Leg Day', type: 'gym' },
       ]
     },
     {
       day: 'Jumat',
       focus: 'Upper Body + Lari Sore',
       events: [
-        { time: '08:00 - 11:00', title: 'Cicil Tugas Besar IF', type: 'tugas' },
-        { time: '13:00 - 15:30', title: 'Coding / Proyek Mandiri', type: 'main' },
-        { time: '16:30 - 17:30', title: 'Lari Sore (Outdoor)', type: 'run' },
-        { time: '20:00 - 21:30', title: 'GYM: Upper Body', type: 'gym' },
+        { id: 'j1', time: '08:00 - 11:00', title: 'Cicil Tugas Besar IF', type: 'tugas' },
+        { id: 'j2', time: '13:00 - 15:30', title: 'Coding / Proyek Mandiri', type: 'main' },
+        { id: 'j3', time: '16:30 - 17:30', title: 'Lari Sore (Outdoor)', type: 'run' },
+        { id: 'j4', time: '20:00 - 21:30', title: 'GYM: Upper Body', type: 'gym' },
       ]
     },
     {
       day: 'Sabtu',
       focus: 'Full Body / Weak Point',
       events: [
-        { time: '09:00 - 12:00', title: 'Personal Care / Beberes', type: 'rest' },
-        { time: '13:00 - 18:00', title: 'MAIN / JALAN-JALAN', type: 'main' },
-        { time: '20:00 - 21:30', title: 'GYM: Penutup Minggu', type: 'gym' },
+        { id: 'sb1', time: '09:00 - 12:00', title: 'Personal Care / Beberes', type: 'rest' },
+        { id: 'sb2', time: '13:00 - 18:00', title: 'MAIN / JALAN-JALAN', type: 'main' },
+        { id: 'sb3', time: '20:00 - 21:30', title: 'GYM: Penutup Minggu', type: 'gym' },
       ]
     },
     {
       day: 'Minggu',
       focus: 'Full Rest & Reset',
       events: [
-        { time: '08:00 - 19:00', title: 'SANTAI TOTAL', type: 'main' },
-        { time: '19:30 - 21:00', title: 'Persiapan Senin (Review)', type: 'tugas' },
+        { id: 'm1', time: '08:00 - 19:00', title: 'SANTAI TOTAL', type: 'main' },
+        { id: 'm2', time: '19:30 - 21:00', title: 'Persiapan Senin (Review)', type: 'tugas' },
       ]
     }
   ];
 
-  const getTypeStyle = (type) => {
+  const timeToMinutes = (timeStr) => {
+    const [hours, minutes] = timeStr.trim().split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const calculateAutoProgress = () => {
+    const currentDayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+    if (activeDay !== currentDayIdx) return 0;
+
+    const events = scheduleData[currentDayIdx].events;
+    if (events.length === 0) return 0;
+
+    const firstEventStart = timeToMinutes(events[0].time.split(' - ')[0]);
+    const lastEventEnd = timeToMinutes(events[events.length - 1].time.split(' - ')[1]);
+    const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+
+    if (currentMinutes < firstEventStart) return 0;
+    if (currentMinutes > lastEventEnd) return 100;
+
+    const totalDuration = lastEventEnd - firstEventStart;
+    const elapsed = currentMinutes - firstEventStart;
+    
+    return Math.floor((elapsed / totalDuration) * 100);
+  };
+
+  const autoProgress = calculateAutoProgress();
+
+  const toggleComplete = (id) => {
+    setCompletedTasks(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const isCurrentEvent = (timeRange) => {
+    const [start, end] = timeRange.split(' - ');
+    const nowStr = currentTime.getHours().toString().padStart(2, '0') + ':' + currentTime.getMinutes().toString().padStart(2, '0');
+    return nowStr >= start && nowStr <= end && days[activeDay] === days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+  };
+
+  const getTypeStyle = (type, isCompleted) => {
+    if (isCompleted) return 'bg-slate-50 text-slate-300 border-slate-100 opacity-50 shadow-none';
     switch (type) {
-      case 'kuliah': return 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm shadow-blue-100';
-      case 'gym': return 'bg-rose-50 text-rose-700 border-rose-200 shadow-sm shadow-rose-100';
-      case 'tugas': return 'bg-amber-50 text-amber-700 border-amber-200 shadow-sm shadow-amber-100';
-      case 'main': return 'bg-violet-50 text-violet-700 border-violet-200 shadow-sm shadow-violet-100';
-      case 'run': return 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-100';
+      case 'kuliah': return 'bg-blue-50 text-blue-700 border-blue-100 shadow-sm';
+      case 'gym': return 'bg-rose-50 text-rose-700 border-rose-100 shadow-sm';
+      case 'tugas': return 'bg-amber-50 text-amber-700 border-amber-200 shadow-sm';
+      case 'main': return 'bg-violet-50 text-violet-700 border-violet-100 shadow-sm';
+      case 'run': return 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm';
       default: return 'bg-slate-50 text-slate-600 border-slate-200';
     }
   };
@@ -118,140 +164,232 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight italic">
-            Jadwal IF-A <span className="text-blue-600">Faiq</span>
-          </h1>
-          <p className="text-slate-500 font-medium flex items-center gap-2">
-            <Calendar size={18} className="text-blue-500" /> 
-            {currentTime.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-        </div>
-        <div className="bg-white border border-slate-200 p-4 rounded-3xl flex gap-6 shadow-sm">
-          <div className="text-center px-2">
-            <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Gym</p>
-            <p className="text-xl font-bold text-rose-600">5/5</p>
-          </div>
-          <div className="text-center border-l border-slate-100 pl-6 px-2">
-            <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Lari</p>
-            <p className="text-xl font-bold text-emerald-600">2/2</p>
-          </div>
-          <div className="text-center border-l border-slate-100 pl-6 px-2">
-            <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Status</p>
-            <p className="text-xl font-bold text-blue-600">Fokus</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Day Selector */}
-      <div className="max-w-4xl mx-auto mb-6">
-        <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
-          {days.map((day, idx) => (
-            <button
-              key={day}
-              onClick={() => setActiveDay(idx)}
-              className={`px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap border ${
-                activeDay === idx 
-                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 scale-105' 
-                : 'bg-white border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-500'
-              }`}
-            >
-              {day}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Daily Focus Card */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <div className="bg-white border-2 border-blue-100 p-5 rounded-3xl flex items-center justify-between shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-5">
-            <Dumbbell size={80} />
-          </div>
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200">
-              <Dumbbell className="text-white" size={22} />
+    <div className="min-h-screen bg-white text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-700 pb-40">
+      {/* Top Navbar / Header */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-100 px-4 py-4 md:px-8">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-600 p-2 rounded-xl text-white">
+              <LayoutDashboard size={24} />
             </div>
             <div>
-              <p className="text-xs text-blue-600 uppercase font-black tracking-widest">Fokus Latihan</p>
-              <h2 className="text-xl font-bold text-slate-900">{scheduleData[activeDay].focus}</h2>
+              <h1 className="text-xl md:text-2xl font-black tracking-tighter text-slate-900 uppercase">
+                IF-A <span className="text-blue-600">DASHBOARD</span>
+              </h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                <Clock size={10} /> Real-time Sync Active
+              </p>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Timeline */}
-      <div className="max-w-4xl mx-auto space-y-4">
-        {scheduleData[activeDay].events.map((event, idx) => (
-          <div 
-            key={idx}
-            className="group relative flex gap-6 animate-in fade-in slide-in-from-bottom-3 duration-500"
-            style={{ animationDelay: `${idx * 100}ms` }}
-          >
-            {/* Time Column */}
-            <div className="w-20 shrink-0 flex flex-col items-end pt-5">
-              <span className="text-sm font-bold text-slate-400 group-hover:text-blue-600 transition-colors">
-                {event.time.split(' - ')[0]}
+          
+          <div className="flex items-center gap-3 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+            <div className="px-3 py-1.5 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-sm font-black text-slate-700">
+                {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
               </span>
-              <div className="w-1 h-full bg-slate-100 my-2 rounded-full relative">
-                 <div className="absolute top-0 right-1/2 translate-x-1/2 w-3 h-3 rounded-full bg-white border-2 border-slate-200 group-hover:border-blue-400 transition-colors"></div>
-              </div>
             </div>
-
-            {/* Event Card */}
-            <div className={`flex-1 mb-6 p-5 rounded-3xl border-2 ${getTypeStyle(event.type)} transition-all hover:scale-[1.01]`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="opacity-90">{getTypeIcon(event.type)}</span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">{event.type}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 leading-tight">
-                    {event.title}
-                  </h3>
-                  {event.loc && (
-                    <p className="text-sm mt-2 flex items-center gap-1.5 font-medium opacity-60">
-                       <span className="text-blue-500">📍</span> {event.loc}
-                    </p>
-                  )}
-                </div>
-                <div className="text-[11px] font-black bg-white/50 px-2 py-1 rounded-lg border border-current opacity-40">
-                  {event.time.split(' - ')[1]}
-                </div>
-              </div>
+            <div className="px-3 py-1.5 text-sm font-bold text-slate-500 hidden sm:block uppercase tracking-tighter">
+              {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
             </div>
           </div>
-        ))}
-        
-        {/* End of day indicator */}
-        <div className="flex gap-6 opacity-20 mt-8">
-           <div className="w-20 flex justify-end text-xs font-bold text-slate-500 uppercase">Selesai</div>
-           <div className="flex-1 border-t-2 border-dashed border-slate-300 mt-2"></div>
         </div>
-        <p className="text-center text-slate-400 text-xs py-10 font-bold uppercase tracking-[0.3em]">Istirahat & Recovery Otot</p>
-      </div>
+      </header>
 
-      {/* Navigation Footer */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-sm bg-white border border-slate-200 p-2 rounded-full shadow-2xl flex justify-around items-center">
-        <button className="p-3 text-slate-400 hover:text-blue-600 transition-colors">
-          <BookOpen size={22} />
-        </button>
-        <div className="relative">
-          <button className="p-4 bg-blue-600 text-white rounded-full shadow-xl shadow-blue-200 transform -translate-y-5 border-4 border-slate-50 transition-transform active:scale-90">
-            <Dumbbell size={26} />
-          </button>
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-blue-50 border border-blue-100 p-4 rounded-3xl">
+             <div className="flex items-center gap-2 text-blue-600 mb-1">
+                <Zap size={16} fill="currentColor" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Progress</span>
+             </div>
+             <p className="text-2xl font-black text-slate-900">{autoProgress}%</p>
+          </div>
+          <div className="bg-rose-50 border border-rose-100 p-4 rounded-3xl">
+             <div className="flex items-center gap-2 text-rose-600 mb-1">
+                <Dumbbell size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Gym Target</span>
+             </div>
+             <p className="text-2xl font-black text-slate-900">5/5 <span className="text-xs text-rose-400">Hari</span></p>
+          </div>
+          <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-3xl hidden md:block">
+             <div className="flex items-center gap-2 text-emerald-600 mb-1">
+                <Footprints size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Running</span>
+             </div>
+             <p className="text-2xl font-black text-slate-900">2/2 <span className="text-xs text-emerald-400">Sesi</span></p>
+          </div>
+          <div className="bg-amber-50 border border-amber-100 p-4 rounded-3xl hidden md:block">
+             <div className="flex items-center gap-2 text-amber-600 mb-1">
+                <ClipboardCheck size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Akademik</span>
+             </div>
+             <p className="text-2xl font-black text-slate-900">Semester 2</p>
+          </div>
         </div>
-        <button className="p-3 text-slate-400 hover:text-blue-600 transition-colors">
-          <ClipboardCheck size={22} />
-        </button>
-      </div>
+
+        {/* Day Selector (Responsive Horizontal Scroll) */}
+        <div className="mb-8 relative">
+          <div className="flex overflow-x-auto gap-2 pb-4 no-scrollbar -mx-4 px-4 snap-x">
+            {days.map((day, idx) => (
+              <button
+                key={day}
+                onClick={() => setActiveDay(idx)}
+                className={`px-8 py-4 rounded-2xl font-black transition-all whitespace-nowrap border-2 snap-start ${
+                  activeDay === idx 
+                  ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-200 scale-[1.02]' 
+                  : 'bg-white border-slate-100 text-slate-400 hover:border-blue-100'
+                }`}
+              >
+                {day.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Layout */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Timeline */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between mb-6 px-2">
+              <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                <span className="w-2 h-6 bg-blue-600 rounded-full"></span>
+                Timeline Hari {days[activeDay]}
+              </h2>
+              <div className="bg-slate-100 px-3 py-1 rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                Fokus: {scheduleData[activeDay].focus}
+              </div>
+            </div>
+
+            {scheduleData[activeDay].events.map((event, idx) => {
+              const isOngoing = isCurrentEvent(event.time);
+              const isDone = completedTasks[event.id];
+
+              return (
+                <div 
+                  key={event.id}
+                  className="flex gap-3 sm:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  <div className="w-12 sm:w-16 shrink-0 flex flex-col items-center pt-6">
+                    <span className={`text-[10px] sm:text-xs font-black transition-colors ${isOngoing ? 'text-blue-600' : 'text-slate-400'}`}>
+                      {event.time.split(' - ')[0]}
+                    </span>
+                    <div className={`w-1 h-full my-2 rounded-full transition-colors ${isOngoing ? 'bg-blue-600' : 'bg-slate-100'}`}></div>
+                  </div>
+
+                  <div 
+                    onClick={() => toggleComplete(event.id)}
+                    className={`flex-1 mb-4 p-5 sm:p-6 rounded-[2rem] border-2 cursor-pointer transition-all ${getTypeStyle(event.type, isDone)} ${isOngoing ? 'ring-4 ring-blue-50 border-blue-200 scale-[1.01]' : ''}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="opacity-70">{getTypeIcon(event.type)}</span>
+                          <span className="text-[9px] font-black uppercase tracking-widest opacity-60">
+                            {event.type} {isOngoing && '• LIVE'}
+                          </span>
+                        </div>
+                        <h3 className={`text-base sm:text-lg font-black leading-tight ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+                          {event.title}
+                        </h3>
+                        {(event.loc || event.lecturer) && !isDone && (
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 pt-2">
+                            {event.loc && (
+                              <div className="flex items-center gap-1 text-[10px] font-bold opacity-60">
+                                 <MapPin size={12} className="text-blue-500" /> {event.loc}
+                              </div>
+                            )}
+                            {event.lecturer && (
+                              <div className="flex items-center gap-1 text-[10px] font-bold opacity-60">
+                                 <User size={12} className="text-rose-500" /> {event.lecturer}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end shrink-0">
+                         <div className={`text-[10px] font-black px-2 py-1 rounded-lg border mb-3 ${isOngoing ? 'bg-blue-600 text-white border-blue-600' : 'opacity-30 border-current'}`}>
+                            {event.time.split(' - ')[1]}
+                         </div>
+                         {isDone ? <CheckCircle2 size={24} className="text-emerald-500" /> : <Circle size={24} className="text-slate-200" />}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Sidebar (Desktop Only / Responsive) */}
+          <div className="hidden lg:block space-y-6">
+            <div className="bg-slate-900 text-white p-8 rounded-[3rem] shadow-xl relative overflow-hidden">
+               <div className="relative z-10">
+                  <h3 className="text-xl font-black mb-4 leading-tight uppercase tracking-tighter">Ringkasan<br/>Mingguan</h3>
+                  <ul className="space-y-4">
+                     <li className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Gym Streak</span>
+                        <span className="font-black">5/5 Hari</span>
+                     </li>
+                     <li className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Tugas Selesai</span>
+                        <span className="font-black">85%</span>
+                     </li>
+                     <li className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Status Kesehatan</span>
+                        <span className="font-black text-emerald-400">OPTIMAL</span>
+                     </li>
+                  </ul>
+               </div>
+               <div className="absolute bottom-[-20%] right-[-10%] opacity-10">
+                  <TrendingUp size={150} />
+               </div>
+            </div>
+            
+            <div className="bg-amber-50 border border-amber-100 p-6 rounded-[2.5rem]">
+               <div className="flex items-center gap-2 text-amber-600 mb-4">
+                  <AlertCircle size={20} />
+                  <span className="text-xs font-black uppercase tracking-widest">Catatan Akademik</span>
+               </div>
+               <p className="text-sm font-bold text-slate-700 leading-relaxed">
+                  Gunakan hari <span className="text-amber-600 uppercase">Jumat</span> untuk membereskan semua laporan praktikum agar akhir pekan tetap tenang.
+               </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Floating Auto Progress Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-2xl border-t border-slate-100 p-4 md:p-6 z-50">
+        <div className="max-w-4xl mx-auto flex flex-col gap-2">
+           <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <Zap size={14} className="text-blue-600 fill-blue-600" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Auto Progress Timeline</span>
+              </div>
+              <span className="text-xs font-black text-blue-600">{autoProgress}%</span>
+           </div>
+           
+           <div className="relative w-full h-3 sm:h-4 bg-slate-100 rounded-full overflow-hidden border border-slate-50">
+              <div 
+                className="h-full bg-blue-600 transition-all duration-1000 ease-out relative shadow-[0_0_15px_rgba(37,99,235,0.2)]"
+                style={{ width: `${autoProgress}%` }}
+              >
+                <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.1)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[progress_2s_linear_infinite]"></div>
+              </div>
+           </div>
+        </div>
+      </footer>
       
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes progress {
+          0% { background-position: 0 0; }
+          100% { background-position: 40px 0; }
+        }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
     </div>
   );
