@@ -237,11 +237,11 @@
     </div>
 
     <div class="form-group">
-        <label>Iterasi PBKDF2</label>
+        <label>Algoritma & Keamanan</label>
         <select id="securityLevel">
-            <option value="100000">Standard (100k - Cepat)</option>
-            <option value="300000" selected>Balanced (300k - Disarankan)</option>
-            <option value="600000">Extreme (600k - Military Grade)</option>
+            <option value="100000">AES-GCM + 100k Iterations (Standard)</option>
+            <option value="300000" selected>AES-GCM + 300k Iterations (Balanced)</option>
+            <option value="600000">AES-GCM + 600k Iterations (Extreme)</option>
         </select>
     </div>
 
@@ -276,14 +276,14 @@
         <div class="result-header">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span class="result-title" id="resultLabel">Hasil:</span>
-                <span id="integrityBadge" class="integrity-badge">VERIFIED</span>
-                <span id="versionBadge" class="version-badge">IQv1.6</span>
+                <span id="integrityBadge" class="integrity-badge">AES-GCM AUTHENTICATED</span>
+                <span id="versionBadge" class="version-badge">IQv1.7</span>
             </div>
             <span id="timestamp" style="font-size: 0.75rem; color: var(--text-muted);"></span>
         </div>
 
         <div id="textOutputView">
-            <div id="output">...</div>
+            <div id="output" oncontextmenu="return false;">...</div>
             <div id="autoDestructTimer" style="font-size: 0.7rem; color: var(--danger); margin-top: 8px; display: none; font-weight: 600;">
                 <i data-lucide="clock" style="width: 12px; height: 12px; vertical-align: middle;"></i> Privasi: Teks dihapus dalam <span id="timerSec">60</span> detik
             </div>
@@ -314,7 +314,7 @@
     lucide.createIcons();
     const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
     const IQ_MAGIC_HEADER = "IQVAULT";
-    const IQ_VERSION = "1.6";
+    const IQ_VERSION = "1.7";
 
     let selectedFile = null;
     let processedFileBlob = null;
@@ -323,17 +323,15 @@
     let destructTimer = null;
     let inactivityTimer = null;
 
-    // --- Modern Async Key Derivation (Native Web Crypto API) ---
-    // Ini menggantikan CryptoJS PBKDF2 yang lambat agar browser tidak freeze
-    async function deriveKeysAsync(password, saltHex, iterations) {
+    // --- Modern Web Crypto API Implementation for AES-GCM ---
+
+    async function deriveAESGCMKey(password, salt, iterations) {
         const enc = new TextEncoder();
         const pwKey = await crypto.subtle.importKey(
-            "raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]
+            "raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]
         );
         
-        const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-        
-        const derivedBits = await crypto.subtle.deriveBits(
+        return crypto.subtle.deriveKey(
             {
                 name: "PBKDF2",
                 salt: salt,
@@ -341,22 +339,59 @@
                 hash: "SHA-256"
             },
             pwKey,
-            512 // 256 bit AES + 256 bit HMAC
+            { name: "AES-GCM", length: 256 },
+            false,
+            ["encrypt", "decrypt"]
         );
+    }
+
+    async function gcmEncrypt(dataBuffer, password, iterations) {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12)); // GCM standard IV is 12 bytes
+        const key = await deriveAESGCMKey(password, salt, iterations);
         
-        const derivedBytes = new Uint8Array(derivedBits);
+        const encryptedContent = await crypto.subtle.encrypt(
+            { name: "AES-GCM", iv: iv },
+            key,
+            dataBuffer
+        );
+
         return {
-            encKey: CryptoJS.lib.WordArray.create(derivedBytes.slice(0, 32)),
-            hmacKey: CryptoJS.lib.WordArray.create(derivedBytes.slice(32, 64))
+            salt: Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join(''),
+            iv: Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join(''),
+            ciphertext: new Uint8Array(encryptedContent)
         };
     }
 
-    // --- Security Utilities ---
+    async function gcmDecrypt(combinedBuffer, password, saltHex, ivHex, iterations) {
+        const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const iv = new Uint8Array(ivHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        const key = await deriveAESGCMKey(password, salt, iterations);
+        
+        const decrypted = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: iv },
+            key,
+            combinedBuffer
+        );
+        
+        return new Uint8Array(decrypted);
+    }
+
+    // --- Helper Utilities ---
+
+    function bufferToHex(buffer) {
+        return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function hexToBuffer(hex) {
+        const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        return bytes.buffer;
+    }
+
     function secureWipe(val) {
         if (!val) return null;
         if (typeof val === 'string') return '*'.repeat(val.length);
         if (val instanceof Uint8Array) val.fill(0);
-        if (val.words) val.words.fill(0);
         return null;
     }
 
@@ -370,7 +405,8 @@
         }, 300000);
     }
 
-    // --- UI Logic ---
+    // --- UI & Event Handlers ---
+
     function handleKeyInput(val) {
         checkStrength(val);
         const fingerprint = document.getElementById('keyFingerprint');
@@ -385,21 +421,21 @@
         resetInactivityTimer();
     }
 
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const icon = document.getElementById('themeIcon');
-        const isDark = document.body.classList.contains('dark-mode');
-        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-        lucide.createIcons();
-    }
-
     function generatePassword() {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]|;:,.<>?";
         let pass = "";
         for(let i=0; i<24; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
         document.getElementById('masterKey').value = pass;
         handleKeyInput(pass);
-        showToast("Password Kompleks berhasil dibuat!");
+        showToast("Password Military Grade dibuat!");
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const icon = document.getElementById('themeIcon');
+        const isDark = document.body.classList.contains('dark-mode');
+        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
     }
 
     function setLoader(show, text = "Mengolah Data...") {
@@ -446,20 +482,7 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // Uint8Array ↔ WordArray Helpers
-    function waToU8(wa) {
-        const l = wa.sigBytes;
-        const words = wa.words;
-        const res = new Uint8Array(l);
-        for (let i = 0; i < l; i++) res[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-        return res;
-    }
-    function u8ToWa(u8) {
-        const words = [];
-        for (let i = 0; i < u8.length; i++) words[i >>> 2] |= (u8[i] & 0xff) << (24 - (i % 4) * 8);
-        return CryptoJS.lib.WordArray.create(words, u8.length);
-    }
-
+    // --- Base58 Engine ---
     function encodeB58(src) {
         if (src.length === 0) return '';
         let digits = [0];
@@ -498,6 +521,7 @@
         return new Uint8Array(bytes.reverse());
     }
 
+    // --- Destruct Logic ---
     function startDestruct() {
         clearDestruct();
         let sec = 60;
@@ -522,7 +546,8 @@
         document.getElementById('autoDestructTimer').style.display = 'none';
     }
 
-    // --- Core Logic ---
+    // --- Main Processing Logic ---
+
     async function processText(mode) {
         let password = document.getElementById('masterKey').value;
         const data = document.getElementById('textInput').value.trim();
@@ -531,35 +556,27 @@
         if(!data || !password) return showToast("Lengkapi data!", true);
         
         const delay = Math.min(bruteForceAttempts * 1000, 5000);
-        setLoader(true, "Mengolah Kunci...");
+        setLoader(true, "Otentikasi Kunci...");
         
         try {
             if(mode === 'encrypt') {
-                const salt = CryptoJS.lib.WordArray.random(128/8);
-                const keys = await deriveKeysAsync(password, salt.toString(), iterations);
-                const iv = CryptoJS.lib.WordArray.random(128/8);
-                const encrypted = CryptoJS.AES.encrypt(data, keys.encKey, { iv: iv }).toString();
-                const hmac = CryptoJS.HmacSHA256(salt.toString() + iv.toString() + encrypted, keys.hmacKey).toString();
-                
-                const pack = salt.toString() + ":" + iv.toString() + ":" + hmac + ":" + iterations + ":" + encrypted;
-                output.innerText = encodeB58(waToU8(CryptoJS.enc.Utf8.parse(pack)));
-                showToast("Teks dienkripsi.");
+                const enc = new TextEncoder();
+                const result = await gcmEncrypt(enc.encode(data), password, iterations);
+                // GCM Output Format: salt:iv:iterations:ciphertextHex
+                const pack = result.salt + ":" + result.iv + ":" + iterations + ":" + bufferToHex(result.ciphertext);
+                output.innerText = encodeB58(new TextEncoder().encode(pack));
+                showToast("Teks dienkripsi dengan AES-GCM.");
                 bruteForceAttempts = 0;
             } else {
-                const decoded = CryptoJS.enc.Utf8.stringify(u8ToWa(decodeB58(data)));
+                const decoded = new TextDecoder().decode(decodeB58(data));
                 const parts = decoded.split(":");
-                if(parts.length < 5) throw new Error("Format tidak valid");
+                if(parts.length < 4) throw new Error("Format v1.7 tidak valid");
                 
-                const [saltHex, ivHex, hmacHex, fileIt, ciphertext] = parts;
-                const keys = await deriveKeysAsync(password, saltHex, fileIt);
-                const calcHmac = CryptoJS.HmacSHA256(saltHex + ivHex + ciphertext, keys.hmacKey).toString();
-                if(hmacHex !== calcHmac) throw new Error("Integritas Gagal");
+                const [saltHex, ivHex, fileIt, ciphertextHex] = parts;
+                const decrypted = await gcmDecrypt(hexToBuffer(ciphertextHex), password, saltHex, ivHex, fileIt);
                 
-                const iv = CryptoJS.enc.Hex.parse(ivHex);
-                const decrypted = CryptoJS.AES.decrypt(ciphertext, keys.encKey, { iv: iv }).toString(CryptoJS.enc.Utf8);
-                if(!decrypted) throw new Error();
-                output.innerText = decrypted;
-                showToast("Teks dibuka.");
+                output.innerText = new TextDecoder().decode(decrypted);
+                showToast("Data Terotentikasi & Dibuka.");
                 bruteForceAttempts = 0;
                 startDestruct();
             }
@@ -569,7 +586,7 @@
             document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
         } catch(e) { 
             bruteForceAttempts++;
-            showToast("Gagal! Password salah.", true); 
+            showToast("Gagal! Password salah atau data korup.", true); 
         } finally { 
             setLoader(false); 
             password = secureWipe(password);
@@ -579,63 +596,75 @@
     function handleFileSelect(input) {
         if(input.files && input.files[0]) {
             selectedFile = input.files[0];
-            const info = document.getElementById('fileDisplay');
-            info.innerText = `Terpilih: ${selectedFile.name}`;
-            info.style.display = 'block';
+            document.getElementById('fileDisplay').innerText = `Terpilih: ${selectedFile.name}`;
+            document.getElementById('fileDisplay').style.display = 'block';
         }
     }
 
     async function processFile(mode) {
         let password = document.getElementById('masterKey').value;
         const iterations = document.getElementById('securityLevel').value;
-        if(!selectedFile || !password) return showToast("Pilih file & isi password!", true);
+        if(!selectedFile || !password) return showToast("Lengkapi input!", true);
         
-        setLoader(true, "Menderivasi Kunci...");
+        setLoader(true, "Processing AES-GCM...");
         const reader = new FileReader();
 
         reader.onload = async function(e) {
             try {
                 let finalBlob;
                 let targetName = "";
-                let integrityPass = false;
 
                 if(mode === 'encrypt') {
-                    const wa = CryptoJS.lib.WordArray.create(e.target.result);
-                    const fileHash = CryptoJS.SHA256(wa).toString();
-                    const salt = CryptoJS.lib.WordArray.random(128/8);
-                    const keys = await deriveKeysAsync(password, salt.toString(), iterations);
-                    const iv = CryptoJS.lib.WordArray.random(128/8);
+                    // Hash asli untuk metadata
+                    const originalBuffer = e.target.result;
+                    const fileHash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(originalBuffer)).toString();
                     
-                    const encryptedData = CryptoJS.AES.encrypt(wa, keys.encKey, { iv: iv }).toString();
-                    const metaObj = JSON.stringify({ n: selectedFile.name, h: fileHash });
-                    const encryptedMeta = CryptoJS.AES.encrypt(metaObj, keys.encKey, { iv: iv }).toString();
-                    const hmac = CryptoJS.HmacSHA256(encryptedData + encryptedMeta + salt.toString(), keys.hmacKey).toString();
+                    // Enkripsi Data utama
+                    const dataResult = await gcmEncrypt(originalBuffer, password, iterations);
                     
-                    const container = { hm: hmac, s: salt.toString(), iv: iv.toString(), it: iterations, m: encryptedMeta, d: encryptedData };
-                    const encodedBody = encodeB58(waToU8(CryptoJS.enc.Utf8.parse(JSON.stringify(container))));
+                    // Enkripsi Metadata (Nama & Hash)
+                    const metaEnc = new TextEncoder();
+                    const metaBuffer = metaEnc.encode(JSON.stringify({ n: selectedFile.name, h: fileHash }));
+                    const metaResult = await gcmEncrypt(metaBuffer, password, iterations);
+                    
+                    // Bangun Kontainer IQv1.7
+                    const container = {
+                        s: dataResult.salt,
+                        iv: dataResult.iv,
+                        it: iterations,
+                        ms: metaResult.salt,
+                        miv: metaResult.iv,
+                        m: bufferToHex(metaResult.ciphertext),
+                        d: bufferToHex(dataResult.ciphertext)
+                    };
+                    
+                    const encodedBody = encodeB58(new TextEncoder().encode(JSON.stringify(container)));
                     finalBlob = new Blob([`${IQ_MAGIC_HEADER}:${IQ_VERSION}:${encodedBody}`]);
                     targetName = selectedFile.name.split('.')[0] + ".iq";
                     bruteForceAttempts = 0;
                 } else {
                     const rawContent = e.target.result.toString();
                     const parts = rawContent.split(':');
-                    if(parts[0] !== IQ_MAGIC_HEADER) throw new Error("File tidak dikenali!");
+                    if(parts[0] !== IQ_MAGIC_HEADER) throw new Error("Header Gagal");
                     
-                    const body = JSON.parse(CryptoJS.enc.Utf8.stringify(u8ToWa(decodeB58(parts[2]))));
-                    const keys = await deriveKeysAsync(password, body.s, body.it || 100000);
-                    const iv = CryptoJS.enc.Hex.parse(body.iv);
+                    const body = JSON.parse(new TextDecoder().decode(decodeB58(parts[2])));
                     
-                    const calcHmac = CryptoJS.HmacSHA256(body.d + body.m + body.s, keys.hmacKey).toString();
-                    if(calcHmac !== body.hm) throw new Error("Integritas Gagal");
+                    // Dekripsi Metadata
+                    const metaBuffer = hexToBuffer(body.m);
+                    const metaDecrypted = await gcmDecrypt(metaBuffer, password, body.ms, body.miv, body.it);
+                    const meta = JSON.parse(new TextDecoder().decode(metaDecrypted));
                     
-                    const metaDec = CryptoJS.AES.decrypt(body.m, keys.encKey, { iv: iv }).toString(CryptoJS.enc.Utf8);
-                    const meta = JSON.parse(metaDec);
-                    const decData = CryptoJS.AES.decrypt(body.d, keys.encKey, { iv: iv });
-                    const u8 = waToU8(decData);
+                    // Dekripsi Data Utama
+                    const dataBuffer = hexToBuffer(body.d);
+                    const dataDecrypted = await gcmDecrypt(dataBuffer, password, body.s, body.iv, body.it);
                     
-                    integrityPass = (CryptoJS.SHA256(u8ToWa(u8)).toString() === meta.h);
-                    finalBlob = new Blob([u8]);
+                    // Verifikasi integritas manual tambahan via hash asli
+                    const finalHash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(dataDecrypted)).toString();
+                    if(finalHash !== meta.h) throw new Error("Integritas Metadata Gagal");
+                    
+                    finalBlob = new Blob([dataDecrypted]);
                     targetName = meta.n;
+                    bruteForceAttempts = 0;
                 }
 
                 processedFileBlob = finalBlob;
@@ -645,7 +674,7 @@
                 document.getElementById('textOutputView').classList.add('hidden');
                 document.getElementById('fileOutputView').classList.remove('hidden');
                 document.getElementById('resultContainer').style.display = 'block';
-                document.getElementById('integrityBadge').style.display = (mode === 'decrypt' && integrityPass) ? 'inline-block' : 'none';
+                document.getElementById('integrityBadge').style.display = 'inline-block';
                 document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
 
                 document.getElementById('fileDownloadBtn').onclick = () => {
@@ -655,10 +684,10 @@
                     URL.revokeObjectURL(url);
                     showToast("File disimpan.");
                 };
-                showToast("Proses Selesai.");
+                showToast("Otentikasi Sukses.");
             } catch(err) { 
                 bruteForceAttempts++;
-                showToast("Gagal! Password salah atau data rusak.", true); 
+                showToast("Gagal! Password salah atau data dimodifikasi.", true); 
             } finally { 
                 setLoader(false); 
                 password = secureWipe(password);
@@ -668,7 +697,6 @@
         else reader.readAsText(selectedFile);
     }
 
-    // --- Clipboard Utility ---
     function copyToClipboardFallback(text) {
         const textArea = document.createElement("textarea");
         textArea.value = text;
@@ -687,7 +715,7 @@
         if(t === "...") return;
         copyToClipboardFallback(t);
         showToast("Tersalin! Clipboard dibersihkan dalam 10 detik.");
-        setTimeout(() => { copyToClipboardFallback(""); showToast("Memory Clipboard dibersihkan."); }, 10000);
+        setTimeout(() => { copyToClipboardFallback(""); showToast("Memori Clipboard dibersihkan."); }, 10000);
     }
 
     function downloadTextResult() {
