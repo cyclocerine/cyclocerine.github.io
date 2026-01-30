@@ -276,8 +276,8 @@
         <div class="result-header">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span class="result-title" id="resultLabel">Hasil:</span>
-                <span id="integrityBadge" class="integrity-badge">AES-GCM AUTHENTICATED</span>
-                <span id="versionBadge" class="version-badge">IQv1.7</span>
+                <span id="integrityBadge" class="integrity-badge">AEAD AUTHENTICATED</span>
+                <span id="versionBadge" class="version-badge">IQv1.8</span>
             </div>
             <span id="timestamp" style="font-size: 0.75rem; color: var(--text-muted);"></span>
         </div>
@@ -314,7 +314,7 @@
     lucide.createIcons();
     const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
     const IQ_MAGIC_HEADER = "IQVAULT";
-    const IQ_VERSION = "1.7";
+    const IQ_VERSION = "1.8";
 
     let selectedFile = null;
     let processedFileBlob = null;
@@ -323,7 +323,7 @@
     let destructTimer = null;
     let inactivityTimer = null;
 
-    // --- Modern Web Crypto API Implementation for AES-GCM ---
+    // --- Modern Web Crypto API Implementation with AAD Support ---
 
     async function deriveAESGCMKey(password, salt, iterations) {
         const enc = new TextEncoder();
@@ -345,13 +345,16 @@
         );
     }
 
-    async function gcmEncrypt(dataBuffer, password, iterations) {
+    async function gcmEncrypt(dataBuffer, password, iterations, aad = null) {
         const salt = crypto.getRandomValues(new Uint8Array(16));
-        const iv = crypto.getRandomValues(new Uint8Array(12)); // GCM standard IV is 12 bytes
+        const iv = crypto.getRandomValues(new Uint8Array(12)); 
         const key = await deriveAESGCMKey(password, salt, iterations);
         
+        const encryptParams = { name: "AES-GCM", iv: iv };
+        if (aad) encryptParams.additionalData = aad;
+
         const encryptedContent = await crypto.subtle.encrypt(
-            { name: "AES-GCM", iv: iv },
+            encryptParams,
             key,
             dataBuffer
         );
@@ -363,13 +366,16 @@
         };
     }
 
-    async function gcmDecrypt(combinedBuffer, password, saltHex, ivHex, iterations) {
+    async function gcmDecrypt(combinedBuffer, password, saltHex, ivHex, iterations, aad = null) {
         const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
         const iv = new Uint8Array(ivHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
         const key = await deriveAESGCMKey(password, salt, iterations);
         
+        const decryptParams = { name: "AES-GCM", iv: iv };
+        if (aad) decryptParams.additionalData = aad;
+
         const decrypted = await crypto.subtle.decrypt(
-            { name: "AES-GCM", iv: iv },
+            decryptParams,
             key,
             combinedBuffer
         );
@@ -546,7 +552,7 @@
         document.getElementById('autoDestructTimer').style.display = 'none';
     }
 
-    // --- Main Processing Logic ---
+    // --- Main Processing Logic with AAD Binding ---
 
     async function processText(mode) {
         let password = document.getElementById('masterKey').value;
@@ -555,25 +561,31 @@
         const output = document.getElementById('output');
         if(!data || !password) return showToast("Lengkapi data!", true);
         
-        const delay = Math.min(bruteForceAttempts * 1000, 5000);
         setLoader(true, "Otentikasi Kunci...");
         
         try {
             if(mode === 'encrypt') {
                 const enc = new TextEncoder();
-                const result = await gcmEncrypt(enc.encode(data), password, iterations);
+                // AAD Binding: Header + Version + Context
+                const aad = enc.encode(`${IQ_MAGIC_HEADER}:${IQ_VERSION}:TEXT`);
+                
+                const result = await gcmEncrypt(enc.encode(data), password, iterations, aad);
                 // GCM Output Format: salt:iv:iterations:ciphertextHex
                 const pack = result.salt + ":" + result.iv + ":" + iterations + ":" + bufferToHex(result.ciphertext);
                 output.innerText = encodeB58(new TextEncoder().encode(pack));
-                showToast("Teks dienkripsi dengan AES-GCM.");
+                showToast("Teks diamankan dengan AES-GCM-AAD.");
                 bruteForceAttempts = 0;
             } else {
                 const decoded = new TextDecoder().decode(decodeB58(data));
                 const parts = decoded.split(":");
-                if(parts.length < 4) throw new Error("Format v1.7 tidak valid");
+                if(parts.length < 4) throw new Error("Format v1.8 tidak valid");
                 
                 const [saltHex, ivHex, fileIt, ciphertextHex] = parts;
-                const decrypted = await gcmDecrypt(hexToBuffer(ciphertextHex), password, saltHex, ivHex, fileIt);
+                
+                // Historical Version Mapping for AAD (Backward compatibility could go here)
+                const aad = new TextEncoder().encode(`${IQ_MAGIC_HEADER}:${IQ_VERSION}:TEXT`);
+                
+                const decrypted = await gcmDecrypt(hexToBuffer(ciphertextHex), password, saltHex, ivHex, fileIt, aad);
                 
                 output.innerText = new TextDecoder().decode(decrypted);
                 showToast("Data Terotentikasi & Dibuka.");
@@ -586,7 +598,7 @@
             document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
         } catch(e) { 
             bruteForceAttempts++;
-            showToast("Gagal! Password salah atau data korup.", true); 
+            showToast("Gagal! Password salah atau Header versi dimanipulasi.", true); 
         } finally { 
             setLoader(false); 
             password = secureWipe(password);
@@ -606,28 +618,31 @@
         const iterations = document.getElementById('securityLevel').value;
         if(!selectedFile || !password) return showToast("Lengkapi input!", true);
         
-        setLoader(true, "Processing AES-GCM...");
+        setLoader(true, "Processing AEAD Container...");
         const reader = new FileReader();
 
         reader.onload = async function(e) {
             try {
                 let finalBlob;
                 let targetName = "";
+                const enc = new TextEncoder();
 
                 if(mode === 'encrypt') {
+                    // AAD Binding for entire file container
+                    const aad = enc.encode(`${IQ_MAGIC_HEADER}:${IQ_VERSION}:FILE`);
+
                     // Hash asli untuk metadata
                     const originalBuffer = e.target.result;
                     const fileHash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(originalBuffer)).toString();
                     
-                    // Enkripsi Data utama
-                    const dataResult = await gcmEncrypt(originalBuffer, password, iterations);
+                    // Enkripsi Data utama dengan AAD
+                    const dataResult = await gcmEncrypt(originalBuffer, password, iterations, aad);
                     
-                    // Enkripsi Metadata (Nama & Hash)
-                    const metaEnc = new TextEncoder();
-                    const metaBuffer = metaEnc.encode(JSON.stringify({ n: selectedFile.name, h: fileHash }));
-                    const metaResult = await gcmEncrypt(metaBuffer, password, iterations);
+                    // Enkripsi Metadata (Nama & Hash) dengan AAD
+                    const metaBuffer = enc.encode(JSON.stringify({ n: selectedFile.name, h: fileHash }));
+                    const metaResult = await gcmEncrypt(metaBuffer, password, iterations, aad);
                     
-                    // Bangun Kontainer IQv1.7
+                    // Bangun Kontainer IQv1.8
                     const container = {
                         s: dataResult.salt,
                         iv: dataResult.iv,
@@ -638,7 +653,7 @@
                         d: bufferToHex(dataResult.ciphertext)
                     };
                     
-                    const encodedBody = encodeB58(new TextEncoder().encode(JSON.stringify(container)));
+                    const encodedBody = encodeB58(enc.encode(JSON.stringify(container)));
                     finalBlob = new Blob([`${IQ_MAGIC_HEADER}:${IQ_VERSION}:${encodedBody}`]);
                     targetName = selectedFile.name.split('.')[0] + ".iq";
                     bruteForceAttempts = 0;
@@ -647,20 +662,24 @@
                     const parts = rawContent.split(':');
                     if(parts[0] !== IQ_MAGIC_HEADER) throw new Error("Header Gagal");
                     
+                    // Gunakan versi dari header file untuk AAD
+                    const fileVersion = parts[1];
+                    const aad = enc.encode(`${IQ_MAGIC_HEADER}:${fileVersion}:FILE`);
+                    
                     const body = JSON.parse(new TextDecoder().decode(decodeB58(parts[2])));
                     
-                    // Dekripsi Metadata
+                    // Dekripsi Metadata dengan AAD
                     const metaBuffer = hexToBuffer(body.m);
-                    const metaDecrypted = await gcmDecrypt(metaBuffer, password, body.ms, body.miv, body.it);
+                    const metaDecrypted = await gcmDecrypt(metaBuffer, password, body.ms, body.miv, body.it, aad);
                     const meta = JSON.parse(new TextDecoder().decode(metaDecrypted));
                     
-                    // Dekripsi Data Utama
+                    // Dekripsi Data Utama dengan AAD
                     const dataBuffer = hexToBuffer(body.d);
-                    const dataDecrypted = await gcmDecrypt(dataBuffer, password, body.s, body.iv, body.it);
+                    const dataDecrypted = await gcmDecrypt(dataBuffer, password, body.s, body.iv, body.it, aad);
                     
-                    // Verifikasi integritas manual tambahan via hash asli
+                    // Verifikasi integritas via hash asli (Extra layer)
                     const finalHash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(dataDecrypted)).toString();
-                    if(finalHash !== meta.h) throw new Error("Integritas Metadata Gagal");
+                    if(finalHash !== meta.h) throw new Error("Integrity Check Failed");
                     
                     finalBlob = new Blob([dataDecrypted]);
                     targetName = meta.n;
@@ -682,12 +701,12 @@
                     const a = document.createElement('a');
                     a.href = url; a.download = processedFileName; a.click();
                     URL.revokeObjectURL(url);
-                    showToast("File disimpan.");
+                    showToast("File berhasil disimpan!");
                 };
-                showToast("Otentikasi Sukses.");
+                showToast("Otentikasi GCM-AAD Sukses.");
             } catch(err) { 
                 bruteForceAttempts++;
-                showToast("Gagal! Password salah atau data dimodifikasi.", true); 
+                showToast("Gagal! Akses ditolak atau Header dimanipulasi.", true); 
             } finally { 
                 setLoader(false); 
                 password = secureWipe(password);
@@ -696,6 +715,8 @@
         if(mode === 'encrypt') reader.readAsArrayBuffer(selectedFile);
         else reader.readAsText(selectedFile);
     }
+
+    // --- Clipboard & UI Helpers ---
 
     function copyToClipboardFallback(text) {
         const textArea = document.createElement("textarea");
