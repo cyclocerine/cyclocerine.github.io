@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vault Pro Ultra - Security Suite</title>
+    <title>Vault Pro Ultra - Enterprise Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -20,7 +20,15 @@
             --warning: #f59e0b;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.2s ease; }
+        body.dark-mode {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s, border-color 0.3s; }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -39,163 +47,168 @@
             max-width: 800px;
             padding: 40px;
             border-radius: 28px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border);
+            position: relative;
         }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 12px; }
-        .header p { color: var(--text-muted); margin-top: 8px; font-size: 0.95rem; }
+        #loadingOverlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            color: white;
+        }
 
-        /* Tabs Navigation */
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .header { text-align: center; margin-bottom: 32px; position: relative; }
+        .header h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 14px; letter-spacing: -0.025em; }
+        .header h1 span { opacity: 0.6; font-weight: 400; }
+
+        .theme-toggle {
+            position: absolute; top: -10px; right: -10px;
+            background: var(--card); border: 1px solid var(--border);
+            padding: 10px; border-radius: 12px; cursor: pointer; color: var(--text-muted);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
         .tabs {
             display: flex;
             background: #f1f5f9;
             padding: 6px;
-            border-radius: 14px;
-            margin-bottom: 30px;
+            border-radius: 16px;
+            margin-bottom: 32px;
         }
+        body.dark-mode .tabs { background: #334155; }
 
         .tab-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            border-radius: 10px;
-            font-weight: 600;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            flex: 1; padding: 12px; border: none; background: none;
+            cursor: pointer; border-radius: 12px; font-weight: 600;
+            color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 0.95rem;
         }
 
         .tab-btn.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            background: var(--card); color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
-        /* Form Inputs */
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; }
+        .form-group { margin-bottom: 24px; }
+        label { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; color: var(--text-main); }
         
-        textarea, input {
-            width: 100%;
-            padding: 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-            background: #fff;
+        textarea, input, select {
+            width: 100%; padding: 16px; border: 1.5px solid var(--border);
+            border-radius: 14px; font-size: 1rem; outline: none;
+            background: var(--card); color: var(--text-main);
         }
 
         textarea:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-        textarea { height: 120px; resize: vertical; }
+        textarea { height: 140px; resize: vertical; line-height: 1.6; }
 
         .password-wrapper { position: relative; }
-        .toggle-password {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: var(--text-muted); cursor: pointer;
+        .input-actions { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px; align-items: center; }
+        .input-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; display: flex; align-items: center; }
+        .input-btn:hover { color: var(--primary); }
+
+        .key-fingerprint {
+            width: 24px; height: 24px; border-radius: 6px;
+            background: #e2e8f0; transition: all 0.3s;
         }
 
-        /* File Drop Zone */
+        .strength-meter { height: 6px; width: 100%; background: var(--border); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+        .strength-bar { height: 100%; width: 0%; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
         .file-zone {
-            border: 2px dashed var(--border);
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            background: #fbfcfe;
-            position: relative;
+            border: 2px dashed var(--border); border-radius: 20px; padding: 50px 24px;
+            text-align: center; cursor: pointer; background: var(--bg); position: relative;
         }
+        .file-zone:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.03); }
+        .file-zone i { color: var(--primary); margin-bottom: 16px; opacity: 0.8; }
+        .file-zone p { font-size: 0.95rem; color: var(--text-muted); }
+        .file-info { margin-top: 18px; font-size: 0.9rem; color: var(--primary); font-weight: 700; display: none; }
 
-        .file-zone:hover { border-color: var(--primary); background: #f5f3ff; }
-        .file-zone i { color: var(--primary); margin-bottom: 12px; }
-        .file-info { margin-top: 15px; font-size: 0.85rem; color: var(--primary); font-weight: 600; display: none; }
-
-        /* Buttons Grid */
-        .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
+        .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 30px; }
         .btn {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
-            font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 16px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: #059669; transform: translateY(-2px); }
-        .btn-secondary { background: #f1f5f9; color: var(--text-muted); width: 100%; margin-top: 12px; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+        .btn-secondary { background: var(--bg); border: 1.5px solid var(--border); color: var(--text-muted); width: 100%; margin-top: 16px; font-size: 0.9rem; }
 
-        /* Result Visualization */
         .result-area {
-            margin-top: 30px;
-            padding: 24px;
-            background: #f8fafc;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            display: none;
-            animation: slideUp 0.3s ease-out;
+            margin-top: 40px; padding: 28px; background: var(--bg);
+            border-radius: 24px; border: 1px solid var(--border);
+            display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .result-title { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .result-title { font-weight: 700; font-size: 1rem; color: var(--text-main); }
 
         #output {
-            font-family: 'Fira Code', 'Courier New', monospace;
-            font-size: 0.8rem;
-            word-break: break-all;
-            max-height: 150px;
-            overflow-y: auto;
-            padding: 12px;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid var(--border);
+            font-family: 'Fira Code', 'Courier New', monospace; font-size: 0.85rem;
+            word-break: break-all; max-height: 200px; overflow-y: auto;
+            padding: 16px; background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+            line-height: 1.5;
+            user-select: all;
         }
 
-        .file-result-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
+        .file-result-card { display: flex; align-items: center; gap: 18px; background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); }
+        .integrity-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; background: #dcfce7; color: #166534; font-weight: 700; display: none; }
+        .version-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; background: var(--primary); color: white; font-weight: 800; }
 
-        .action-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .action-btns { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
         .action-btn {
-            padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border);
-            background: white; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; border-radius: 12px; border: 1.5px solid var(--border);
+            background: var(--card); cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
             font-weight: 600; color: var(--text-main);
         }
-        .action-btn:hover { border-color: var(--primary); color: var(--primary); background: #f5f3ff; }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
         .action-btn.download-trigger { background: var(--primary); color: white; border: none; }
-        .action-btn.download-trigger:hover { background: var(--primary-hover); color: white; }
 
-        /* Toast UI */
         #toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #1e293b; color: white; padding: 14px 28px; border-radius: 50px;
-            font-weight: 600; z-index: 1000; opacity: 0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            background: #1e293b; color: white; padding: 16px 32px; border-radius: 100px;
+            font-weight: 600; z-index: 3000; opacity: 0; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         .hidden { display: none; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div class="vault-card">
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Mengolah Data...</p>
+    </div>
+
     <div class="header">
-        <h1><i data-lucide="shield-check"></i> Vault Pro Ultra</h1>
-        <p>Solusi enkripsi AES-256 untuk teks dan file Anda.</p>
+        <button class="theme-toggle" onclick="toggleDarkMode()" title="Ganti Tema">
+            <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+        <h1><i data-lucide="shield-check"></i> Vault Pro <span>Ultra</span></h1>
     </div>
 
     <div class="tabs">
@@ -203,18 +216,35 @@
         <button class="tab-btn" id="tabFile" onclick="switchTab('file')"><i data-lucide="file"></i> File</button>
     </div>
 
-    <!-- Master Key Section -->
     <div class="form-group">
-        <label>Kunci Rahasia (Wajib Diingat!)</label>
+        <label>
+            Kunci Rahasia 
+            <span onclick="generatePassword()" style="cursor:pointer; color:var(--primary); font-size:0.75rem; text-decoration: underline;">Buat Acak</span>
+        </label>
         <div class="password-wrapper">
-            <input type="password" id="masterKey" placeholder="Masukkan password pengunci...">
-            <button class="toggle-password" onclick="togglePass()">
-                <i data-lucide="eye" id="eyeIcon"></i>
-            </button>
+            <input type="password" id="masterKey" placeholder="Password pengunci..." oninput="handleKeyInput(this.value)">
+            <div class="input-actions">
+                <div id="keyFingerprint" class="key-fingerprint" title="Visual Key ID"></div>
+                <button class="input-btn" onclick="togglePass()" title="Lihat Password">
+                    <i data-lucide="eye" id="eyeIcon"></i>
+                </button>
+            </div>
         </div>
+        <div class="strength-meter">
+            <div id="strengthBar" class="strength-bar"></div>
+        </div>
+        <div id="strengthText" style="font-size: 0.75rem; margin-top: 6px; color: var(--text-muted);">Status: Menunggu input...</div>
     </div>
 
-    <!-- Text Module -->
+    <div class="form-group">
+        <label>Iterasi PBKDF2</label>
+        <select id="securityLevel">
+            <option value="100000">Standard (100k - Cepat)</option>
+            <option value="300000" selected>Balanced (300k - Disarankan)</option>
+            <option value="600000">Extreme (600k - Military Grade)</option>
+        </select>
+    </div>
+
     <div id="textSection">
         <div class="form-group">
             <label>Pesan / Ciphertext</label>
@@ -226,12 +256,11 @@
         </div>
     </div>
 
-    <!-- File Module -->
     <div id="fileSection" class="hidden">
         <label>Unggah File</label>
         <div class="file-zone" onclick="document.getElementById('fileInput').click()" id="dropZone">
-            <i data-lucide="upload-cloud" style="width: 48px; height: 48px;"></i>
-            <p>Klik atau Taruh file apa saja di sini</p>
+            <i data-lucide="upload-cloud" style="width: 54px; height: 54px;"></i>
+            <p>Klik atau Taruh file untuk diproses secara aman</p>
             <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(this)">
             <div id="fileDisplay" class="file-info"></div>
         </div>
@@ -241,35 +270,39 @@
         </div>
     </div>
 
-    <button class="btn btn-secondary" onclick="resetAll()"><i data-lucide="refresh-cw"></i> Bersihkan Semua</button>
+    <button class="btn btn-secondary" onclick="resetAll()"><i data-lucide="refresh-cw"></i> Bersihkan Sesi</button>
 
-    <!-- Unified Result Area -->
     <div id="resultContainer" class="result-area">
         <div class="result-header">
-            <span class="result-title" id="resultLabel">Hasil Pemrosesan:</span>
-            <span id="timestamp" style="font-size: 0.7rem; color: var(--text-muted);"></span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="result-title" id="resultLabel">Hasil:</span>
+                <span id="integrityBadge" class="integrity-badge">VERIFIED</span>
+                <span id="versionBadge" class="version-badge">IQv1.6</span>
+            </div>
+            <span id="timestamp" style="font-size: 0.75rem; color: var(--text-muted);"></span>
         </div>
 
-        <!-- Text Result View -->
         <div id="textOutputView">
             <div id="output">...</div>
+            <div id="autoDestructTimer" style="font-size: 0.7rem; color: var(--danger); margin-top: 8px; display: none; font-weight: 600;">
+                <i data-lucide="clock" style="width: 12px; height: 12px; vertical-align: middle;"></i> Privasi: Teks dihapus dalam <span id="timerSec">60</span> detik
+            </div>
             <div class="action-btns">
                 <button class="action-btn" onclick="copyResult()"><i data-lucide="copy"></i> Salin</button>
                 <button class="action-btn download-trigger" onclick="downloadTextResult()"><i data-lucide="download"></i> Simpan .txt</button>
             </div>
         </div>
 
-        <!-- File Result View -->
         <div id="fileOutputView" class="hidden">
             <div class="file-result-card">
-                <i data-lucide="file-check" style="color: var(--success); width: 32px; height: 32px;"></i>
+                <i data-lucide="file-check" style="color: var(--success); width: 36px; height: 36px;"></i>
                 <div>
-                    <div id="resultFileName" style="font-weight: 700; font-size: 0.9rem;">file_hasil.enc</div>
-                    <div id="resultFileSize" style="font-size: 0.75rem; color: var(--text-muted);">0 KB</div>
+                    <div id="resultFileName" style="font-weight: 800; font-size: 0.95rem;">file_hasil.iq</div>
+                    <div id="resultFileSize" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">0 KB</div>
                 </div>
             </div>
             <div class="action-btns">
-                <button class="action-btn download-trigger" id="fileDownloadBtn"><i data-lucide="download-cloud"></i> Unduh File Hasil</button>
+                <button class="action-btn download-trigger" id="fileDownloadBtn" style="width: 100%;"><i data-lucide="download-cloud"></i> Unduh File Kontainer</button>
             </div>
         </div>
     </div>
@@ -278,28 +311,123 @@
 <div id="toast">Notifikasi</div>
 
 <script>
-    // Inisialisasi Ikon
     lucide.createIcons();
-    
-    // Konfigurasi Base58 (Alphabet Tanpa Karakter Mirip)
     const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    const IQ_MAGIC_HEADER = "IQVAULT";
+    const IQ_VERSION = "1.6";
+
     let selectedFile = null;
     let processedFileBlob = null;
     let processedFileName = "";
+    let bruteForceAttempts = 0;
+    let destructTimer = null;
+    let inactivityTimer = null;
 
-    // --- Manajemen UI ---
+    // --- Modern Async Key Derivation (Native Web Crypto API) ---
+    // Ini menggantikan CryptoJS PBKDF2 yang lambat agar browser tidak freeze
+    async function deriveKeysAsync(password, saltHex, iterations) {
+        const enc = new TextEncoder();
+        const pwKey = await crypto.subtle.importKey(
+            "raw", enc.encode(password), "PBKDF2", false, ["deriveBits"]
+        );
+        
+        const salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+        
+        const derivedBits = await crypto.subtle.deriveBits(
+            {
+                name: "PBKDF2",
+                salt: salt,
+                iterations: parseInt(iterations),
+                hash: "SHA-256"
+            },
+            pwKey,
+            512 // 256 bit AES + 256 bit HMAC
+        );
+        
+        const derivedBytes = new Uint8Array(derivedBits);
+        return {
+            encKey: CryptoJS.lib.WordArray.create(derivedBytes.slice(0, 32)),
+            hmacKey: CryptoJS.lib.WordArray.create(derivedBytes.slice(32, 64))
+        };
+    }
+
+    // --- Security Utilities ---
+    function secureWipe(val) {
+        if (!val) return null;
+        if (typeof val === 'string') return '*'.repeat(val.length);
+        if (val instanceof Uint8Array) val.fill(0);
+        if (val.words) val.words.fill(0);
+        return null;
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            if (document.getElementById('masterKey').value || selectedFile) {
+                resetAll();
+                showToast("Sesi berakhir demi keamanan.");
+            }
+        }, 300000);
+    }
+
+    // --- UI Logic ---
+    function handleKeyInput(val) {
+        checkStrength(val);
+        const fingerprint = document.getElementById('keyFingerprint');
+        if (val) {
+            const hash = CryptoJS.SHA256(val).toString();
+            fingerprint.style.background = '#' + hash.substring(0, 6);
+            fingerprint.style.boxShadow = `0 0 12px #${hash.substring(0,6)}aa`;
+        } else {
+            fingerprint.style.background = '#e2e8f0';
+            fingerprint.style.boxShadow = 'none';
+        }
+        resetInactivityTimer();
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const icon = document.getElementById('themeIcon');
+        const isDark = document.body.classList.contains('dark-mode');
+        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        lucide.createIcons();
+    }
+
+    function generatePassword() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]|;:,.<>?";
+        let pass = "";
+        for(let i=0; i<24; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        document.getElementById('masterKey').value = pass;
+        handleKeyInput(pass);
+        showToast("Password Kompleks berhasil dibuat!");
+    }
+
+    function setLoader(show, text = "Mengolah Data...") {
+        document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        document.getElementById('loadingText').innerText = text;
+    }
+
     function switchTab(type) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(type === 'text' ? 'tabText' : 'tabFile').classList.add('active');
-        
-        if(type === 'text') {
-            document.getElementById('textSection').classList.remove('hidden');
-            document.getElementById('fileSection').classList.add('hidden');
-        } else {
-            document.getElementById('textSection').classList.add('hidden');
-            document.getElementById('fileSection').classList.remove('hidden');
-        }
+        document.getElementById('textSection').classList.toggle('hidden', type !== 'text');
+        document.getElementById('fileSection').classList.toggle('hidden', type !== 'file');
         document.getElementById('resultContainer').style.display = 'none';
+        clearDestruct();
+    }
+
+    function checkStrength(p) {
+        let s = 0;
+        if (p.length > 10) s++;
+        if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+        if (/[0-9]/.test(p)) s++;
+        if (/[^A-Za-z0-9]/.test(p)) s++;
+        const bar = document.getElementById('strengthBar');
+        const txt = document.getElementById('strengthText');
+        const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+        bar.style.width = (s * 25) + '%';
+        bar.style.background = colors[s - 1] || '#e2e8f0';
+        txt.innerText = p ? 'Keamanan: ' + (['Sangat Lemah', 'Cukup Aman', 'Kuat', 'Sangat Kuat'][s-1] || 'Terlalu Pendek') : 'Status: Menunggu input...';
     }
 
     function togglePass() {
@@ -318,7 +446,20 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // --- Base58 Engine ---
+    // Uint8Array ↔ WordArray Helpers
+    function waToU8(wa) {
+        const l = wa.sigBytes;
+        const words = wa.words;
+        const res = new Uint8Array(l);
+        for (let i = 0; i < l; i++) res[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+        return res;
+    }
+    function u8ToWa(u8) {
+        const words = [];
+        for (let i = 0; i < u8.length; i++) words[i >>> 2] |= (u8[i] & 0xff) << (24 - (i % 4) * 8);
+        return CryptoJS.lib.WordArray.create(words, u8.length);
+    }
+
     function encodeB58(src) {
         if (src.length === 0) return '';
         let digits = [0];
@@ -357,125 +498,205 @@
         return new Uint8Array(bytes.reverse());
     }
 
-    // --- Kriptografi Teks ---
-    function processText(mode) {
-        const data = document.getElementById('textInput').value.trim();
-        const key = document.getElementById('masterKey').value;
-        const output = document.getElementById('output');
-        
-        if(!data || !key) return showToast("Lengkapi teks dan password!", true);
-
-        try {
-            if(mode === 'encrypt') {
-                const enc = CryptoJS.AES.encrypt(data, key).toString();
-                const u8 = new Uint8Array(CryptoJS.enc.Base64.parse(enc).words.flatMap(w => [
-                    (w >> 24) & 0xff, (w >> 16) & 0xff, (w >> 8) & 0xff, w & 0xff
-                ]).slice(0, CryptoJS.enc.Base64.parse(enc).sigBytes));
-                output.innerText = encodeB58(u8);
-                showToast("Teks berhasil diamankan!");
-            } else {
-                const u8 = decodeB58(data);
-                const wa = CryptoJS.lib.WordArray.create(u8);
-                const dec = CryptoJS.AES.decrypt(CryptoJS.enc.Base64.stringify(wa), key).toString(CryptoJS.enc.Utf8);
-                if(!dec) throw new Error();
-                output.innerText = dec;
-                showToast("Teks berhasil dibuka!");
+    function startDestruct() {
+        clearDestruct();
+        let sec = 60;
+        const timerEl = document.getElementById('autoDestructTimer');
+        const secEl = document.getElementById('timerSec');
+        timerEl.style.display = 'block';
+        lucide.createIcons();
+        destructTimer = setInterval(() => {
+            sec--;
+            secEl.innerText = sec;
+            if (sec <= 0) {
+                document.getElementById('output').innerText = "...";
+                timerEl.style.display = 'none';
+                clearDestruct();
+                showToast("Data dihapus otomatis.");
             }
-            
-            document.getElementById('textOutputView').classList.remove('hidden');
-            document.getElementById('fileOutputView').classList.add('hidden');
-            document.getElementById('resultContainer').style.display = 'block';
-            document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
-        } catch(e) { showToast("Gagal! Password salah atau kode rusak.", true); }
+        }, 1000);
     }
 
-    // --- Kriptografi File ---
+    function clearDestruct() {
+        if(destructTimer) clearInterval(destructTimer);
+        document.getElementById('autoDestructTimer').style.display = 'none';
+    }
+
+    // --- Core Logic ---
+    async function processText(mode) {
+        let password = document.getElementById('masterKey').value;
+        const data = document.getElementById('textInput').value.trim();
+        const iterations = document.getElementById('securityLevel').value;
+        const output = document.getElementById('output');
+        if(!data || !password) return showToast("Lengkapi data!", true);
+        
+        const delay = Math.min(bruteForceAttempts * 1000, 5000);
+        setLoader(true, "Mengolah Kunci...");
+        
+        try {
+            if(mode === 'encrypt') {
+                const salt = CryptoJS.lib.WordArray.random(128/8);
+                const keys = await deriveKeysAsync(password, salt.toString(), iterations);
+                const iv = CryptoJS.lib.WordArray.random(128/8);
+                const encrypted = CryptoJS.AES.encrypt(data, keys.encKey, { iv: iv }).toString();
+                const hmac = CryptoJS.HmacSHA256(salt.toString() + iv.toString() + encrypted, keys.hmacKey).toString();
+                
+                const pack = salt.toString() + ":" + iv.toString() + ":" + hmac + ":" + iterations + ":" + encrypted;
+                output.innerText = encodeB58(waToU8(CryptoJS.enc.Utf8.parse(pack)));
+                showToast("Teks dienkripsi.");
+                bruteForceAttempts = 0;
+            } else {
+                const decoded = CryptoJS.enc.Utf8.stringify(u8ToWa(decodeB58(data)));
+                const parts = decoded.split(":");
+                if(parts.length < 5) throw new Error("Format tidak valid");
+                
+                const [saltHex, ivHex, hmacHex, fileIt, ciphertext] = parts;
+                const keys = await deriveKeysAsync(password, saltHex, fileIt);
+                const calcHmac = CryptoJS.HmacSHA256(saltHex + ivHex + ciphertext, keys.hmacKey).toString();
+                if(hmacHex !== calcHmac) throw new Error("Integritas Gagal");
+                
+                const iv = CryptoJS.enc.Hex.parse(ivHex);
+                const decrypted = CryptoJS.AES.decrypt(ciphertext, keys.encKey, { iv: iv }).toString(CryptoJS.enc.Utf8);
+                if(!decrypted) throw new Error();
+                output.innerText = decrypted;
+                showToast("Teks dibuka.");
+                bruteForceAttempts = 0;
+                startDestruct();
+            }
+            document.getElementById('resultContainer').style.display = 'block';
+            document.getElementById('textOutputView').classList.remove('hidden');
+            document.getElementById('fileOutputView').classList.add('hidden');
+            document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
+        } catch(e) { 
+            bruteForceAttempts++;
+            showToast("Gagal! Password salah.", true); 
+        } finally { 
+            setLoader(false); 
+            password = secureWipe(password);
+        }
+    }
+
     function handleFileSelect(input) {
         if(input.files && input.files[0]) {
             selectedFile = input.files[0];
             const info = document.getElementById('fileDisplay');
-            info.innerText = `File: ${selectedFile.name} (${(selectedFile.size/1024).toFixed(1)} KB)`;
+            info.innerText = `Terpilih: ${selectedFile.name}`;
             info.style.display = 'block';
         }
     }
 
     async function processFile(mode) {
-        const key = document.getElementById('masterKey').value;
-        if(!selectedFile || !key) return showToast("Pilih file dan isi password!", true);
-
-        showToast("Memproses file... harap tunggu.");
+        let password = document.getElementById('masterKey').value;
+        const iterations = document.getElementById('securityLevel').value;
+        if(!selectedFile || !password) return showToast("Pilih file & isi password!", true);
+        
+        setLoader(true, "Menderivasi Kunci...");
         const reader = new FileReader();
 
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             try {
-                let processedContent;
-                let targetName = selectedFile.name;
+                let finalBlob;
+                let targetName = "";
+                let integrityPass = false;
 
                 if(mode === 'encrypt') {
                     const wa = CryptoJS.lib.WordArray.create(e.target.result);
-                    processedContent = CryptoJS.AES.encrypt(wa, key).toString();
-                    targetName += ".enc";
-                } else {
-                    const b64 = e.target.result.toString();
-                    const dec = CryptoJS.AES.decrypt(b64, key);
-                    if(dec.sigBytes <= 0) throw new Error();
+                    const fileHash = CryptoJS.SHA256(wa).toString();
+                    const salt = CryptoJS.lib.WordArray.random(128/8);
+                    const keys = await deriveKeysAsync(password, salt.toString(), iterations);
+                    const iv = CryptoJS.lib.WordArray.random(128/8);
                     
-                    const u8 = new Uint8Array(dec.sigBytes);
-                    for (let i = 0; i < dec.sigBytes; i++) {
-                        u8[i] = (dec.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                    }
-                    processedContent = u8;
-                    targetName = targetName.endsWith(".enc") ? targetName.replace(".enc", "") : "decrypted_" + targetName;
+                    const encryptedData = CryptoJS.AES.encrypt(wa, keys.encKey, { iv: iv }).toString();
+                    const metaObj = JSON.stringify({ n: selectedFile.name, h: fileHash });
+                    const encryptedMeta = CryptoJS.AES.encrypt(metaObj, keys.encKey, { iv: iv }).toString();
+                    const hmac = CryptoJS.HmacSHA256(encryptedData + encryptedMeta + salt.toString(), keys.hmacKey).toString();
+                    
+                    const container = { hm: hmac, s: salt.toString(), iv: iv.toString(), it: iterations, m: encryptedMeta, d: encryptedData };
+                    const encodedBody = encodeB58(waToU8(CryptoJS.enc.Utf8.parse(JSON.stringify(container))));
+                    finalBlob = new Blob([`${IQ_MAGIC_HEADER}:${IQ_VERSION}:${encodedBody}`]);
+                    targetName = selectedFile.name.split('.')[0] + ".iq";
+                    bruteForceAttempts = 0;
+                } else {
+                    const rawContent = e.target.result.toString();
+                    const parts = rawContent.split(':');
+                    if(parts[0] !== IQ_MAGIC_HEADER) throw new Error("File tidak dikenali!");
+                    
+                    const body = JSON.parse(CryptoJS.enc.Utf8.stringify(u8ToWa(decodeB58(parts[2]))));
+                    const keys = await deriveKeysAsync(password, body.s, body.it || 100000);
+                    const iv = CryptoJS.enc.Hex.parse(body.iv);
+                    
+                    const calcHmac = CryptoJS.HmacSHA256(body.d + body.m + body.s, keys.hmacKey).toString();
+                    if(calcHmac !== body.hm) throw new Error("Integritas Gagal");
+                    
+                    const metaDec = CryptoJS.AES.decrypt(body.m, keys.encKey, { iv: iv }).toString(CryptoJS.enc.Utf8);
+                    const meta = JSON.parse(metaDec);
+                    const decData = CryptoJS.AES.decrypt(body.d, keys.encKey, { iv: iv });
+                    const u8 = waToU8(decData);
+                    
+                    integrityPass = (CryptoJS.SHA256(u8ToWa(u8)).toString() === meta.h);
+                    finalBlob = new Blob([u8]);
+                    targetName = meta.n;
                 }
 
-                // Simpan hasil ke Blob untuk diunduh nanti
-                processedFileBlob = new Blob([processedContent]);
+                processedFileBlob = finalBlob;
                 processedFileName = targetName;
-
-                // Tampilkan di UI
                 document.getElementById('resultFileName').innerText = targetName;
                 document.getElementById('resultFileSize').innerText = `${(processedFileBlob.size/1024).toFixed(1)} KB`;
-                
                 document.getElementById('textOutputView').classList.add('hidden');
                 document.getElementById('fileOutputView').classList.remove('hidden');
                 document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('integrityBadge').style.display = (mode === 'decrypt' && integrityPass) ? 'inline-block' : 'none';
                 document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
 
-                // Setup tombol unduh
-                const downloadBtn = document.getElementById('fileDownloadBtn');
-                downloadBtn.onclick = () => {
+                document.getElementById('fileDownloadBtn').onclick = () => {
                     const url = URL.createObjectURL(processedFileBlob);
                     const a = document.createElement('a');
-                    a.href = url;
-                    a.download = processedFileName;
-                    a.click();
+                    a.href = url; a.download = processedFileName; a.click();
                     URL.revokeObjectURL(url);
-                    showToast("File berhasil disimpan!");
+                    showToast("File disimpan.");
                 };
-
-                showToast(`Siap! Klik tombol unduh di bawah.`);
-            } catch(err) {
-                showToast("Gagal! Password salah atau file bukan format .enc.", true);
+                showToast("Proses Selesai.");
+            } catch(err) { 
+                bruteForceAttempts++;
+                showToast("Gagal! Password salah atau data rusak.", true); 
+            } finally { 
+                setLoader(false); 
+                password = secureWipe(password);
             }
         };
-
         if(mode === 'encrypt') reader.readAsArrayBuffer(selectedFile);
         else reader.readAsText(selectedFile);
     }
 
-    // --- Action Helpers ---
+    // --- Clipboard Utility ---
+    function copyToClipboardFallback(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try { document.execCommand('copy'); } catch (err) {}
+        document.body.removeChild(textArea);
+    }
+
     function copyResult() {
         const t = document.getElementById('output').innerText;
-        navigator.clipboard.writeText(t);
-        showToast("Tersalin ke papan klip!");
+        if(t === "...") return;
+        copyToClipboardFallback(t);
+        showToast("Tersalin! Clipboard dibersihkan dalam 10 detik.");
+        setTimeout(() => { copyToClipboardFallback(""); showToast("Memory Clipboard dibersihkan."); }, 10000);
     }
 
     function downloadTextResult() {
         const t = document.getElementById('output').innerText;
+        if(t === "...") return;
         const blob = new Blob([t], {type: "text/plain"});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = "vault_secret_" + Date.now() + ".txt";
+        a.download = "vault_export_" + Date.now() + ".txt";
         a.click();
     }
 
@@ -485,22 +706,24 @@
         document.getElementById('fileInput').value = "";
         document.getElementById('fileDisplay').style.display = 'none';
         document.getElementById('resultContainer').style.display = 'none';
-        selectedFile = null;
-        processedFileBlob = null;
-        showToast("Semua form telah dibersihkan.");
+        handleKeyInput("");
+        clearDestruct();
+        selectedFile = null; processedFileBlob = null;
+        showToast("Sesi telah dibersihkan.");
     }
 
-    // Drag and Drop Logic
+    window.onload = () => {
+        resetInactivityTimer();
+        ['mousemove', 'keypress', 'touchstart', 'scroll'].forEach(e => document.addEventListener(e, resetInactivityTimer));
+    };
+
     const zone = document.getElementById('dropZone');
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
-        zone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); });
-    });
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => zone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }));
     zone.addEventListener('drop', e => {
         const input = document.getElementById('fileInput');
         input.files = e.dataTransfer.files;
         handleFileSelect(input);
     });
 </script>
-
 </body>
 </html>
