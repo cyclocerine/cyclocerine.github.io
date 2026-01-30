@@ -1,671 +1,506 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image & PDF Tools | Cinematic</title>
-
-    <!-- Dependencies -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
-
+    <title>Vault Pro Ultra - Security Suite</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            /* Cinematic Base */
-            --poster-title: 'Playfair Display', serif;
-            --poster-body: 'Lato', sans-serif;
-            --overlay-color-1: rgba(135, 206, 235, 0.3);
-            --overlay-color-2: rgba(255, 182, 193, 0.3);
-            --glass-bg: rgba(255, 255, 255, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --text-main: #2d3436;
-
-            /* Legacy Tools Remap (Dark -> Light Glass) */
-            --bg-primary: transparent;
-            --bg-secondary: transparent;
-            --bg-card: var(--glass-bg);
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-tertiary: #a855f7;
-            --text-primary: var(--text-main);
-            --text-secondary: #555;
-            --text-muted: #777;
-            --border-color: var(--glass-border);
-            --img-gradient: linear-gradient(135deg, #10b981, #059669);
-            --pdf-gradient: linear-gradient(135deg, #ef4444, #dc2626);
-            --math-gradient: linear-gradient(135deg, #F97316, #EA580C);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.2s ease; }
 
         body {
-            font-family: var(--poster-body);
-            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .vault-card {
+            background: var(--card);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 28px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .header p { color: var(--text-muted); margin-top: 8px; font-size: 0.95rem; }
+
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 14px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
             background: none;
-            /* Override */
-            cursor: none;
-        }
-
-        /* Cinematic Elements */
-        .cursor-outline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background 0.3s;
-        }
-
-        .cursor-outline.hovered {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        @media (hover: none) and (pointer: coarse) {
-            .cursor-outline {
-                display: none;
-            }
-
-            body,
-            a {
-                cursor: auto !important;
-            }
-        }
-
-        #atmosphere {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .cinematic-bg {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -3;
-            filter: blur(8px);
-            transform: scale(1.1);
-        }
-
-        .cinematic-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background: linear-gradient(135deg, var(--overlay-color-1), transparent, var(--overlay-color-2));
-            pointer-events: none;
-        }
-
-        /* Typography Override */
-        h1,
-        h2,
-        h3 {
-            font-family: var(--poster-title);
-        }
-
-        /* Remove Old Backgrounds */
-        .bg-gradient,
-        .grid-pattern {
-            display: none;
-        }
-
-        .grid-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-image:
-                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 24px 60px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 60px;
-            position: relative;
-        }
-
-        .back-link {
-            position: absolute;
-            left: 0;
-            top: 10px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 10px 18px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 50px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            color: var(--accent-primary);
-            border-color: var(--accent-primary);
-            transform: translateX(-5px);
-        }
-
-        .logo-icon {
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 24px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            box-shadow:
-                0 20px 50px -10px rgba(99, 102, 241, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        h1 {
-            font-size: clamp(2.5rem, 5vw, 3.5rem);
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 50%, var(--accent-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.7;
-        }
-
-        .section {
-            margin-bottom: 60px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .section-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-        }
-
-        .section-icon.img {
-            background: var(--img-gradient);
-            box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.4);
-        }
-
-        .section-icon.pdf {
-            background: var(--pdf-gradient);
-            box-shadow: 0 10px 30px -5px rgba(239, 68, 68, 0.4);
-        }
-
-        .section-icon.math {
-            background: var(--math-gradient);
-            box-shadow: 0 10px 30px -5px rgba(249, 115, 22, 0.4);
-        }
-
-        .section-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-        }
-
-        .section-title span {
-            color: var(--text-secondary);
-            font-weight: 400;
-            font-size: 1rem;
-            margin-left: 8px;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .tool-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .tool-card.img::before {
-            background: var(--img-gradient);
-        }
-
-        .tool-card.pdf::before {
-            background: var(--pdf-gradient);
-        }
-
-        .tool-card.math::before {
-            background: var(--math-gradient);
-        }
-
-        .tool-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent-primary);
-            box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
-        }
-
-        .tool-card:hover::before {
-            opacity: 1;
-        }
-
-        .tool-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-bottom: 16px;
-        }
-
-        .tool-card.img .tool-icon {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-        }
-
-        .tool-card.pdf .tool-icon {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-        }
-
-        .tool-card.math .tool-icon {
-            background: rgba(249, 115, 22, 0.15);
-            color: #F97316;
-        }
-
-        .tool-title {
-            font-size: 1.125rem;
+            cursor: pointer;
+            border-radius: 10px;
             font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .tool-description {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            line-height: 1.6;
-        }
-
-        .tool-arrow {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            width: 36px;
-            height: 36px;
-            background: rgba(99, 102, 241, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-primary);
-            transition: all 0.3s ease;
-            opacity: 0;
-        }
-
-        .tool-card:hover .tool-arrow {
-            opacity: 1;
-            transform: translateX(5px);
-        }
-
-        footer {
-            text-align: center;
-            padding-top: 40px;
-            border-top: 1px solid var(--border-color);
             color: var(--text-muted);
-            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        footer a {
-            color: var(--accent-primary);
-            text-decoration: none;
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        /* Form Inputs */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; }
+        
+        textarea, input {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            background: #fff;
+        }
+
+        textarea:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        textarea { height: 120px; resize: vertical; }
+
+        .password-wrapper { position: relative; }
+        .toggle-password {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+        }
+
+        /* File Drop Zone */
+        .file-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #fbfcfe;
+            position: relative;
+        }
+
+        .file-zone:hover { border-color: var(--primary); background: #f5f3ff; }
+        .file-zone i { color: var(--primary); margin-bottom: 12px; }
+        .file-info { margin-top: 15px; font-size: 0.85rem; color: var(--primary); font-weight: 600; display: none; }
+
+        /* Buttons Grid */
+        .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
+        .btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); }
+        .btn-secondary { background: #f1f5f9; color: var(--text-muted); width: 100%; margin-top: 12px; }
+
+        /* Result Visualization */
+        .result-area {
+            margin-top: 30px;
+            padding: 24px;
+            background: #f8fafc;
             border-radius: 20px;
-            margin-left: 8px;
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
+            border: 1px solid var(--border);
+            display: none;
+            animation: slideUp 0.3s ease-out;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px 16px 40px;
-            }
-
-            .back-link {
-                position: relative;
-                margin-bottom: 30px;
-            }
-
-            header {
-                margin-bottom: 40px;
-            }
-
-            .section-header {
-                flex-wrap: wrap;
-            }
-
-            .tools-grid {
-                grid-template-columns: 1fr;
-            }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .result-title { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+
+        #output {
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .file-result-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .action-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .action-btn {
+            padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border);
+            background: white; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            font-weight: 600; color: var(--text-main);
+        }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); background: #f5f3ff; }
+        .action-btn.download-trigger { background: var(--primary); color: white; border: none; }
+        .action-btn.download-trigger:hover { background: var(--primary-hover); color: white; }
+
+        /* Toast UI */
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #1e293b; color: white; padding: 14px 28px; border-radius: 50px;
+            font-weight: 600; z-index: 1000; opacity: 0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .hidden { display: none; }
     </style>
 </head>
-
 <body>
-    <!-- Background Layers -->
-    <div id="atmosphere"></div>
-    <img src="../assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
-    <div class="cinematic-overlay"></div>
-    <div class="cursor-outline"></div>
 
-    <div class="container" style="position: relative; z-index: 10;">
-        <header>
-            <a href="../" class="back-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Home
-            </a>
-            <div class="logo-icon"><i class="fi fi-rr-settings-sliders"></i></div>
-            <h1>Image & PDF Tools</h1>
-            <p class="subtitle">Free online tools for image and PDF processing. All processing happens in your browser -
-                no files are uploaded to any server.</p>
-        </header>
-
-        <!-- Image Tools Section -->
-        <section class="section">
-            <div class="section-header">
-                <div class="section-icon img"><i class="fi fi-rr-picture"></i></div>
-                <h2 class="section-title">Image Tools <span>10 tools available</span></h2>
-            </div>
-            <div class="tools-grid">
-                <a href="image/compress.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-compress-alt"></i></div>
-                    <h3 class="tool-title">Compress Image</h3>
-                    <p class="tool-description">Reduce image file size while maintaining quality. Perfect for web
-                        optimization.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/resize.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-expand"></i></div>
-                    <h3 class="tool-title">Resize Image</h3>
-                    <p class="tool-description">Change image dimensions by pixels or percentage with aspect ratio lock.
-                    </p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/crop.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-crop"></i></div>
-                    <h3 class="tool-title">Crop Image</h3>
-                    <p class="tool-description">Crop images with preset ratios or custom dimensions interactively.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/convert.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-refresh"></i></div>
-                    <h3 class="tool-title">Convert Image</h3>
-                    <p class="tool-description">Convert between JPG, PNG, WEBP, GIF and BMP formats easily.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/watermark.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-opacity"></i></div>
-                    <h3 class="tool-title">Add Watermark</h3>
-                    <p class="tool-description">Add text or image watermarks with customizable position and opacity.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/rotate.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-rotate-right"></i></div>
-                    <h3 class="tool-title">Rotate Image</h3>
-                    <p class="tool-description">Rotate images 90°, 180°, 270° or flip horizontally/vertically.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/meme-generator.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-laugh"></i></div>
-                    <h3 class="tool-title">Meme Generator</h3>
-                    <p class="tool-description">Create memes with top and bottom text, impact font style.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/photo-editor.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-palette"></i></div>
-                    <h3 class="tool-title">Photo Editor</h3>
-                    <p class="tool-description">Adjust brightness, contrast, saturation and apply filters.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/gif-maker.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-film"></i></div>
-                    <h3 class="tool-title">GIF Maker</h3>
-                    <p class="tool-description">Create animated GIFs from multiple images with custom delay.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="image/html-to-image.html" class="tool-card img">
-                    <div class="tool-icon"><i class="fi fi-rr-globe"></i></div>
-                    <h3 class="tool-title">HTML to Image</h3>
-                    <p class="tool-description">Convert HTML content to PNG or JPG image.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-            </div>
-        </section>
-
-        <!-- PDF Tools Section -->
-        <section class="section">
-            <div class="section-header">
-                <div class="section-icon pdf"><i class="fi fi-rr-document"></i></div>
-                <h2 class="section-title">PDF Tools <span>11 tools available</span></h2>
-            </div>
-            <div class="tools-grid">
-                <a href="pdf/merge.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-duplicate"></i></div>
-                    <h3 class="tool-title">Merge PDF</h3>
-                    <p class="tool-description">Combine multiple PDF files into a single document with reorder support.
-                    </p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/split.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-scissors"></i></div>
-                    <h3 class="tool-title">Split PDF</h3>
-                    <p class="tool-description">Extract specific pages or split PDF into individual pages.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/rotate.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-rotate-right"></i></div>
-                    <h3 class="tool-title">Rotate PDF</h3>
-                    <p class="tool-description">Rotate all or specific PDF pages by 90°, 180° or 270°.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/to-jpg.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-picture"></i></div>
-                    <h3 class="tool-title">PDF to JPG</h3>
-                    <p class="tool-description">Convert PDF pages to high-quality JPG images.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/jpg-to-pdf.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-document"></i></div>
-                    <h3 class="tool-title">JPG to PDF</h3>
-                    <p class="tool-description">Convert multiple images into a single PDF document.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/watermark.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-opacity"></i></div>
-                    <h3 class="tool-title">Watermark PDF</h3>
-                    <p class="tool-description">Add text or image watermarks to PDF with custom position.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/page-numbers.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-hashtag"></i></div>
-                    <h3 class="tool-title">Page Numbers</h3>
-                    <p class="tool-description">Add page numbers to PDF with custom format and position.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/compress.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-compress-alt"></i></div>
-                    <h3 class="tool-title">Compress PDF</h3>
-                    <p class="tool-description">Reduce PDF file size while maintaining readability.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/sign.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-edit"></i></div>
-                    <h3 class="tool-title">Sign PDF</h3>
-                    <p class="tool-description">Add digital signatures to PDF documents with draw canvas.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/protect.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-lock"></i></div>
-                    <h3 class="tool-title">Protect PDF</h3>
-                    <p class="tool-description">Add password protection to your PDF documents.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-
-                <a href="pdf/organize.html" class="tool-card pdf">
-                    <div class="tool-icon"><i class="fi fi-rr-clipboard"></i></div>
-                    <h3 class="tool-title">Organize PDF</h3>
-                    <p class="tool-description">Reorder, delete, and organize PDF pages visually.</p>
-                    <div class="tool-arrow">→</div>
-                </a>
-            </div>
-        </section>
-        <footer>
-            <p>🔒 Your files are processed locally in your browser. Nothing is uploaded to any server.</p>
-            <p style="margin-top: 12px;">Built with ❤️ by <a href="../">Cyclocerine</a></p>
-        </footer>
+<div class="vault-card">
+    <div class="header">
+        <h1><i data-lucide="shield-check"></i> Vault Pro Ultra</h1>
+        <p>Solusi enkripsi AES-256 untuk teks dan file Anda.</p>
     </div>
-    <script>
-        function initAtmosphere() {
-            const container = document.getElementById('atmosphere');
-            if (!container) return;
-            const particleCount = 20;
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('spirit-particle');
-                container.appendChild(particle);
-                animateParticle(particle);
-            }
-        }
-        function animateParticle(el) {
-            const size = Math.random() * 5 + 2;
-            el.style.width = `${size}px`;
-            el.style.height = `${size}px`;
-            el.style.left = `${Math.random() * 100}vw`;
-            el.style.top = `${Math.random() * 100}vh`;
-            el.style.opacity = Math.random() * 0.5 + 0.1;
-            anime({
-                targets: el, translateY: [{ value: -100, duration: anime.random(2000, 4000) }, { value: 100, duration: anime.random(2000, 4000) }],
-                translateX: [{ value: -50, duration: anime.random(2000, 4000) }, { value: 50, duration: anime.random(2000, 4000) }],
-                opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }],
-                easing: 'easeInOutSine', duration: anime.random(5000, 10000), complete: () => animateParticle(el)
-            });
-        }
-        const cursor = document.querySelector('.cursor-outline');
-        if (window.matchMedia("(pointer: fine)").matches) {
-            document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-            document.querySelectorAll('a, button, .tool-card').forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-            });
-        }
-        window.addEventListener('load', initAtmosphere);
-    </script>
-</body>
 
+    <div class="tabs">
+        <button class="tab-btn active" id="tabText" onclick="switchTab('text')"><i data-lucide="type"></i> Teks</button>
+        <button class="tab-btn" id="tabFile" onclick="switchTab('file')"><i data-lucide="file"></i> File</button>
+    </div>
+
+    <!-- Master Key Section -->
+    <div class="form-group">
+        <label>Kunci Rahasia (Wajib Diingat!)</label>
+        <div class="password-wrapper">
+            <input type="password" id="masterKey" placeholder="Masukkan password pengunci...">
+            <button class="toggle-password" onclick="togglePass()">
+                <i data-lucide="eye" id="eyeIcon"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Text Module -->
+    <div id="textSection">
+        <div class="form-group">
+            <label>Pesan / Ciphertext</label>
+            <textarea id="textInput" placeholder="Tulis pesan rahasia di sini atau tempel kode enkripsi..."></textarea>
+        </div>
+        <div class="button-grid">
+            <button class="btn btn-primary" onclick="processText('encrypt')"><i data-lucide="lock"></i> Enkripsi Teks</button>
+            <button class="btn btn-success" onclick="processText('decrypt')"><i data-lucide="unlock"></i> Dekripsi Teks</button>
+        </div>
+    </div>
+
+    <!-- File Module -->
+    <div id="fileSection" class="hidden">
+        <label>Unggah File</label>
+        <div class="file-zone" onclick="document.getElementById('fileInput').click()" id="dropZone">
+            <i data-lucide="upload-cloud" style="width: 48px; height: 48px;"></i>
+            <p>Klik atau Taruh file apa saja di sini</p>
+            <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(this)">
+            <div id="fileDisplay" class="file-info"></div>
+        </div>
+        <div class="button-grid">
+            <button class="btn btn-primary" onclick="processFile('encrypt')"><i data-lucide="file-lock"></i> Enkripsi File</button>
+            <button class="btn btn-success" onclick="processFile('decrypt')"><i data-lucide="file-unlock"></i> Dekripsi File</button>
+        </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="resetAll()"><i data-lucide="refresh-cw"></i> Bersihkan Semua</button>
+
+    <!-- Unified Result Area -->
+    <div id="resultContainer" class="result-area">
+        <div class="result-header">
+            <span class="result-title" id="resultLabel">Hasil Pemrosesan:</span>
+            <span id="timestamp" style="font-size: 0.7rem; color: var(--text-muted);"></span>
+        </div>
+
+        <!-- Text Result View -->
+        <div id="textOutputView">
+            <div id="output">...</div>
+            <div class="action-btns">
+                <button class="action-btn" onclick="copyResult()"><i data-lucide="copy"></i> Salin</button>
+                <button class="action-btn download-trigger" onclick="downloadTextResult()"><i data-lucide="download"></i> Simpan .txt</button>
+            </div>
+        </div>
+
+        <!-- File Result View -->
+        <div id="fileOutputView" class="hidden">
+            <div class="file-result-card">
+                <i data-lucide="file-check" style="color: var(--success); width: 32px; height: 32px;"></i>
+                <div>
+                    <div id="resultFileName" style="font-weight: 700; font-size: 0.9rem;">file_hasil.enc</div>
+                    <div id="resultFileSize" style="font-size: 0.75rem; color: var(--text-muted);">0 KB</div>
+                </div>
+            </div>
+            <div class="action-btns">
+                <button class="action-btn download-trigger" id="fileDownloadBtn"><i data-lucide="download-cloud"></i> Unduh File Hasil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast">Notifikasi</div>
+
+<script>
+    // Inisialisasi Ikon
+    lucide.createIcons();
+    
+    // Konfigurasi Base58 (Alphabet Tanpa Karakter Mirip)
+    const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    let selectedFile = null;
+    let processedFileBlob = null;
+    let processedFileName = "";
+
+    // --- Manajemen UI ---
+    function switchTab(type) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(type === 'text' ? 'tabText' : 'tabFile').classList.add('active');
+        
+        if(type === 'text') {
+            document.getElementById('textSection').classList.remove('hidden');
+            document.getElementById('fileSection').classList.add('hidden');
+        } else {
+            document.getElementById('textSection').classList.add('hidden');
+            document.getElementById('fileSection').classList.remove('hidden');
+        }
+        document.getElementById('resultContainer').style.display = 'none';
+    }
+
+    function togglePass() {
+        const input = document.getElementById('masterKey');
+        const icon = document.getElementById('eyeIcon');
+        input.type = input.type === 'password' ? 'text' : 'password';
+        icon.setAttribute('data-lucide', input.type === 'password' ? 'eye' : 'eye-off');
+        lucide.createIcons();
+    }
+
+    function showToast(msg, error = false) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.background = error ? '#ef4444' : '#1e293b';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // --- Base58 Engine ---
+    function encodeB58(src) {
+        if (src.length === 0) return '';
+        let digits = [0];
+        for (let i = 0; i < src.length; i++) {
+            for (let j = 0; j < digits.length; j++) digits[j] <<= 8;
+            digits[0] += src[i];
+            let carry = 0;
+            for (let j = 0; j < digits.length; j++) {
+                digits[j] += carry;
+                carry = (digits[j] / 58) | 0;
+                digits[j] %= 58;
+            }
+            while (carry) { digits.push(carry % 58); carry = (carry / 58) | 0; }
+        }
+        for (let i = 0; src[i] === 0 && i < src.length - 1; i++) digits.push(0);
+        return digits.reverse().map(d => ALPHABET[d]).join('');
+    }
+
+    function decodeB58(src) {
+        if (src.length === 0) return new Uint8Array(0);
+        let bytes = [0];
+        for (let i = 0; i < src.length; i++) {
+            let v = ALPHABET.indexOf(src[i]);
+            if (v === -1) return null;
+            for (let j = 0; j < bytes.length; j++) bytes[j] *= 58;
+            bytes[0] += v;
+            let carry = 0;
+            for (let j = 0; j < bytes.length; j++) {
+                bytes[j] += carry;
+                carry = bytes[j] >> 8;
+                bytes[j] &= 0xff;
+            }
+            while (carry) { bytes.push(carry & 0xff); carry >>= 8; }
+        }
+        for (let i = 0; src[i] === '1' && i < src.length - 1; i++) bytes.push(0);
+        return new Uint8Array(bytes.reverse());
+    }
+
+    // --- Kriptografi Teks ---
+    function processText(mode) {
+        const data = document.getElementById('textInput').value.trim();
+        const key = document.getElementById('masterKey').value;
+        const output = document.getElementById('output');
+        
+        if(!data || !key) return showToast("Lengkapi teks dan password!", true);
+
+        try {
+            if(mode === 'encrypt') {
+                const enc = CryptoJS.AES.encrypt(data, key).toString();
+                const u8 = new Uint8Array(CryptoJS.enc.Base64.parse(enc).words.flatMap(w => [
+                    (w >> 24) & 0xff, (w >> 16) & 0xff, (w >> 8) & 0xff, w & 0xff
+                ]).slice(0, CryptoJS.enc.Base64.parse(enc).sigBytes));
+                output.innerText = encodeB58(u8);
+                showToast("Teks berhasil diamankan!");
+            } else {
+                const u8 = decodeB58(data);
+                const wa = CryptoJS.lib.WordArray.create(u8);
+                const dec = CryptoJS.AES.decrypt(CryptoJS.enc.Base64.stringify(wa), key).toString(CryptoJS.enc.Utf8);
+                if(!dec) throw new Error();
+                output.innerText = dec;
+                showToast("Teks berhasil dibuka!");
+            }
+            
+            document.getElementById('textOutputView').classList.remove('hidden');
+            document.getElementById('fileOutputView').classList.add('hidden');
+            document.getElementById('resultContainer').style.display = 'block';
+            document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
+        } catch(e) { showToast("Gagal! Password salah atau kode rusak.", true); }
+    }
+
+    // --- Kriptografi File ---
+    function handleFileSelect(input) {
+        if(input.files && input.files[0]) {
+            selectedFile = input.files[0];
+            const info = document.getElementById('fileDisplay');
+            info.innerText = `File: ${selectedFile.name} (${(selectedFile.size/1024).toFixed(1)} KB)`;
+            info.style.display = 'block';
+        }
+    }
+
+    async function processFile(mode) {
+        const key = document.getElementById('masterKey').value;
+        if(!selectedFile || !key) return showToast("Pilih file dan isi password!", true);
+
+        showToast("Memproses file... harap tunggu.");
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                let processedContent;
+                let targetName = selectedFile.name;
+
+                if(mode === 'encrypt') {
+                    const wa = CryptoJS.lib.WordArray.create(e.target.result);
+                    processedContent = CryptoJS.AES.encrypt(wa, key).toString();
+                    targetName += ".enc";
+                } else {
+                    const b64 = e.target.result.toString();
+                    const dec = CryptoJS.AES.decrypt(b64, key);
+                    if(dec.sigBytes <= 0) throw new Error();
+                    
+                    const u8 = new Uint8Array(dec.sigBytes);
+                    for (let i = 0; i < dec.sigBytes; i++) {
+                        u8[i] = (dec.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                    }
+                    processedContent = u8;
+                    targetName = targetName.endsWith(".enc") ? targetName.replace(".enc", "") : "decrypted_" + targetName;
+                }
+
+                // Simpan hasil ke Blob untuk diunduh nanti
+                processedFileBlob = new Blob([processedContent]);
+                processedFileName = targetName;
+
+                // Tampilkan di UI
+                document.getElementById('resultFileName').innerText = targetName;
+                document.getElementById('resultFileSize').innerText = `${(processedFileBlob.size/1024).toFixed(1)} KB`;
+                
+                document.getElementById('textOutputView').classList.add('hidden');
+                document.getElementById('fileOutputView').classList.remove('hidden');
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
+
+                // Setup tombol unduh
+                const downloadBtn = document.getElementById('fileDownloadBtn');
+                downloadBtn.onclick = () => {
+                    const url = URL.createObjectURL(processedFileBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = processedFileName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast("File berhasil disimpan!");
+                };
+
+                showToast(`Siap! Klik tombol unduh di bawah.`);
+            } catch(err) {
+                showToast("Gagal! Password salah atau file bukan format .enc.", true);
+            }
+        };
+
+        if(mode === 'encrypt') reader.readAsArrayBuffer(selectedFile);
+        else reader.readAsText(selectedFile);
+    }
+
+    // --- Action Helpers ---
+    function copyResult() {
+        const t = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(t);
+        showToast("Tersalin ke papan klip!");
+    }
+
+    function downloadTextResult() {
+        const t = document.getElementById('output').innerText;
+        const blob = new Blob([t], {type: "text/plain"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "vault_secret_" + Date.now() + ".txt";
+        a.click();
+    }
+
+    function resetAll() {
+        document.getElementById('textInput').value = "";
+        document.getElementById('masterKey').value = "";
+        document.getElementById('fileInput').value = "";
+        document.getElementById('fileDisplay').style.display = 'none';
+        document.getElementById('resultContainer').style.display = 'none';
+        selectedFile = null;
+        processedFileBlob = null;
+        showToast("Semua form telah dibersihkan.");
+    }
+
+    // Drag and Drop Logic
+    const zone = document.getElementById('dropZone');
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+        zone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); });
+    });
+    zone.addEventListener('drop', e => {
+        const input = document.getElementById('fileInput');
+        input.files = e.dataTransfer.files;
+        handleFileSelect(input);
+    });
+</script>
+
+</body>
 </html>
