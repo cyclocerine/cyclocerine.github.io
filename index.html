@@ -29,28 +29,30 @@
     <!-- Typed.js -->
     <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
 
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+
     <style>
         :root {
             --poster-title: 'Playfair Display', serif;
             --poster-body: 'Lato', sans-serif;
-            --overlay-color-1: rgba(135, 206, 235, 0.3);
-            /* Soft Blue */
-            --overlay-color-2: rgba(255, 182, 193, 0.3);
-            /* Soft Pink */
-            --glass-bg: rgba(255, 255, 255, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.8);
-            --text-main: #2d3436;
+            --overlay-color-1: rgba(0, 0, 0, 0.03);
+            --overlay-color-2: rgba(0, 0, 0, 0.03);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-main: #1a1a1a;
         }
 
         body {
             font-family: var(--poster-body);
             color: var(--text-main);
+            background-color: #ffffff;
             overflow-x: hidden;
             cursor: none;
-            /* Hide default cursor */
         }
 
-        /* Force hide cursor on interactive elements to strictly use custom cursor */
         a,
         button,
         [role="button"],
@@ -60,14 +62,13 @@
             cursor: none !important;
         }
 
-        /* --- Custom Cursor --- */
         .cursor-outline {
             position: fixed;
             top: 0;
             left: 0;
             width: 30px;
             height: 30px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(0, 0, 0, 0.8);
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
@@ -78,10 +79,9 @@
         .cursor-outline.hovered {
             width: 60px;
             height: 60px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
         }
 
-        /* Hide cursor on mobile devices */
         @media (hover: none) and (pointer: coarse) {
             .cursor-outline {
                 display: none;
@@ -98,7 +98,6 @@
             }
         }
 
-        /* --- Atmosphere --- */
         #atmosphere {
             position: fixed;
             top: 0;
@@ -113,23 +112,8 @@
         .spirit-particle {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        /* --- Layers --- */
-        .cinematic-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -3;
-            filter: blur(8px);
-            /* Blurred background as requested */
-            transform: scale(1.1);
-            /* Prevent blur edges */
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .cinematic-overlay {
@@ -143,7 +127,6 @@
             pointer-events: none;
         }
 
-        /* --- Typography --- */
         h1,
         h2,
         h3,
@@ -183,7 +166,6 @@
             background: #1a1a1a;
         }
 
-        /* --- Glassmorphism --- */
         .glass-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -199,7 +181,6 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         }
 
-        /* --- Navigation --- */
         .nav-link {
             font-family: var(--poster-body);
             text-transform: uppercase;
@@ -222,7 +203,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        /* --- Animations --- */
         .fade-in-up {
             opacity: 0;
             transform: translateY(30px);
@@ -233,20 +213,96 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* --- Enhanced Neural Network Styles --- */
+        #nn-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        #nn-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .nn-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .data-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #60a5fa;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #60a5fa, 0 0 20px #60a5fa;
+            pointer-events: none;
+        }
+
+        .nn-stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nn-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nn-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 3px currentColor);
+            }
+
+            50% {
+                filter: drop-shadow(0 0 12px currentColor);
+            }
+        }
+
+        .nn-node-pulse {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
     </style>
 </head>
 
 <body>
-
-    <!-- Custom Cursor -->
     <div class="cursor-outline"></div>
-
-    <!-- Fixed Assets -->
-    <img src="assets/anime_lake_bg_compressed.webp" class="cinematic-bg" alt="Background">
+    <div class="fixed top-0 left-0 w-full h-full -z-30 bg-gradient-to-br from-white via-gray-50 to-white"></div>
     <div class="cinematic-overlay"></div>
     <div id="atmosphere"></div>
 
-    <!-- Navigation -->
     <nav class="fixed top-0 left-0 w-full p-4 lg:p-8 z-50 flex justify-between items-center transition-all duration-300"
         id="navbar">
         <a href="#home" class="text-2xl font-bold font-heading tracking-tighter">F.H.</a>
@@ -254,8 +310,6 @@
             <a href="#about" class="nav-link">About</a>
             <a href="#skills" class="nav-link">Skills</a>
             <a href="#projects" class="nav-link">Projects</a>
-            <!-- <a href="tools/" class="nav-link">Tools</a> -->
-            <!-- <a href="utility/" class="nav-link">Utility</a> -->
             <a href="#contact" class="nav-link">Contact</a>
         </div>
         <div class="flex gap-4">
@@ -266,22 +320,16 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main>
-
-        <!-- Hero Section (Full Screen) -->
+        <!-- Hero Section -->
         <section id="home"
             class="min-h-screen flex items-center justify-center lg:justify-start px-6 lg:px-24 pt-20 relative">
             <div class="max-w-4xl z-10">
-                <!-- <p class="text-xl italic text-gray-700 mb-2 fade-in-up-load">Since 202x</p> -->
-                <h1 class="movie-title mb-6 fade-in-up-load">
-                    Faiq<br>Hammam
-                </h1>
+                <h1 class="movie-title mb-6 fade-in-up-load">Faiq<br>Hammam</h1>
                 <div class="text-2xl md:text-3xl font-light mb-8 flex items-center gap-3 fade-in-up-load">
                     <span class="w-12 h-0.5 bg-black"></span>
                     <span id="typing-effect"></span>
                 </div>
-
                 <a href="#projects"
                     class="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest text-sm font-bold hover:bg-gray-800 transition-colors fade-in-up-load">
                     View Project Gallery
@@ -293,9 +341,7 @@
         <section id="about" class="py-24 px-6 lg:px-24">
             <div class="container mx-auto">
                 <h2 class="section-title reveal-on-scroll">The Protagonist</h2>
-
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center reveal-on-scroll">
-                    <!-- Profile Image -->
                     <div class="lg:col-span-4 flex justify-center lg:justify-start">
                         <div class="relative w-64 h-64 lg:w-80 lg:h-80">
                             <div class="absolute inset-0 bg-white/30 rounded-full blur-xl transform scale-110"></div>
@@ -303,16 +349,13 @@
                                 class="relative w-full h-full object-cover rounded-full border-4 border-white shadow-2xl">
                         </div>
                     </div>
-
-                    <!-- Bio -->
                     <div class="lg:col-span-8">
                         <div class="glass-panel">
                             <h3 class="text-2xl font-bold mb-4 font-heading">Faiq Hammam Mutaqin</h3>
                             <p class="text-lg leading-relaxed text-gray-800">
                                 An IT Engineer with a passion for tech, tinkering, and turning coffee into code. From
-                                building IoT projects to crafting smart solutions, I’m always exploring ways to bring
-                                ideas
-                                to life (sometimes with a soldering iron in one hand and a coffee mug in the other).
+                                building IoT projects to crafting smart solutions, I'm always exploring ways to bring
+                                ideas to life.
                             </p>
                             <p class="mt-4 text-lg leading-relaxed text-gray-800">
                                 Currently exploring the frontiers of Machine Learning and Web Technologies.
@@ -327,11 +370,9 @@
         <section id="skills" class="py-24 px-6 lg:px-24">
             <div class="container mx-auto">
                 <h2 class="section-title reveal-on-scroll">Special Abilities</h2>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reveal-on-scroll">
-                    <!-- Skill 1 -->
                     <div class="glass-panel hover:-translate-y-2">
-                        <div class="text-4xl mb-4 text-indigo-600"><i class="fa-solid fa-brain"></i></div>
+                        <div class="text-4xl mb-4 text-gray-800"><i class="fa-solid fa-brain"></i></div>
                         <h3 class="text-xl font-bold mb-4 font-heading">AI / ML</h3>
                         <ul class="space-y-2 text-gray-700">
                             <li>Python</li>
@@ -340,10 +381,8 @@
                             <li>Math & Statistics</li>
                         </ul>
                     </div>
-
-                    <!-- Skill 2 -->
                     <div class="glass-panel hover:-translate-y-2">
-                        <div class="text-4xl mb-4 text-pink-600"><i class="fa-solid fa-code"></i></div>
+                        <div class="text-4xl mb-4 text-gray-800"><i class="fa-solid fa-code"></i></div>
                         <h3 class="text-xl font-bold mb-4 font-heading">Web Development</h3>
                         <ul class="space-y-2 text-gray-700">
                             <li>HTML, CSS, JavaScript</li>
@@ -352,10 +391,8 @@
                             <li>React.js</li>
                         </ul>
                     </div>
-
-                    <!-- Skill 3 -->
                     <div class="glass-panel hover:-translate-y-2">
-                        <div class="text-4xl mb-4 text-teal-600"><i class="fa-solid fa-users"></i></div>
+                        <div class="text-4xl mb-4 text-gray-800"><i class="fa-solid fa-users"></i></div>
                         <h3 class="text-xl font-bold mb-4 font-heading">Soft Skills</h3>
                         <ul class="space-y-2 text-gray-700">
                             <li>Team Collaboration</li>
@@ -368,14 +405,99 @@
             </div>
         </section>
 
+        <!-- Neural Network Showcase -->
+        <section id="tech-showcase" class="py-24 px-6 lg:px-24 bg-gradient-to-b from-white to-gray-100">
+            <div class="container mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="section-title reveal-on-scroll mx-auto">Neural Architecture</h2>
+                    <p class="text-gray-600 mt-8 max-w-2xl mx-auto reveal-on-scroll">
+                        Watch data flow through a deep learning network. Each layer transforms raw market signals into
+                        actionable trading decisions.
+                    </p>
+                </div>
+
+                <div id="scene-brain" class="flex flex-col items-center justify-center">
+                    <div id="nn-container">
+                        <div class="nn-grid"></div>
+                        <svg id="nn-svg" class="w-full h-full" viewBox="0 0 900 500"
+                            preserveAspectRatio="xMidYMid meet">
+                            <defs>
+                                <linearGradient id="nodeGradientBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#3b82f6" />
+                                    <stop offset="100%" style="stop-color:#1d4ed8" />
+                                </linearGradient>
+                                <linearGradient id="nodeGradientPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#a855f7" />
+                                    <stop offset="100%" style="stop-color:#7c3aed" />
+                                </linearGradient>
+                                <linearGradient id="nodeGradientGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#22c55e" />
+                                    <stop offset="100%" style="stop-color:#16a34a" />
+                                </linearGradient>
+                                <linearGradient id="nodeGradientCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#06b6d4" />
+                                    <stop offset="100%" style="stop-color:#0891b2" />
+                                </linearGradient>
+                                <filter id="glow-blue">
+                                    <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                                <filter id="glow-purple">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <g id="nn-connections"></g>
+                            <g id="nn-nodes"></g>
+                        </svg>
+
+                        <!-- Layer Labels -->
+                        <div
+                            class="absolute top-4 left-0 right-0 flex justify-around text-xs font-mono text-white/40 uppercase tracking-widest px-8">
+                            <span>Input</span>
+                            <span>Hidden 1</span>
+                            <span>Hidden 2</span>
+                            <span>Hidden 3</span>
+                            <span>Output</span>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="nn-stats">
+                            <div class="nn-stat-item">
+                                <span>Accuracy</span>
+                                <span class="nn-stat-value" id="stat-accuracy">0%</span>
+                            </div>
+                            <div class="nn-stat-item">
+                                <span>Epoch</span>
+                                <span class="nn-stat-value" id="stat-epoch">0</span>
+                            </div>
+                            <div class="nn-stat-item">
+                                <span>Loss</span>
+                                <span class="nn-stat-value" id="stat-loss">1.000</span>
+                            </div>
+                            <div class="nn-stat-item">
+                                <span>Neurons</span>
+                                <span class="nn-stat-value">23</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mt-6 text-gray-400 text-sm italic">Scroll to train the network</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Projects Section -->
         <section id="projects" class="py-24 px-6 lg:px-24">
             <div class="container mx-auto">
                 <h2 class="section-title reveal-on-scroll">Featured Works</h2>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reveal-on-scroll">
-
-                    <!-- Project 1 -->
                     <a href="https://github.com/cyclocerine/HedgeFund" target="_blank" class="group">
                         <div class="glass-panel p-0 overflow-hidden h-full">
                             <div class="h-48 overflow-hidden relative">
@@ -386,7 +508,7 @@
                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
                             </div>
                             <div class="p-6">
-                                <span class="text-xs font-bold tracking-widest uppercase text-indigo-600">Machine
+                                <span class="text-xs font-bold tracking-widest uppercase text-gray-500">Machine
                                     Learning</span>
                                 <h3 class="text-2xl font-bold mt-2 mb-2 font-heading group-hover:underline">AI Hedge
                                     Fund</h3>
@@ -395,8 +517,6 @@
                             </div>
                         </div>
                     </a>
-
-                    <!-- Project 2 -->
                     <a href="https://github.com/cyclocerine/Stock-Price-Prediction" target="_blank" class="group">
                         <div class="glass-panel p-0 overflow-hidden h-full">
                             <div class="h-48 overflow-hidden relative">
@@ -407,7 +527,7 @@
                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
                             </div>
                             <div class="p-6">
-                                <span class="text-xs font-bold tracking-widest uppercase text-pink-600">Analytics</span>
+                                <span class="text-xs font-bold tracking-widest uppercase text-gray-500">Analytics</span>
                                 <h3 class="text-2xl font-bold mt-2 mb-2 font-heading group-hover:underline">Stock
                                     Predictor</h3>
                                 <p class="text-sm text-gray-600">Time-series forecasting models for financial markets.
@@ -415,8 +535,6 @@
                             </div>
                         </div>
                     </a>
-
-                    <!-- Project 3 -->
                     <a href="https://github.com/cyclocerine/Sudoku-Solver" target="_blank" class="group">
                         <div class="glass-panel p-0 overflow-hidden h-full">
                             <div class="h-48 overflow-hidden relative">
@@ -427,14 +545,13 @@
                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
                             </div>
                             <div class="p-6">
-                                <span class="text-xs font-bold tracking-widest uppercase text-teal-600">Logic</span>
+                                <span class="text-xs font-bold tracking-widest uppercase text-gray-500">Logic</span>
                                 <h3 class="text-2xl font-bold mt-2 mb-2 font-heading group-hover:underline">Sudoku
                                     Solver</h3>
                                 <p class="text-sm text-gray-600">Efficient backtracking algorithm visualization.</p>
                             </div>
                         </div>
                     </a>
-
                 </div>
             </div>
         </section>
@@ -444,8 +561,7 @@
             <div class="container mx-auto max-w-2xl text-center reveal-on-scroll">
                 <div class="glass-panel">
                     <h2 class="text-4xl font-bold mb-6 font-heading">Credits Scene?</h2>
-                    <p class="text-lg text-gray-700 mb-8">
-                        The story doesn't end here. Let's collaborate on the sequel.
+                    <p class="text-lg text-gray-700 mb-8">The story doesn't end here. Let's collaborate on the sequel.
                     </p>
                     <a href="mailto:hammamfaiq@protonmail.com"
                         class="inline-block bg-black text-white px-10 py-4 text-lg font-bold hover:bg-gray-800 transition-all rounded shadow-lg hover:shadow-xl transform hover:-translate-y-1">
@@ -455,7 +571,6 @@
             </div>
         </section>
 
-        <!-- Footer -->
         <footer class="py-6 text-center text-sm font-bold tracking-widest uppercase opacity-60">
             &copy; 2025 Cyclocerine.
         </footer>
@@ -471,12 +586,11 @@
             loop: true
         });
 
-        // --- Animations ---
+        // --- Scroll Reveal Animations ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     if (entry.target.classList.contains('grid-stagger')) {
-                        // Animate children staggers
                         anime({
                             targets: entry.target.children,
                             translateY: [50, 0],
@@ -485,7 +599,6 @@
                             delay: anime.stagger(150)
                         });
                     } else {
-                        // Animate self
                         entry.target.classList.add('visible');
                     }
                     observer.unobserve(entry.target);
@@ -493,20 +606,16 @@
             });
         }, { threshold: 0.1 });
 
-        // Observe section titles and grids
         document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
 
-        // Setup grids for staggering
         const skillsGrid = document.querySelector('#skills .grid');
         const projectsGrid = document.querySelector('#projects .grid');
 
         if (skillsGrid) {
             skillsGrid.classList.add('grid-stagger');
-            // Hide children initially for stagger
             Array.from(skillsGrid.children).forEach(c => c.style.opacity = '0');
             observer.observe(skillsGrid);
         }
-
         if (projectsGrid) {
             projectsGrid.classList.add('grid-stagger');
             Array.from(projectsGrid.children).forEach(c => c.style.opacity = '0');
@@ -523,17 +632,14 @@
                     el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
                 }, index * 200);
             });
-
             initAtmosphere();
         });
 
-        // 2. Atmospheric Particles
+        // Atmosphere Particles
         function initAtmosphere() {
             const container = document.getElementById('atmosphere');
             if (!container) return;
-            const particleCount = 20;
-
-            for (let i = 0; i < particleCount; i++) {
+            for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('spirit-particle');
                 container.appendChild(particle);
@@ -551,18 +657,9 @@
 
             anime({
                 targets: el,
-                translateY: [
-                    { value: -100, duration: anime.random(2000, 4000) },
-                    { value: 100, duration: anime.random(2000, 4000) }
-                ],
-                translateX: [
-                    { value: -50, duration: anime.random(2000, 4000) },
-                    { value: 50, duration: anime.random(2000, 4000) }
-                ],
-                opacity: [
-                    { value: 0.8, duration: 1000 },
-                    { value: 0, duration: 1000 }
-                ],
+                translateY: [{ value: -100, duration: anime.random(2000, 4000) }, { value: 100, duration: anime.random(2000, 4000) }],
+                translateX: [{ value: -50, duration: anime.random(2000, 4000) }, { value: 50, duration: anime.random(2000, 4000) }],
+                opacity: [{ value: 0.8, duration: 1000 }, { value: 0, duration: 1000 }],
                 easing: 'easeInOutSine',
                 duration: anime.random(5000, 10000),
                 complete: () => animateParticle(el)
@@ -572,28 +669,135 @@
         // Navbar Scroll
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled-nav');
-            } else {
-                navbar.classList.remove('scrolled-nav');
-            }
+            navbar.classList.toggle('scrolled-nav', window.scrollY > 50);
         });
 
-        // --- Custom Cursor Logic ---
+        // Custom Cursor
         const cursor = document.querySelector('.cursor-outline');
-
-        // Only activate custom cursor if pointer is fine (mouse)
         if (window.matchMedia("(pointer: fine)").matches) {
             document.addEventListener('mousemove', (e) => {
                 cursor.style.left = e.clientX + 'px';
                 cursor.style.top = e.clientY + 'px';
             });
-
             document.querySelectorAll('a, button').forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
             });
         }
+
+        // --- Enhanced Neural Network Visualization ---
+        gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+        function initNeuralNetwork() {
+            const nodesGroup = document.getElementById('nn-nodes');
+            const connectionsGroup = document.getElementById('nn-connections');
+            if (!nodesGroup || !connectionsGroup) return;
+
+            // Network architecture: [input, hidden1, hidden2, hidden3, output]
+            const layers = [4, 6, 6, 4, 3];
+            const width = 900;
+            const height = 500;
+            const padding = { x: 100, y: 80 };
+            const layerGap = (width - padding.x * 2) / (layers.length - 1);
+
+            const nodes = [];
+            const gradients = ['url(#nodeGradientBlue)', 'url(#nodeGradientCyan)', 'url(#nodeGradientPurple)', 'url(#nodeGradientPurple)', 'url(#nodeGradientGreen)'];
+
+            // Create nodes
+            layers.forEach((count, lIndex) => {
+                const x = padding.x + lIndex * layerGap;
+                const layerNodes = [];
+                const step = (height - padding.y * 2) / (count + 1);
+
+                for (let i = 0; i < count; i++) {
+                    const y = padding.y + (i + 1) * step;
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("cx", x);
+                    circle.setAttribute("cy", y);
+                    circle.setAttribute("r", lIndex === 0 || lIndex === layers.length - 1 ? 12 : 10);
+                    circle.setAttribute("fill", gradients[lIndex]);
+                    circle.setAttribute("class", "nn-node");
+                    circle.setAttribute("opacity", "0.3");
+                    nodesGroup.appendChild(circle);
+                    layerNodes.push({ x, y, el: circle });
+                }
+                nodes.push(layerNodes);
+            });
+
+            // Create connections
+            const lines = [];
+            for (let i = 0; i < nodes.length - 1; i++) {
+                nodes[i].forEach(nodeA => {
+                    nodes[i + 1].forEach(nodeB => {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", nodeA.x);
+                        line.setAttribute("y1", nodeA.y);
+                        line.setAttribute("x2", nodeB.x);
+                        line.setAttribute("y2", nodeB.y);
+                        line.setAttribute("stroke", "rgba(255,255,255,0.05)");
+                        line.setAttribute("stroke-width", "1");
+                        line.setAttribute("class", "nn-connection");
+                        connectionsGroup.appendChild(line);
+                        lines.push({ el: line, fromLayer: i });
+                    });
+                });
+            }
+
+            // GSAP Timeline for scroll animation
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#scene-brain",
+                    start: "top center",
+                    end: "bottom center",
+                    scrub: 1,
+                }
+            });
+
+            // Animate layer by layer
+            nodes.forEach((layer, lIndex) => {
+                const delay = lIndex * 0.15;
+
+                // Activate nodes
+                tl.to(layer.map(n => n.el), {
+                    opacity: 1,
+                    attr: { r: lIndex === 0 || lIndex === layers.length - 1 ? 14 : 12 },
+                    duration: 0.3,
+                    stagger: 0.05,
+                    ease: "power2.out"
+                }, delay);
+
+                // Activate connections from this layer
+                if (lIndex < layers.length - 1) {
+                    const layerConnections = lines.filter(l => l.fromLayer === lIndex).map(l => l.el);
+                    tl.to(layerConnections, {
+                        attr: { stroke: lIndex < 2 ? "rgba(59,130,246,0.4)" : "rgba(168,85,247,0.4)", "stroke-width": 1.5 },
+                        duration: 0.4,
+                        stagger: { amount: 0.2, from: "random" }
+                    }, delay + 0.1);
+                }
+            });
+
+            // Animate stats
+            tl.to({}, {
+                duration: 1,
+                onUpdate: function () {
+                    const progress = this.progress();
+                    document.getElementById('stat-accuracy').textContent = Math.round(progress * 94.7) + '%';
+                    document.getElementById('stat-epoch').textContent = Math.round(progress * 150);
+                    document.getElementById('stat-loss').textContent = (1 - progress * 0.95).toFixed(3);
+                }
+            }, 0);
+
+            // Add pulsing effect to output nodes at the end
+            tl.to(nodes[nodes.length - 1].map(n => n.el), {
+                filter: "url(#glow-blue)",
+                duration: 0.5
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(initNeuralNetwork, 100);
+        });
     </script>
 </body>
 
