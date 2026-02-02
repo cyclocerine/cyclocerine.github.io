@@ -1,3 +1,8 @@
+---
+layout: terminal
+title: Kernel Feelings - System Diagnostic
+---
+
 # System Diagnostic Report
 
 **Build:** v2025.08-stable  
@@ -72,6 +77,7 @@ Investigating recurring interruption signals from external sources. See full log
 ```
 
 ---
+
 *Device ID: 0x758A628*  
 *Module: heart_core*  
 *Status: permanently_attached*

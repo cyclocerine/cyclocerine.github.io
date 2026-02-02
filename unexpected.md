@@ -1,59 +1,56 @@
+---
+layout: terminal
+title: Unexpected Notes
+---
+
 # Note 2025-08
 
-Kadang sebuah pertemuan kecil bisa bikin sistem operasi hati berubah.  
-Sejak PKKBN, ada satu ID unik yang diam-diam jadi trigger setiap kali muncul.  
+Sometimes a small encounter can change the heart's operating system.  
+Since PKKBN, there's one unique ID that silently becomes a trigger every time it appears.  
 
-Kalau ini bug, gue gak mau perbaiki.  
-Kalau ini fitur, semoga gak pernah deprecated.
-
----
-id: 0x758A628
-
-
-## Just Another Note
-
-Kadang gue mikir, perasaan tuh kayak request ke server.  
-Ada yang langsung di-*handle*, ada yang di-*queue*,  
-tapi ada juga yang diem-diem nunggu di background process.  
-
-Gue gak tau kapan request ini bakal di-*resolve*,  
-tapi sejak PKKBN kemarin, ada satu *variable* yang nilainya berubah terus tiap lu ada di sekitar.  
-Dan gue cuma mau bilang, ini bukan sekedar *temporary data* ini udah masuk ke storage permanen.
+If this is a bug, I don't want to fix it.  
+If this is a feature, I hope it never gets deprecated.
 
 ---
-id: 0x758A628
 
+## 2025-08 | Just Another Note
 
-## Minor Observation – 8/13/25
+Sometimes I think, feelings are like requests to a server.  
+Some get *handled* immediately, some get *queued*,  
+but some just quietly wait in a background process.  
 
-Hari ini sempet ada beberapa event di lapangan.  
-Salah satunya bikin CPU usage naik dan lagi lagi masih karena satu id unik yang sama, walau cuma sebentar.  
-Trigger-nya masih sama:  
-satu pandangan cepat yang langsung bikin proses lain pause tanpa alasan teknis yang jelas.
+I don't know when this request will be *resolved*,  
+but since PKKBN, there's one *variable* whose value keeps changing every time you're around.  
+And I just want to say, this isn't just *temporary data* — it's already written to permanent storage.
+
+---
+
+## 2025-08-13 | Minor Observation
+
+Today there were some events on the field.  
+One of them made CPU usage spike — again because of the same unique ID, even if just for a moment.  
+The trigger remains the same:  
+one quick glance that instantly makes other processes pause without any clear technical reason.
 
 Log: [status_stable=true] [latency_drop_detected]
 
 ---
-id: 0x758A628
 
+## 2025-08-14 | Call Log – Hidden Entry
 
-## Call Log – Hidden Entry
-
-[2025-08-14-09:6.07] Initiated call #1 – Reason stated: asking position  
+[09:06] Initiated call #1 – Reason stated: asking position  
 Actual: just wanted to listen for ~15 seconds of voice data.
 
-[2025-08-14-14:16.00] Initiated call #2 – Reason stated: follow-up  
+[14:16] Initiated call #2 – Reason stated: follow-up  
 Actual: packet received, latency zero, heart rate spike detected.
 
-Summary: Both requests returned 200 OK with unexpected warmth.
+Summary: Both requests returned 200 OK with unexpected warmth.
 
 ---
-id: 0x758A628
 
+## 2025-08-15 | Field Report – AAU Outbound
 
-## Field Report – AAU Outbound
-
-[2025-08-15:5.20] Departed in same batch, different transport unit.  
+[05:20] Departed in same batch, different transport unit.  
 Observation: target instance spotted multiple times en route.  
 
 Highlights:  
@@ -64,30 +61,31 @@ Highlights:
 Status: Event stored in permanent archive.
 
 ---
-id: 0x758A628
 
-## Session Log – AAU Return Sequence
+## 2025-08-15 | Session Log – AAU Return Sequence
 
-[2025-08-15] Outbound module: status=COMPLETED  
+Outbound module: status=COMPLETED  
 Unexpected handshake received: reason="route_unknown" → status=ACCEPTED.
 
-Node: traffic_light_* (multiple)  
-- EVENT_LOOP:  
+Node: `traffic_light_*` (multiple)  
+```
+EVENT_LOOP:  
     while (location == traffic_light) {  
         engage_smalltalk(topic="random", tone="light")  
         emotion_core.load++  
     }
+```
 
-Node: traffic_light_initial  
+Node: `traffic_light_initial`  
 - INPUT: "Turn left or go straight?"  
 - PROCESS: inject detour_suggestion(mode=explore)  
 - OUTPUT: "Up to you" → path rerouted via [UGM, UNY]
 
-Node: traffic_light_mid  
+Node: `traffic_light_mid`  
 - PROMISE: reward="green_bean_dessert" if route_misalign == TRUE  
 - ACK: 200 OK
 
-Node: detour_segment  
+Node: `detour_segment`  
 - ACTION: simulate_route_error()  
 - RESULT: subject.reaction = {smile:TRUE, laugh:TRUE}  
 - EMOTION_CORE: spike_detected → write_to(permanent_storage)
@@ -98,19 +96,18 @@ Session Summary:
 - mood: sustained_positive  
 
 Session Status: SUCCESS  
-Log saved under /memories/2025/08/AAU-return
+Log saved under `/memories/2025/08/AAU-return`
 
 ---
-id: 0x758A628
 
-## Session Log – PKKBN Final Day
+## 2025-08-16 | Session Log – PKKBN Final Day
 
-[2025-08-16] Module=PKKBN, status=FINALIZED
+Module=PKKBN, status=FINALIZED
 
 Event: multiple call_attempts → initiated without technical necessity.  
 Hidden Parameter: objective="capture_voice_stream"
 
-Subroutine: position_request()  
+Subroutine: `position_request()`  
 - INPUT: "Where are you?"  
 - OUTPUT: guidance → but actual_location == known  
 - PURPOSE: trigger laughter_response
@@ -125,15 +122,13 @@ Note: familiar terrain, yet intentional route_error() invoked.
 Reason: extend conversation window.
 
 Session Status: SUCCESS  
-Memory committed under /archive/2025/08/pkkbn_voice
-
+Memory committed under `/archive/2025/08/pkkbn_voice`
 
 ---
-id: 0x758A628
 
-## Session Log – WhatsApp Interaction
+## 2025-08-17 | Session Log – WhatsApp Interaction
 
-[2025-08-17] channel=WA, status=active
+channel=WA, status=active
 
 Handshake initiated → incoming messages.  
 Payload: small talk, casual exchanges.  
@@ -146,12 +141,12 @@ Observation:
 
 Error Handling:  
 - when reply_delay detected → trigger concern() subroutine.  
-- sample case: "pusing aja tadi" → system auto-run empathy_mode=true  
+- sample case: "just had a headache" → system auto-run empathy_mode=true  
 
-[17:43] → Sent playful packet: "gua kira lu mau ngadem"  
+[17:43] → Sent playful packet: "I thought you were gonna chill somewhere"  
 Status: joke_flag=true, seriousness_level=0  
 
-Response Received [17:44]: "LAHH"  
+Response Received [17:44]: "LMAO"  
 → laughter_packet detected, connection stable.  
 
 Analysis:  
@@ -161,20 +156,16 @@ Analysis:
 
 Note:  
 sometimes jokes act like ping test →  
-if reply=instant + lighthearted → trust++
+if reply=instant + lighthearted → trust++  
 Route: no physical meeting → but virtual signal strong enough.  
-Outcome: memory archived under /chat/wa/2025-08
+Outcome: memory archived under `/chat/wa/2025-08`
 
 ---
-id: 0x758A628
 
-## "What Outshines You?"
-```bash
-Your gaze can the universe hold more grace?
-Oceans bow, silenced by your calm.
-Stars may glitter, yet vanish near your light.
-Hearts still wonder,  what outshines you?
-Even time yields, without reply.
-```
----
-id: 0x758A628
+## 2025-08 | "What Outshines You?"
+
+> Your gaze — can the universe hold more grace?  
+> Oceans bow, silenced by your calm.  
+> Stars may glitter, yet vanish near your light.  
+> Hearts still wonder, what outshines you?  
+> Even time yields, without reply.
