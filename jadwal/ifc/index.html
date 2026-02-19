@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Jadwal IF-C</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @keyframes progress-stripe {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 40px 0;
+            }
+        }
+
+        .animate-progress {
+            background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            animation: progress-stripe 2s linear infinite;
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 selection:bg-emerald-100 selection:text-emerald-700 pb-40 transition-colors duration-300">
+
+    <!-- Header -->
+    <header
+        class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 px-4 py-4 md:px-8">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <a href="../"
+                    class="bg-slate-100 dark:bg-slate-800 p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-emerald-600 transition-colors border border-slate-200 dark:border-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 19-7-7 7-7" />
+                        <path d="M19 12H5" />
+                    </svg>
+                </a>
+                <div class="bg-emerald-600 p-2 rounded-xl text-white shadow-lg shadow-emerald-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="9" x="3" y="3" rx="1" />
+                        <rect width="7" height="5" x="14" y="3" rx="1" />
+                        <rect width="7" height="9" x="14" y="12" rx="1" />
+                        <rect width="7" height="5" x="3" y="16" rx="1" />
+                    </svg>
+                </div>
+                <div>
+                    <h1
+                        class="text-xl md:text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">
+                        IF-C <span class="text-emerald-600">DASHBOARD</span>
+                    </h1>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Automated Sync System
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="toggleDarkMode()"
+                    class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all">
+                    <svg class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                    </svg>
+                    <svg class="block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                </button>
+                <div
+                    class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-700 shadow-sm border border-slate-100 dark:border-slate-600 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="current-time-display"
+                            class="text-sm font-black text-slate-700 dark:text-white tracking-tight">00:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Next Event Card -->
+        <div id="next-event-banner" class="mb-8 hidden">
+            <div
+                class="bg-gradient-to-r from-emerald-600 to-emerald-800 p-6 rounded-[2.5rem] shadow-xl shadow-emerald-500/20 text-white relative overflow-hidden">
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.3em] text-emerald-100 mb-1">Mata Kuliah
+                            Berikutnya</p>
+                        <h2 id="next-event-title" class="text-2xl font-black tracking-tight">Memuat...</h2>
+                        <div class="flex items-center gap-4 mt-2">
+                            <span id="next-event-time"
+                                class="text-sm font-bold bg-white/20 px-3 py-1 rounded-full border border-white/20">--:--</span>
+                            <span id="next-event-loc"
+                                class="text-sm font-medium opacity-80 flex items-center gap-1 italic">📍 Lokasi</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute right-[-20px] top-[-20px] opacity-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="m12 14 4-4" />
+                        <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm">
+                <div class="flex items-center gap-2 text-emerald-600 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Waktu Berlalu</span>
+                </div>
+                <p id="stats-progress" class="text-3xl font-black text-slate-900 dark:text-white">0%</p>
+            </div>
+            <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm">
+                <div class="flex items-center gap-2 text-amber-600 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-amber-500">Total MK</span>
+                </div>
+                <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">11 <span
+                        class="text-xs text-slate-400 font-bold uppercase ml-1">Sesi</span></p>
+            </div>
+            <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm">
+                <div class="flex items-center gap-2 text-emerald-600 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Sisa Agenda</span>
+                </div>
+                <p id="stats-remaining" class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">0
+                </p>
+            </div>
+            <div
+                class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm">
+                <div class="flex items-center gap-2 text-rose-600 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-rose-500">Semester</span>
+                </div>
+                <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">2 <span
+                        class="text-xs text-slate-400 font-bold uppercase ml-1">Genap</span></p>
+            </div>
+        </div>
+
+        <!-- Day Selector -->
+        <div class="mb-10">
+            <div id="day-selector" class="flex overflow-x-auto gap-3 pb-4 no-scrollbar -mx-4 px-4 snap-x"></div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="grid lg:grid-cols-3 gap-10">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex items-center justify-between mb-2 px-2">
+                    <h2
+                        class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                        <span class="w-2.5 h-6 bg-emerald-600 rounded-full"></span>
+                        Timeline <span id="active-day-name">Senin</span>
+                    </h2>
+                    <div id="active-day-focus"
+                        class="bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-full text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-slate-700 shadow-sm">
+                        Memuat Info...
+                    </div>
+                </div>
+                <div id="timeline-container" class="space-y-2"></div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="hidden lg:block space-y-8">
+                <div
+                    class="bg-slate-900 dark:bg-emerald-950/40 border border-slate-800 p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <h3 class="text-2xl font-black text-white mb-6 leading-tight uppercase tracking-tighter">
+                            Ringkasan<br />Mingguan</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Senin</span>
+                                    <span class="text-white text-xs font-bold">2 Kelas</span>
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Selasa</span>
+                                    <span class="text-white text-xs font-bold">4 Kelas</span>
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Rabu</span>
+                                    <span class="text-white text-xs font-bold">2 Kelas</span>
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Kamis</span>
+                                    <span class="text-white text-xs font-bold">2 Kelas</span>
+                                </div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span
+                                        class="text-slate-400 text-[10px] font-black uppercase tracking-widest">Jumat</span>
+                                    <span class="text-white text-xs font-bold">2 Kelas</span>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-white/10 space-y-3">
+                                <p
+                                    class="text-xs text-slate-400 font-bold uppercase tracking-widest italic flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 11 Sesi / Minggu
+                                </p>
+                                <p
+                                    class="text-xs text-slate-400 font-bold uppercase tracking-widest italic flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Selasa Paling Padat
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute bottom-[-30px] right-[-30px] opacity-10 group-hover:scale-110 transition-transform duration-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-emerald-50 dark:bg-slate-900/50 border border-emerald-100 dark:border-slate-800 p-8 rounded-[3rem]">
+                    <div class="flex items-center gap-2 text-emerald-600 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <span class="text-xs font-black uppercase tracking-widest">Note Semester 2</span>
+                    </div>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed italic">
+                        "Selasa hari paling padat — 4 sesi berturut-turut. Siapkan catatan dan tugas sebelumnya agar
+                        tidak keteteran."
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Progress -->
+    <footer
+        class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-2xl border-t border-slate-200 dark:border-slate-800 p-5 md:p-8 z-50">
+        <div class="max-w-4xl mx-auto flex flex-col gap-3">
+            <div class="flex items-center justify-between px-1">
+                <div class="flex items-center gap-2">
+                    <svg class="text-emerald-600 fill-emerald-600" xmlns="http://www.w3.org/2000/svg" width="16"
+                        height="16" viewBox="0 0 24 24">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                    <span
+                        class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Timeline
+                        Progress Hari Ini</span>
+                </div>
+                <span id="footer-progress-text" class="text-xs font-black text-emerald-600">0%</span>
+            </div>
+            <div
+                class="relative w-full h-4 sm:h-5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 shadow-inner">
+                <div id="footer-progress-bar"
+                    class="h-full bg-emerald-600 transition-all duration-1000 ease-out relative shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                    style="width: 0%">
+                    <div class="absolute inset-0 animate-progress"></div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        const scheduleData = [
+            {
+                day: 'Senin', focus: '2 Mata Kuliah',
+                events: [
+                    { id: 'c-s1', time: '08:10 - 09:00', title: 'Olah Raga II', loc: 'Lapangan M', type: 'olahraga' },
+                    { id: 'c-s2', time: '15:00 - 17:30', title: 'Jaringan Komputer', loc: 'Patt.III-3A', type: 'kuliah' },
+                ]
+            },
+            {
+                day: 'Selasa', focus: '4 Sesi — Hari Terpadat',
+                events: [
+                    { id: 'c-sl1', time: '10:00 - 11:45', title: 'Matriks & Ruang Vektor', loc: 'Patt.II-3B', type: 'kuliah' },
+                    { id: 'c-sl2', time: '13:00 - 15:00', title: 'Prakt. AP Lanjut (IF-E)', loc: 'Lab Komputasi', type: 'praktikum' },
+                    { id: 'c-sl3', time: '13:00 - 15:00', title: 'Prakt. AP Lanjut (IF-F)', loc: 'Lab Internet of Things', type: 'praktikum' },
+                    { id: 'c-sl4', time: '15:00 - 17:30', title: 'Sistem & Teknologi Informasi', loc: 'Patt.I-3D', type: 'kuliah' },
+                ]
+            },
+            {
+                day: 'Rabu', focus: '2 Mata Kuliah',
+                events: [
+                    { id: 'c-r1', time: '12:30 - 14:15', title: 'Kalkulus Lanjut', loc: 'Patt.III-3D', type: 'kuliah' },
+                    { id: 'c-r2', time: '15:30 - 17:30', title: 'Prakt. Jaringan Komputer (IF-E)', loc: 'Lab Jaringan', type: 'praktikum' },
+                ]
+            },
+            {
+                day: 'Kamis', focus: '2 Mata Kuliah',
+                events: [
+                    { id: 'c-k1', time: '07:30 - 09:15', title: 'Algoritma & Pemrograman Lanjut', loc: 'Patt.II-3D', type: 'kuliah' },
+                    { id: 'c-k2', time: '10:00 - 12:30', title: 'Statistika', loc: 'Patt.II-3D', type: 'kuliah' },
+                ]
+            },
+            {
+                day: 'Jumat', focus: '2 Sesi',
+                events: [
+                    { id: 'c-j1', time: '07:30 - 09:15', title: 'Bahasa Inggris', loc: 'Patt.II-3B', type: 'kuliah' },
+                    { id: 'c-j2', time: '15:30 - 17:30', title: 'Prakt. Jaringan Komputer (IF-F)', loc: 'Lab Jaringan', type: 'praktikum' },
+                ]
+            },
+            { day: 'Sabtu', focus: 'Hari Libur', events: [{ id: 'c-sb1', time: '08:00 - 22:00', title: 'Tidak Ada Jadwal Kuliah', type: 'libur' }] },
+            { day: 'Minggu', focus: 'Hari Libur', events: [{ id: 'c-m1', time: '08:00 - 22:00', title: 'Tidak Ada Jadwal Kuliah', type: 'libur' }] }
+        ];
+
+        let activeDay = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+        let completedTasks = JSON.parse(localStorage.getItem('ifc_tasks')) || {};
+
+        const icons = {
+            kuliah: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+            praktikum: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>',
+            olahraga: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>',
+            libur: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
+        };
+
+        const timeToMinutes = (t) => { const [h, m] = t.trim().split(':').map(Number); return h * 60 + m; };
+        const isCurrentEvent = (timeRange) => {
+            const [start, end] = timeRange.split(' - ');
+            const now = new Date();
+            const nowStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            return nowStr >= start && nowStr <= end && activeDay === (now.getDay() === 0 ? 6 : now.getDay() - 1);
+        };
+        const toggleDarkMode = () => document.documentElement.classList.toggle('dark');
+        const getTypeLabel = (t) => ({ kuliah: 'Kuliah', praktikum: 'Praktikum', olahraga: 'Olahraga', libur: 'Libur' }[t] || t);
+        const getTypeColor = (t) => ({ kuliah: 'text-emerald-600', praktikum: 'text-amber-600', olahraga: 'text-sky-600', libur: 'text-slate-400' }[t] || 'text-slate-500');
+
+        const renderDays = () => {
+            document.getElementById('day-selector').innerHTML = days.map((day, idx) => `
+                <button onclick="setActiveDay(${idx})" class="px-8 py-5 rounded-3xl font-black transition-all whitespace-nowrap border-2 snap-start ${activeDay === idx ? 'bg-emerald-600 border-emerald-600 text-white shadow-xl shadow-emerald-500/30 scale-[1.05]' : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-emerald-100'}">${day.toUpperCase()}</button>
+            `).join('');
+        };
+
+        const renderTimeline = (shouldAnimate = true) => {
+            const container = document.getElementById('timeline-container');
+            const data = scheduleData[activeDay];
+            const now = new Date();
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            const isToday = activeDay === (now.getDay() === 0 ? 6 : now.getDay() - 1);
+            document.getElementById('active-day-name').innerText = data.day;
+            document.getElementById('active-day-focus').innerText = data.focus;
+            let remainingCount = 0;
+            container.innerHTML = data.events.map((event, idx) => {
+                const isOngoing = isCurrentEvent(event.time);
+                const isDone = completedTasks[event.id];
+                const endTime = timeToMinutes(event.time.split(' - ')[1]);
+                if (isToday && nowMinutes < endTime) remainingCount++;
+                const bgClass = isDone ? 'bg-slate-50 dark:bg-slate-900 opacity-40' : (isOngoing ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 ring-4 ring-emerald-500/10' : 'bg-white dark:bg-slate-900');
+                const typeColor = getTypeColor(event.type);
+                return `
+                    <div class="flex gap-4 sm:gap-8 ${shouldAnimate ? 'animate-fade-up' : ''}" style="animation-delay: ${idx * 0.05}s">
+                        <div class="w-12 sm:w-20 shrink-0 flex flex-col items-center pt-8">
+                            <span class="text-[10px] sm:text-xs font-black transition-colors ${isOngoing ? 'text-emerald-600' : 'text-slate-400 dark:text-slate-600'}">${event.time.split(' - ')[0]}</span>
+                            <div class="w-1 h-full my-3 rounded-full transition-colors ${isOngoing ? 'bg-emerald-600' : 'bg-slate-100 dark:bg-slate-800'}"></div>
+                        </div>
+                        <div onclick="toggleTask('${event.id}')" class="flex-1 mb-6 p-6 sm:p-8 rounded-[2.5rem] border-2 cursor-pointer transition-all hover:scale-[1.01] ${bgClass} border-slate-100 dark:border-slate-800">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="${typeColor} opacity-80">${icons[event.type] || icons.kuliah}</span>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.2em] ${typeColor} opacity-70">${getTypeLabel(event.type)} ${isOngoing ? '• BERLANGSUNG' : ''}</span>
+                                    </div>
+                                    <h3 class="text-lg sm:text-xl font-black leading-tight ${isDone ? 'line-through text-slate-400' : 'text-slate-900 dark:text-white'}">${event.title}</h3>
+                                    ${event.loc && !isDone ? `<div class="flex flex-wrap gap-x-5 gap-y-2 pt-3"><div class="flex items-center gap-1.5 text-xs font-bold opacity-60 italic text-slate-500 dark:text-slate-400">📍 ${event.loc}</div></div>` : ''}
+                                </div>
+                                <div class="flex flex-col items-end shrink-0 gap-4">
+                                    <div class="text-[10px] font-black px-2.5 py-1 rounded-xl border-2 ${isOngoing ? 'bg-emerald-600 text-white border-emerald-600' : 'opacity-20 border-current'}">${event.time.split(' - ')[1]}</div>
+                                    ${isDone ? '<div class="bg-emerald-500 p-1.5 rounded-full text-white shadow-lg shadow-emerald-500/20"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' : '<div class="w-7 h-7 border-2 border-slate-200 dark:border-slate-700 rounded-full hover:border-emerald-400 transition-colors"></div>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+            document.getElementById('stats-remaining').innerText = isToday ? remainingCount : '-';
+            updateNextEvent();
+        };
+
+        const updateNextEvent = () => {
+            const now = new Date();
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            const currentDayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
+            const events = scheduleData[currentDayIdx].events;
+            const next = events.find(e => e.type !== 'libur' && timeToMinutes(e.time.split(' - ')[0]) > nowMinutes);
+            const banner = document.getElementById('next-event-banner');
+            if (next && activeDay === currentDayIdx) {
+                banner.classList.remove('hidden');
+                document.getElementById('next-event-title').innerText = next.title;
+                document.getElementById('next-event-time').innerText = next.time.split(' - ')[0];
+                document.getElementById('next-event-loc').innerText = '📍 ' + (next.loc || 'TBA');
+            } else { banner.classList.add('hidden'); }
+        };
+
+        window.setActiveDay = (idx) => { activeDay = idx; renderDays(); renderTimeline(true); updateProgress(); };
+        window.toggleTask = (id) => { completedTasks[id] = !completedTasks[id]; localStorage.setItem('ifc_tasks', JSON.stringify(completedTasks)); renderTimeline(false); };
+
+        const updateProgress = () => {
+            const now = new Date();
+            const currentDayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
+            const events = scheduleData[currentDayIdx].events;
+            let progress = 0;
+            if (events && events.length > 0 && events[0].type !== 'libur') {
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                const start = timeToMinutes(events[0].time.split(' - ')[0]);
+                const end = timeToMinutes(events[events.length - 1].time.split(' - ')[1]);
+                if (currentMinutes >= start) { progress = currentMinutes > end ? 100 : Math.floor(((currentMinutes - start) / (end - start)) * 100); }
+            }
+            document.getElementById('stats-progress').innerText = `${progress}%`;
+            document.getElementById('footer-progress-text').innerText = `${progress}%`;
+            document.getElementById('footer-progress-bar').style.width = `${progress}%`;
+        };
+
+        const updateTime = () => {
+            const now = new Date();
+            document.getElementById('current-time-display').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            updateProgress();
+            if (now.getSeconds() === 0) renderTimeline(false);
+        };
+
+        window.onload = () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
+            renderDays(); renderTimeline(); updateTime(); setInterval(updateTime, 1000);
+        };
+    </script>
+</body>
+
+</html>
