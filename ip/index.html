@@ -54,7 +54,6 @@
                             <div>
                                 <label class="block text-sm font-medium mb-1">Subnet Mask / Prefix</label>
                                 <select id="v4-mask" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
-                                    <!-- Options populated by JS -->
                                 </select>
                             </div>
                             <button onclick="calculateIPv4()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition">Hitung</button>
@@ -86,11 +85,9 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Visual Bitmask -->
                     <div class="card p-6">
                         <h3 class="text-sm font-bold text-slate-400 uppercase mb-3">Binary Bitmask Visualization</h3>
                         <div id="v4-bits" class="flex flex-wrap gap-1 font-mono text-[10px] md:text-xs">
-                            <!-- Bits populated by JS -->
                         </div>
                     </div>
                 </div>
@@ -111,7 +108,6 @@
                             <div>
                                 <label class="block text-sm font-medium mb-1">Prefix Length</label>
                                 <select id="v6-mask" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
-                                    <!-- Options populated by JS -->
                                 </select>
                             </div>
                             <button onclick="calculateIPv6()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700">Hitung IPv6</button>
@@ -158,7 +154,7 @@
                 </div>
                 <div id="vlsm-inputs" class="space-y-3 mb-4">
                     <div class="flex space-x-2 items-center">
-                        <input type="text" placeholder="Nama (e.g. WiFi)" class="flex-1 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-name">
+                        <input type="text" placeholder="Nama" class="flex-1 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-name">
                         <input type="number" placeholder="Host" class="w-24 md:w-32 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-hosts">
                         <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded">✕</button>
                     </div>
@@ -177,6 +173,8 @@
                             <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Avail</th>
                             <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Network</th>
                             <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Prefix</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 text-blue-500">Start IP</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 text-blue-500">End IP</th>
                             <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Broadcast</th>
                         </tr>
                     </thead>
@@ -253,7 +251,6 @@
 
         // -- Population Logic --
         function populateMasks() {
-            // IPv4 Mask Dropdown
             const v4Select = document.getElementById('v4-mask');
             for (let i = 32; i >= 0; i--) {
                 const maskLong = (0xFFFFFFFF << (32 - i)) >>> 0;
@@ -264,7 +261,6 @@
                 v4Select.appendChild(option);
             }
 
-            // IPv6 Mask Dropdown
             const v6Select = document.getElementById('v6-mask');
             for (let i = 128; i >= 1; i--) {
                 const option = document.createElement('option');
@@ -314,7 +310,6 @@
             document.getElementById('v4-res-mask').innerText = longToIp(maskLong);
             document.getElementById('v4-res-type').innerText = getIPv4Details(ipLong);
 
-            // Binary View
             const bitsContainer = document.getElementById('v4-bits');
             bitsContainer.innerHTML = "";
             const binaryStr = (ipLong >>> 0).toString(2).padStart(32, '0');
@@ -387,12 +382,18 @@
                 let net = currentIp;
                 let bc = net + size - 1;
 
+                // Hitung rentang host yang bisa digunakan
+                let startIp = prefix >= 31 ? "-" : longToIp(net + 1);
+                let endIp = prefix >= 31 ? "-" : longToIp(bc - 1);
+
                 html += `<tr>
                     <td class="px-4 py-3">${s.name}</td>
                     <td class="px-4 py-3">${s.req}</td>
                     <td class="px-4 py-3 text-blue-500 font-bold">${size-2}</td>
                     <td class="px-4 py-3">${longToIp(net)}</td>
                     <td class="px-4 py-3">/${prefix}</td>
+                    <td class="px-4 py-3 font-medium text-emerald-600">${startIp}</td>
+                    <td class="px-4 py-3 font-medium text-emerald-600">${endIp}</td>
                     <td class="px-4 py-3">${longToIp(bc)}</td>
                 </tr>`;
                 currentIp += size;
@@ -453,7 +454,6 @@
             addVlsmRow();
         };
 
-        // Event listeners for selects to auto-update
         document.getElementById('v4-mask').addEventListener('change', calculateIPv4);
         document.getElementById('v6-mask').addEventListener('change', calculateIPv6);
     </script>
