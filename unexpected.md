@@ -1,9 +1,6 @@
----
-layout: terminal
-title: Unexpected Notes
----
-
 # Note 2025-08
+
+id: 0x758A628
 
 Sometimes a small encounter can change the heart's operating system.  
 Since PKKBN, there's one unique ID that silently becomes a trigger every time it appears.  
@@ -12,6 +9,7 @@ If this is a bug, I don't want to fix it.
 If this is a feature, I hope it never gets deprecated.
 
 ---
+id: 0x758A628
 
 ## 2025-08 | Just Another Note
 
@@ -24,6 +22,7 @@ but since PKKBN, there's one *variable* whose value keeps changing every time yo
 And I just want to say, this isn't just *temporary data* — it's already written to permanent storage.
 
 ---
+id: 0x758A628
 
 ## 2025-08-13 | Minor Observation
 
@@ -35,6 +34,7 @@ one quick glance that instantly makes other processes pause without any clear te
 Log: [status_stable=true] [latency_drop_detected]
 
 ---
+id: 0x758A628
 
 ## 2025-08-14 | Call Log – Hidden Entry
 
@@ -47,6 +47,7 @@ Actual: packet received, latency zero, heart rate spike detected.
 Summary: Both requests returned 200 OK with unexpected warmth.
 
 ---
+id: 0x758A628
 
 ## 2025-08-15 | Field Report – AAU Outbound
 
@@ -61,6 +62,7 @@ Highlights:
 Status: Event stored in permanent archive.
 
 ---
+id: 0x758A628
 
 ## 2025-08-15 | Session Log – AAU Return Sequence
 
@@ -99,6 +101,7 @@ Session Status: SUCCESS
 Log saved under `/memories/2025/08/AAU-return`
 
 ---
+id: 0x758A628
 
 ## 2025-08-16 | Session Log – PKKBN Final Day
 
@@ -125,6 +128,7 @@ Session Status: SUCCESS
 Memory committed under `/archive/2025/08/pkkbn_voice`
 
 ---
+id: 0x758A628
 
 ## 2025-08-17 | Session Log – WhatsApp Interaction
 
@@ -161,6 +165,7 @@ Route: no physical meeting → but virtual signal strong enough.
 Outcome: memory archived under `/chat/wa/2025-08`
 
 ---
+id: 0x758A628
 
 ## 2025-08 | "What Outshines You?"
 

@@ -1,8 +1,3 @@
----
-layout: terminal
-title: Kernel Feelings - System Diagnostic
----
-
 # System Diagnostic Report
 
 **Build:** v2025.08-stable  
