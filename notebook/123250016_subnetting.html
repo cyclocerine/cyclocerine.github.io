@@ -53,7 +53,7 @@
 
         h1 {
             font-size: 22px;
-            margin: 0 0 5px 0;
+            margin: 0;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -78,8 +78,6 @@
         .section-title {
             font-size: 18px;
             font-weight: bold;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 3px;
             margin-top: 35px;
             margin-bottom: 15px;
             text-transform: uppercase;
@@ -105,9 +103,7 @@
         }
 
         .calc-box {
-            background-color: #fdfdfd;
-            border: 1px solid #ddd;
-            padding: 15px;
+            padding: 10px 0;
             margin: 15px 0;
             font-size: 15px;
         }
@@ -116,7 +112,6 @@
             margin-top: 60px;
             text-align: right;
             font-size: 12px;
-            border-top: 1px solid #eee;
             padding-top: 10px;
         }
 
@@ -131,7 +126,6 @@
 <div class="paper">
     <header>
         <h1>Laporan Perhitungan Subnetting VLSM</h1>
-        <p style="margin: 5px 0;">UPN Kampus II - Fakultas Ilmu Komputer</p>
     </header>
 
     <div class="info">
@@ -151,22 +145,21 @@
         </table>
     </div>
 
-    <div class="section-title">I. Hirarki Alokasi Host</div>
-    <p>Berdasarkan teknik VLSM, pembagian blok IP dilakukan mulai dari kebutuhan host yang paling besar untuk meminimalisir pemborosan IP address:</p>
+    <div class="section-title">I. Alokasi Host</div>
     <ol>
         <li><strong>Lab Geoinformatika:</strong> 105 PC</li>
         <li><strong>Lab Basis Data:</strong> 31 PC</li>
         <li><strong>Lab IoT:</strong> 14 PC</li>
     </ol>
 
-    <div class="section-title">II. Rincian Perhitungan Matematis</div>
+    <div class="section-title">II. Perhitungan</div>
 
     <div class="calc-box">
         <strong>1. Lab Geoinformatika (105 PC)</strong>
         <p>
             Kebutuhan: $105$ host.<br>
             Gunakan rumus: $2^n - 2 \ge \text{jumlah host}$<br>
-            $2^7 - 2 = 128 - 2 = 126$ (Mencukupi).<br>
+            $2^7 - 2 = 128 - 2 = 126$.<br>
             Prefix: $32 - 7 = /25$<br>
             Subnet Mask: $255.255.255.128$
         </p>
@@ -176,8 +169,8 @@
         <strong>2. Lab Basis Data (31 PC)</strong>
         <p>
             Kebutuhan: $31$ host.<br>
-            $2^5 - 2 = 30$ (Tidak cukup).<br>
-            $2^6 - 2 = 62$ (Mencukupi).<br>
+            $2^5 - 2 = 30$.<br>
+            $2^6 - 2 = 62$.<br>
             Prefix: $32 - 6 = /26$<br>
             Subnet Mask: $255.255.255.192$
         </p>
@@ -187,7 +180,7 @@
         <strong>3. Lab IoT (14 PC)</strong>
         <p>
             Kebutuhan: $14$ host.<br>
-            $2^4 - 2 = 16 - 2 = 14$ (Tepat).<br>
+            $2^4 - 2 = 16 - 2 = 14$.<br>
             Prefix: $32 - 4 = /28$<br>
             Subnet Mask: $255.255.255.240$
         </p>
