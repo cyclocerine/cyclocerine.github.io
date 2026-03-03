@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator IP Pro Ultimate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #3b82f6; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
+        .dark { background-color: #0f172a; color: #f1f5f9; }
+        .dark .card { background-color: #1e293b; border-color: #334155; color: #f1f5f9; }
+        .dark .tab-active { color: #60a5fa; border-color: #60a5fa; }
+        .mono { font-family: 'Fira Code', monospace; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .tab-active { border-bottom: 3px solid var(--primary); color: var(--primary); font-weight: 700; }
+        .btn-copy:active { transform: scale(0.9); }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.5em; }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4" id="body-tag">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-8">
+            <div class="text-left">
+                <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">IP Network <span class="text-blue-600">Pro</span></h1>
+                <p class="text-slate-500 dark:text-slate-400">Toolkit lengkap untuk IPv4, IPv6, VLSM, dan FLSM.</p>
+            </div>
+            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:opacity-80 transition">
+                <span id="dark-icon">🌙</span>
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex overflow-x-auto no-scrollbar justify-start md:justify-center mb-8 space-x-4 md:space-x-8 border-b border-slate-200 dark:border-slate-700">
+            <button onclick="switchTab('ipv4')" id="tab-ipv4" class="px-4 py-2 text-slate-500 whitespace-nowrap transition tab-active">IPv4</button>
+            <button onclick="switchTab('ipv6')" id="tab-ipv6" class="px-4 py-2 text-slate-500 whitespace-nowrap transition">IPv6</button>
+            <button onclick="switchTab('vlsm')" id="tab-vlsm" class="px-4 py-2 text-slate-500 whitespace-nowrap transition">VLSM</button>
+            <button onclick="switchTab('flsm')" id="tab-flsm" class="px-4 py-2 text-slate-500 whitespace-nowrap transition">FLSM</button>
+        </div>
+
+        <!-- IPv4 Content -->
+        <div id="content-ipv4" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold mb-4">Input IPv4</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Alamat IP</label>
+                                <input type="text" id="v4-ip" value="192.168.1.1" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Subnet Mask / Prefix</label>
+                                <select id="v4-mask" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                    <!-- Options populated by JS -->
+                                </select>
+                            </div>
+                            <button onclick="calculateIPv4()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition">Hitung</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="card p-6 overflow-x-auto">
+                        <table class="w-full text-left">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <tr>
+                                    <td class="py-3 text-slate-500">Network Address</td>
+                                    <td class="py-3 font-bold mono flex justify-between">
+                                        <span id="v4-res-net">-</span>
+                                        <button onclick="copyToClipboard('v4-res-net')" class="text-blue-500 text-xs hover:underline">Copy</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 text-slate-500">Broadcast Address</td>
+                                    <td class="py-3 font-bold mono flex justify-between">
+                                        <span id="v4-res-bc">-</span>
+                                        <button onclick="copyToClipboard('v4-res-bc')" class="text-blue-500 text-xs hover:underline">Copy</button>
+                                    </td>
+                                </tr>
+                                <tr><td class="py-3 text-slate-500">Usable Range</td><td id="v4-res-range" class="py-3 mono">-</td></tr>
+                                <tr><td class="py-3 text-slate-500">Total Usable Hosts</td><td id="v4-res-count" class="py-3 font-semibold">-</td></tr>
+                                <tr><td class="py-3 text-slate-500">Subnet Mask</td><td id="v4-res-mask" class="py-3 mono">-</td></tr>
+                                <tr><td class="py-3 text-slate-500">IP Type / Class</td><td id="v4-res-type" class="py-3">-</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Visual Bitmask -->
+                    <div class="card p-6">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase mb-3">Binary Bitmask Visualization</h3>
+                        <div id="v4-bits" class="flex flex-wrap gap-1 font-mono text-[10px] md:text-xs">
+                            <!-- Bits populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IPv6 Content -->
+        <div id="content-ipv6" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold mb-4">Input IPv6</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">IPv6 Address</label>
+                                <input type="text" id="v6-ip" value="2001:db8::1" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Prefix Length</label>
+                                <select id="v6-mask" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                    <!-- Options populated by JS -->
+                                </select>
+                            </div>
+                            <button onclick="calculateIPv6()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700">Hitung IPv6</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="card p-6 space-y-6">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Expanded (Full) Address</p>
+                            <p id="v6-res-full" class="mono break-all text-indigo-600 font-bold">-</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase">Network Prefix</p>
+                                <p id="v6-res-net" class="mono">-</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase">Total Addresses</p>
+                                <p id="v6-res-hosts" class="mono">2^n</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase">Address Type</p>
+                            <p id="v6-res-type" class="font-semibold">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VLSM Content -->
+        <div id="content-vlsm" class="tab-content hidden">
+            <div class="card p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-blue-600">Perhitungan VLSM</h2>
+                    <button onclick="exportToCSV('vlsm-table-body', 'vlsm_export.csv')" class="text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded hover:bg-slate-200 transition">Export CSV</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Major Network (e.g., 192.168.1.0/24)</label>
+                        <input type="text" id="vlsm-major" value="192.168.1.0/24" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div id="vlsm-inputs" class="space-y-3 mb-4">
+                    <div class="flex space-x-2 items-center">
+                        <input type="text" placeholder="Nama (e.g. WiFi)" class="flex-1 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-name">
+                        <input type="number" placeholder="Host" class="w-24 md:w-32 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-hosts">
+                        <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded">✕</button>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="addVlsmRow()" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition">Tambah Subnet</button>
+                    <button onclick="calculateVLSM()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none">Hitung VLSM</button>
+                </div>
+            </div>
+            <div id="vlsm-result" class="card overflow-x-auto hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
+                        <tr>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Nama</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Req</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Avail</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Network</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Prefix</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Broadcast</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vlsm-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 mono text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FLSM Content -->
+        <div id="content-flsm" class="tab-content hidden">
+            <div class="card p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 text-emerald-600">Perhitungan FLSM</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Major Network</label>
+                        <input type="text" id="flsm-major" value="10.0.0.0/8" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Jumlah Subnet</label>
+                        <input type="number" id="flsm-count" value="8" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button onclick="calculateFLSM()" class="mt-4 px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">Proses FLSM</button>
+            </div>
+            <div id="flsm-result" class="card overflow-x-auto hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
+                        <tr>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">#</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Network</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Range Host</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Broadcast</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flsm-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 mono text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -- Utility --
+        const ipToLong = ip => ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+        const longToIp = long => [(long >>> 24) & 0xFF, (long >>> 16) & 0xFF, (long >>> 8) & 0xFF, long & 0xFF].join('.');
+        
+        function toggleDarkMode() {
+            const body = document.getElementById('body-tag');
+            const icon = document.getElementById('dark-icon');
+            body.classList.toggle('dark');
+            icon.innerText = body.classList.contains('dark') ? '☀️' : '🌙';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.remove('tab-active'));
+            document.getElementById('content-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+        }
+
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).innerText;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = originalText, 1500);
+        }
+
+        // -- Population Logic --
+        function populateMasks() {
+            // IPv4 Mask Dropdown
+            const v4Select = document.getElementById('v4-mask');
+            for (let i = 32; i >= 0; i--) {
+                const maskLong = (0xFFFFFFFF << (32 - i)) >>> 0;
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = `/${i} (${longToIp(maskLong)})`;
+                if (i === 24) option.selected = true;
+                v4Select.appendChild(option);
+            }
+
+            // IPv6 Mask Dropdown
+            const v6Select = document.getElementById('v6-mask');
+            for (let i = 128; i >= 1; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = `/${i}`;
+                if (i === 64) option.selected = true;
+                v6Select.appendChild(option);
+            }
+        }
+
+        // -- IPv4 --
+        function getIPv4Details(long) {
+            const first = (long >>> 24) & 0xFF;
+            let type = "Public";
+            
+            if (first === 10) type = "Private (Class A)";
+            else if (first === 172 && ((long >>> 16) & 0xFF) >= 16 && ((long >>> 16) & 0xFF) <= 31) type = "Private (Class B)";
+            else if (first === 192 && ((long >>> 16) & 0xFF) === 168) type = "Private (Class C)";
+            else if (first === 127) type = "Loopback";
+            else if (first === 169 && ((long >>> 16) & 0xFF) === 254) type = "Link-Local (APIPA)";
+            else if (first >= 224 && first <= 239) type = "Multicast (Class D)";
+            
+            let cls = "E";
+            if (first < 128) cls = "A";
+            else if (first < 192) cls = "B";
+            else if (first < 224) cls = "C";
+            else if (first < 240) cls = "D";
+
+            return `${type} / Kelas ${cls}`;
+        }
+
+        function calculateIPv4() {
+            const ip = document.getElementById('v4-ip').value.trim();
+            const mask = parseInt(document.getElementById('v4-mask').value);
+            
+            if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ip)) return;
+
+            const ipLong = ipToLong(ip);
+            const maskLong = (0xFFFFFFFF << (32 - mask)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+            const bcLong = (netLong | (~maskLong)) >>> 0;
+
+            document.getElementById('v4-res-net').innerText = longToIp(netLong);
+            document.getElementById('v4-res-bc').innerText = longToIp(bcLong);
+            document.getElementById('v4-res-range').innerText = mask >= 31 ? "-" : `${longToIp(netLong+1)} - ${longToIp(bcLong-1)}`;
+            document.getElementById('v4-res-count').innerText = mask >= 31 ? 0 : (Math.pow(2, 32-mask)-2).toLocaleString('id-ID');
+            document.getElementById('v4-res-mask').innerText = longToIp(maskLong);
+            document.getElementById('v4-res-type').innerText = getIPv4Details(ipLong);
+
+            // Binary View
+            const bitsContainer = document.getElementById('v4-bits');
+            bitsContainer.innerHTML = "";
+            const binaryStr = (ipLong >>> 0).toString(2).padStart(32, '0');
+            for(let i=0; i<32; i++) {
+                const dot = (i > 0 && i % 8 === 0) ? '<span class="text-slate-300 dark:text-slate-600 mx-1">.</span>' : '';
+                const color = i < mask ? 'text-blue-500 font-bold' : 'text-slate-400 dark:text-slate-500';
+                bitsContainer.innerHTML += `${dot}<span class="${color}">${binaryStr[i]}</span>`;
+            }
+        }
+
+        // -- IPv6 --
+        function calculateIPv6() {
+            let ip = document.getElementById('v6-ip').value.trim();
+            const prefix = parseInt(document.getElementById('v6-mask').value);
+            
+            let parts = ip.split('::');
+            let fullArr = [];
+            if(parts.length === 2) {
+                let left = parts[0].split(':').filter(x => x !== "");
+                let right = parts[1].split(':').filter(x => x !== "");
+                let missing = 8 - (left.length + right.length);
+                fullArr = [...left, ...Array(missing).fill("0000"), ...right].map(x => x.padStart(4, '0'));
+            } else {
+                fullArr = ip.split(':').map(x => x.padStart(4, '0'));
+            }
+            const full = fullArr.join(':');
+
+            document.getElementById('v6-res-full').innerText = full;
+            document.getElementById('v6-res-net').innerText = full.substring(0, Math.ceil(prefix/4) + Math.floor(prefix/16)) + "... /" + prefix;
+            document.getElementById('v6-res-hosts').innerText = prefix > 120 ? "2^" + (128 - prefix) : (128 - prefix) + " bits available";
+            
+            let type = "Global Unicast";
+            if(full.startsWith('fe80')) type = "Link-Local Unicast";
+            else if(full.startsWith('ff')) type = "Multicast";
+            else if(full === '0000:0000:0000:0000:0000:0000:0000:0001') type = "Loopback";
+            document.getElementById('v6-res-type').innerText = type;
+        }
+
+        // -- VLSM --
+        function addVlsmRow() {
+            const div = document.createElement('div');
+            div.className = "flex space-x-2 items-center";
+            div.innerHTML = `
+                <input type="text" placeholder="Nama" class="flex-1 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-name">
+                <input type="number" placeholder="Host" class="w-24 md:w-32 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-hosts">
+                <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded">✕</button>
+            `;
+            document.getElementById('vlsm-inputs').appendChild(div);
+        }
+        function removeVlsmRow(btn) { btn.parentElement.remove(); }
+
+        function calculateVLSM() {
+            const majorRaw = document.getElementById('vlsm-major').value.split('/');
+            if (majorRaw.length < 2) return;
+            let currentIp = ipToLong(majorRaw[0]);
+            const subnets = [];
+            
+            document.querySelectorAll('.subnet-name').forEach((el, i) => {
+                const hosts = parseInt(document.querySelectorAll('.subnet-hosts')[i].value);
+                if(hosts) subnets.push({ name: el.value || `Subnet ${i+1}`, req: hosts });
+            });
+
+            subnets.sort((a, b) => b.req - a.req);
+
+            let html = "";
+            subnets.forEach(s => {
+                let bits = Math.ceil(Math.log2(s.req + 2));
+                let prefix = 32 - bits;
+                let size = Math.pow(2, bits);
+                let net = currentIp;
+                let bc = net + size - 1;
+
+                html += `<tr>
+                    <td class="px-4 py-3">${s.name}</td>
+                    <td class="px-4 py-3">${s.req}</td>
+                    <td class="px-4 py-3 text-blue-500 font-bold">${size-2}</td>
+                    <td class="px-4 py-3">${longToIp(net)}</td>
+                    <td class="px-4 py-3">/${prefix}</td>
+                    <td class="px-4 py-3">${longToIp(bc)}</td>
+                </tr>`;
+                currentIp += size;
+            });
+
+            document.getElementById('vlsm-table-body').innerHTML = html;
+            document.getElementById('vlsm-result').classList.remove('hidden');
+        }
+
+        // -- FLSM --
+        function calculateFLSM() {
+            const major = document.getElementById('flsm-major').value.split('/');
+            if (major.length < 2) return;
+            const count = parseInt(document.getElementById('flsm-count').value);
+            const baseIp = ipToLong(major[0]);
+            const basePrefix = parseInt(major[1]);
+
+            let borrowed = Math.ceil(Math.log2(count));
+            let newPrefix = basePrefix + borrowed;
+            let size = Math.pow(2, 32 - newPrefix);
+
+            let html = "";
+            for(let i=0; i < count; i++) {
+                let net = baseIp + (i * size);
+                let bc = net + size - 1;
+                html += `<tr>
+                    <td class="px-4 py-3 text-slate-400">#${i+1}</td>
+                    <td class="px-4 py-3 font-bold">${longToIp(net)}/${newPrefix}</td>
+                    <td class="px-4 py-3">${longToIp(net+1)} - ${longToIp(bc-1)}</td>
+                    <td class="px-4 py-3">${longToIp(bc)}</td>
+                </tr>`;
+            }
+            document.getElementById('flsm-table-body').innerHTML = html;
+            document.getElementById('flsm-result').classList.remove('hidden');
+        }
+
+        function exportToCSV(tableId, filename) {
+            let csv = [];
+            const rows = document.querySelectorAll(`#${tableId} tr`);
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) row.push(cols[j].innerText);
+                csv.push(row.join(","));
+            }
+            const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+            const downloadLink = document.createElement("a");
+            downloadLink.download = filename;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+        }
+
+        window.onload = () => {
+            populateMasks();
+            calculateIPv4();
+            addVlsmRow();
+            addVlsmRow();
+        };
+
+        // Event listeners for selects to auto-update
+        document.getElementById('v4-mask').addEventListener('change', calculateIPv4);
+        document.getElementById('v6-mask').addEventListener('change', calculateIPv6);
+    </script>
+</body>
+</html>
