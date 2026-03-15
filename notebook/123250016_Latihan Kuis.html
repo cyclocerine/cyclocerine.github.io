@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan VLSM - Faiq Hammam Mutaqin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Inter:wght@400;700&display=swap');
+        
+        body {
+            background-color: #e5e7eb; /* Abu-abu biar kertasnya kelihatan */
+            font-family: 'Times New Roman', serif; /* Font standar dokumen formal */
+        }
+        
+        .paper {
+            background-color: white;
+            width: 210mm; /* Lebar A4 */
+            min-height: 297mm; /* Tinggi minimal A4 */
+            margin: 2rem auto;
+            padding: 25mm 25mm; /* Margin standar Word */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .sans-font {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2 {
+            font-family: 'Inter', sans-serif;
+            color: #000;
+        }
+
+        table {
+            border: 1px solid black;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; }
+            .paper { 
+                margin: 0; 
+                box-shadow: none; 
+                width: 100%;
+                padding: 0; /* Printer biasanya punya margin sendiri */
+            }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body class="py-10">
+
+    <div class="paper">
+        <!-- Identitas Mahasiswa -->
+        <div class="mb-10 leading-relaxed">
+            <p><strong>Nama:</strong> Faiq Hammam Mutaqin</p>
+            <p><strong>NIM:</strong> 123250016</p>
+            <p><strong>Kelas:</strong> IF-A</p>
+        </div>
+
+        <!-- Judul Laporan -->
+        <div class="text-center mb-10">
+            <h1 class="text-2xl font-bold uppercase underline">Laporan Latihan Kuis Jaringan Komputer</h1>
+            <p class="text-sm italic mt-1 sans-font">Metode VLSM (Variable Length Subnet Masking)</p>
+        </div>
+
+        <!-- Konten Utama -->
+        <div class="space-y-8 text-justify">
+            
+            <section>
+                <h2 class="text-lg font-bold mb-3">1. Deskripsi Masalah</h2>
+                <p>Dilakukan pembagian jaringan <span class="font-mono bg-gray-100 px-1 italic">192.168.25.0</span> menggunakan metode VLSM (Variable Length Subnet Masking) untuk mengakomodasi kebutuhan host pada beberapa laboratorium dengan rincian sebagai berikut:</p>
+                <ul class="list-disc ml-10 mt-2 space-y-1">
+                    <li>Lab IoT: 120 Host</li>
+                    <li>Lab Jaringan: 87 Host</li>
+                    <li>Lab Komputasi: 12 Host</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold mb-3">2. Tabel Perhitungan Subnetting</h2>
+                <table class="w-full text-sm border-collapse mb-4">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-center">Gedung / Lab</th>
+                            <th class="text-center">Host</th>
+                            <th class="text-center">Subnet Mask</th>
+                            <th class="text-center">NA</th>
+                            <th class="text-center">Range Host</th>
+                            <th class="text-center">BA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Lab IoT</td>
+                            <td class="text-center">120</td>
+                            <td class="text-center">255.255.255.128</td>
+                            <td class="font-mono text-center">192.168.25.0</td>
+                            <td class="font-mono text-[10px] text-center">192.168.25.1 - 192.168.25.126</td>
+                            <td class="font-mono text-center">192.168.25.127</td>
+                        </tr>
+                        <tr>
+                            <td>Lab Jaringan</td>
+                            <td class="text-center">87</td>
+                            <td class="text-center">255.255.255.128</td>
+                            <td class="font-mono text-center">192.168.25.128</td>
+                            <td class="font-mono text-[10px] text-center">192.168.25.129 - 192.168.25.254</td>
+                            <td class="font-mono text-center">192.168.25.255</td>
+                        </tr>
+                        <tr>
+                            <td>Lab Komputasi</td>
+                            <td class="text-center">12</td>
+                            <td class="text-center">255.255.255.240</td>
+                            <td class="font-mono text-center">192.168.26.0</td>
+                            <td class="font-mono text-[10px] text-center">192.168.26.1 - 192.168.26.14</td>
+                            <td class="font-mono text-center">192.168.26.15</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold mb-3">3. Konfigurasi Router (Cisco CLI)</h2>
+                <p class="mb-2">Berikut adalah perintah konfigurasi pada router untuk menetapkan IP address pada interface dan mengaktifkan layanan DHCP server:</p>
+                <div class="border border-black p-4 bg-gray-50 font-mono text-xs leading-5">
+                    <p>Router(config)# int fa0/0</p>
+                    <p>Router(config-if)# ip address 192.168.25.1 255.255.255.128</p>
+                    <p>Router(config-if)# no shut</p>
+                    <p>!</p>
+                    <p>Router(config)# int fa1/0</p>
+                    <p>Router(config-if)# ip address 192.168.25.129 255.255.255.128</p>
+                    <p>Router(config-if)# no shut</p>
+                    <p>!</p>
+                    <p>Router(config)# int fa6/0</p>
+                    <p>Router(config-if)# ip address 192.168.26.1 255.255.255.240</p>
+                    <p>Router(config-if)# no shut</p>
+                    <p>!</p>
+                    <p>Router(config)# ip dhcp pool IOT</p>
+                    <p>Router(dhcp-config)# network 192.168.25.0 255.255.255.128</p>
+                    <p>Router(dhcp-config)# default-router 192.168.25.1</p>
+                    <p>!</p>
+                    <p>Router(config)# ip dhcp pool JARINGAN</p>
+                    <p>Router(dhcp-config)# network 192.168.25.128 255.255.255.128</p>
+                    <p>Router(dhcp-config)# default-router 192.168.25.129</p>
+                    <p>!</p>
+                    <p>Router(config)# ip dhcp pool KOMPUTASI</p>
+                    <p>Router(dhcp-config)# network 192.168.26.0 255.255.255.240</p>
+                    <p>Router(dhcp-config)# default-router 192.168.26.1</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold mb-3">4. Topologi Jaringan</h2>
+                <div class="border border-black p-5 text-center bg-white italic text-sm">
+                    <!-- Placeholder untuk gambar topologi -->
+                    <div class="border-2 border-dashed border-gray-300 py-20">
+                        <svg viewBox="0 0 400 150" class="mx-auto w-1/2 opacity-40">
+                            <circle cx="200" cy="50" r="20" stroke="black" fill="none" />
+                            <line x1="200" y1="70" x2="100" y2="120" stroke="black" />
+                            <line x1="200" y1="70" x2="200" y2="120" stroke="black" />
+                            <line x1="200" y1="70" x2="300" y2="120" stroke="black" />
+                        </svg>
+                        [Skema Topologi Jaringan Cisco Packet Tracer]
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold mb-3">5. Pengujian (DHCP Request Successful)</h2>
+                <p>Verifikasi dilakukan pada setiap terminal untuk memastikan alamat IP telah dialokasikan dengan benar oleh DHCP server:</p>
+                <div class="grid grid-cols-1 gap-4 mt-4">
+                    <div class="border border-black p-3 text-xs bg-white font-mono">
+                        <p class="font-bold border-b border-black mb-1">Verifikasi PC0 (Lab IoT)</p>
+                        <p>IP Address.....: 192.168.25.2</p>
+                        <p>Subnet Mask....: 255.255.255.128</p>
+                        <p>Gateway........: 192.168.25.1</p>
+                        <p class="text-green-700 font-bold mt-1">DHCP request successful.</p>
+                    </div>
+                    <div class="border border-black p-3 text-xs bg-white font-mono">
+                        <p class="font-bold border-b border-black mb-1">Verifikasi PC1 (Lab Jaringan)</p>
+                        <p>IP Address.....: 192.168.25.130</p>
+                        <p>Subnet Mask....: 255.255.255.128</p>
+                        <p>Gateway........: 192.168.25.129</p>
+                        <p class="text-green-700 font-bold mt-1">DHCP request successful.</p>
+                    </div>
+                    <div class="border border-black p-3 text-xs bg-white font-mono">
+                        <p class="font-bold border-b border-black mb-1">Verifikasi PC2 (Lab Komputasi)</p>
+                        <p>IP Address.....: 192.168.26.2</p>
+                        <p>Subnet Mask....: 255.255.255.240</p>
+                        <p>Gateway........: 192.168.26.1</p>
+                        <p class="text-green-700 font-bold mt-1">DHCP request successful.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Tanda Tangan / Tanggal -->
+        <div class="mt-20 flex justify-end">
+            <div class="text-center w-64">
+                <p>Yogyakarta, 15 Maret 2026</p>
+                <br><br><br>
+                <p class="font-bold underline">Faiq Hammam Mutaqin</p>
+                <p>NIM: 123250016</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tombol Print di Pojok -->
+    <button onclick="window.print()" class="no-print fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 transition-all font-bold">
+        Cetak ke PDF (A4)
+    </button>
+
+</body>
+</html>
