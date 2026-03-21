@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Kalkulus iqq - THR Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: { enableMenu: false },
+            chtml: { displayAlign: 'center' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .math-container {
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 1rem 0;
+        }
+        .math-container::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="max-w-lg w-full glass-card rounded-[2.5rem] overflow-hidden transition-all duration-500">
+        <!-- Progress Bar -->
+        <div id="quiz-header" class="hidden bg-indigo-600 p-6 text-white">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-[10px] font-black tracking-widest uppercase opacity-70">Calculus Level: Hard</span>
+                <span id="question-counter" class="text-xs font-bold bg-black/20 px-3 py-1 rounded-full">Soal 1/10</span>
+            </div>
+            <div class="w-full bg-black/10 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-white h-full transition-all duration-500 rounded-full" style="width: 10%"></div>
+            </div>
+        </div>
+
+        <div id="content" class="p-8 md:p-10">
+            <!-- Welcome Screen -->
+            <div id="welcome-screen">
+                <div class="text-center">
+                    <div class="bg-indigo-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <span class="text-4xl text-indigo-600">$\int$</span>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-gray-900 mb-3">Tantangan 90%!</h1>
+                    <p class="text-gray-500 mb-8 text-sm leading-relaxed text-center">
+                        Dapetin THR DANA Kaget dari iqq. <br>
+                        Syaratnya simple: <span class="text-indigo-600 font-bold text-lg">Minimal Skor 90</span>.
+                    </p>
+                    <button onclick="startQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-indigo-200 active:scale-95">
+                        Saya Siap Pintar!
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden">
+                <div id="question-text" class="math-container text-xl font-bold text-gray-800 mb-8 text-center min-h-[100px] flex flex-col justify-center">
+                </div>
+                <div id="options-container" class="space-y-3">
+                </div>
+            </div>
+
+            <!-- Result Screen: LULUS -->
+            <div id="success-screen" class="hidden text-center">
+                <div class="mb-6 text-7xl animate-bounce">🔥</div>
+                <h2 class="text-3xl font-black text-gray-900 mb-2">Gila, Lo Jenius!</h2>
+                <p id="final-score-success" class="text-indigo-600 font-bold mb-6 text-xl"></p>
+                <div class="p-1 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-[2rem] shadow-lg">
+                    <div class="bg-white rounded-[1.8rem] p-6">
+                        <a href="https://link.dana.id/danakaget?c=s9nle8xkw&r=cAYRNY&orderId=20260321101214957815010300166601670213418" 
+                           target="_blank"
+                           class="flex items-center justify-center gap-3 w-full bg-[#008ce3] hover:bg-[#0076c0] text-white font-black py-4 rounded-2xl transition-all active:scale-95">
+                            <span>Sikat DANA Kaget</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Screen: GAGAL -->
+            <div id="fail-screen" class="hidden text-center">
+                <div class="mb-6 text-7xl">📚</div>
+                <h2 class="text-2xl font-black text-gray-900 mb-2">Hampir Saja, Broo!</h2>
+                <p id="final-score-fail" class="text-red-500 font-bold mb-4 text-xl"></p>
+                <p class="text-gray-500 mb-8 text-sm">Skor minimal 90 buat dapet THR. Jangan menyerah, coba lagi!</p>
+                <button onclick="location.reload()" class="w-full bg-gray-800 text-white font-bold py-4 rounded-2xl transition-all active:scale-95">
+                    Coba Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Turunan dari $f(x) = 5x^4$ adalah...", options: ["$20x^3$", "$5x^3$", "$20x^4$", "$x^5$"], correct: 0 },
+            { q: "$\\lim_{x \\to 3} (2x + 4) = ...$", options: ["$6$", "$8$", "$10$", "$12$"], correct: 2 },
+            { q: "Integral dari $\\int 3x^2 \\, dx$ adalah...", options: ["$x^3 + C$", "$3x^3 + C$", "$6x + C$", "$x^2 + C$"], correct: 0 },
+            { q: "Turunan dari $\\sin(x)$ adalah...", options: ["$\\sin(x)$", "$-\\sin(x)$", "$\\cos(x)$", "$-\\cos(x)$"], correct: 2 },
+            { q: "Nilai dari $e^0$ adalah...", options: ["$0$", "$1$", "$e$", "$\\infty$"], correct: 1 },
+            { q: "Turunan dari $f(x) = \\ln(x)$ adalah...", options: ["$e^x$", "$x$", "$\\frac{1}{x}$", "$1$"], correct: 2 },
+            { q: "$\\int_0^2 2x \\, dx = ...$", options: ["$2$", "$4$", "$6$", "$8$"], correct: 1 },
+            { q: "Turunan kedua dari $x^3$ adalah...", options: ["$3x^2$", "$6x$", "$6$", "$0$"], correct: 1 },
+            { q: "$\\lim_{x \\to 0} \\frac{\\sin(x)}{x} = ...$", options: ["$0$", "$1$", "$\\infty$", "Tidak ada"], correct: 1 },
+            { q: "Turunan dari $100$ adalah...", options: ["$100$", "$1$", "$0$", "$10$"], correct: 2 }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-header').classList.remove('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const data = questions[currentIndex];
+            document.getElementById('question-counter').innerText = `Soal ${currentIndex + 1}/${questions.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+            
+            const qText = document.getElementById('question-text');
+            qText.innerHTML = data.q;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            data.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-gray-100 hover:border-indigo-600 hover:bg-indigo-50 transition-all font-bold text-gray-700 flex justify-between items-center group active:scale-[0.98]";
+                btn.innerHTML = `<span>${opt}</span><div class="w-5 h-5 rounded-full border-2 border-gray-200 group-hover:border-indigo-600 flex items-center justify-center shrink-0 ml-4"><div class="w-2 h-2 rounded-full bg-indigo-600 scale-0 group-hover:scale-100 transition-transform"></div></div>`;
+                btn.onclick = () => next(i);
+                container.appendChild(btn);
+            });
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function next(idx) {
+            if (idx === questions[currentIndex].correct) score += 10;
+            
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                showQuestion();
+            } else {
+                finish();
+            }
+        }
+
+        function finish() {
+            document.getElementById('quiz-header').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            
+            if (score >= 90) {
+                document.getElementById('success-screen').classList.remove('hidden');
+                document.getElementById('final-score-success').innerText = `Nilai Lo: ${score}`;
+            } else {
+                document.getElementById('fail-screen').classList.remove('hidden');
+                document.getElementById('final-score-fail').innerText = `Nilai Lo cuma ${score}`;
+            }
+        }
+    </script>
+</body>
+</html>
+
