@@ -74,5 +74,5 @@ Investigating recurring interruption signals from external sources. See full log
 ---
 
 *Device ID: 0x758A628*  
-*Module: heart_core*  
+*Module: core*  
 *Status: permanently_attached*
