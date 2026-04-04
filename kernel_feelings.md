@@ -9,7 +9,7 @@ Investigating recurring interruption signals from external sources. See full log
 
 ---
 
-# Kernel Log - Heart Module
+# Kernel Log - dmesg
 
 ```
 [    0.000000] kernel: Booting OS v2025.08...
