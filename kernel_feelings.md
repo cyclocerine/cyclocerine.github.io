@@ -12,7 +12,7 @@ Investigating recurring interruption signals from external sources. See full log
 # Kernel Log - Heart Module
 
 ```
-[    0.000000] kernel: Booting Heart OS v2025.08...
+[    0.000000] kernel: Booting OS v2025.08...
 [    0.000001] kernel: Initializing emotion_core module
 [    0.000002] kernel: Loading memory subsystem... done
 [    0.000003] kernel: ACPI: PKKBN event detected
