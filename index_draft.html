@@ -15,7 +15,7 @@
             --text-main: #ffffff;
             --text-sub: #a1a1aa;
             --accent: #10b981;
-            --border: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.08);
             --card-bg: rgba(24, 24, 27, 0.4);
         }
 
@@ -24,7 +24,7 @@
             --text-main: #000000;
             --text-sub: #52525b;
             --accent: #059669;
-            --border: rgba(0, 0, 0, 0.05);
+            --border: rgba(0, 0, 0, 0.08);
             --card-bg: rgba(244, 244, 245, 0.8);
         }
 
@@ -34,6 +34,7 @@
             color: var(--text-main);
             transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
             overflow-x: hidden;
+            width: 100%;
         }
 
         .font-mono {
@@ -75,7 +76,7 @@
         /* Reveal Animation */
         .reveal {
             opacity: 0;
-            transform: translateY(40px);
+            transform: translateY(30px);
             transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -84,7 +85,6 @@
             transform: translateY(0);
         }
 
-        /* Custom Transition for Theme */
         .theme-transition-overlay {
             position: fixed;
             inset: 0;
@@ -95,8 +95,40 @@
             transition: opacity 0.5s ease;
         }
 
-        .filtering-item {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .hero-title {
+            font-size: clamp(3rem, 14vw, 11rem);
+            line-height: 0.95;
+        }
+
+        @media (min-width: 768px) {
+            .hero-title {
+                line-height: 0.85;
+            }
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 9vw, 6rem);
+            line-height: 1;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Robust Ghost Text Fix */
+        .ghost-text {
+            -webkit-text-stroke: 1px var(--border);
+            color: transparent !important;
+            -webkit-text-fill-color: transparent !important;
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.3;
+            /* Added extra layer of safety */
         }
     </style>
 </head>
@@ -108,8 +140,8 @@
     <!-- Navbar -->
     <nav
         class="fixed top-0 left-0 w-full z-50 border-b border-[var(--border)] bg-[var(--bg-color)]/60 backdrop-blur-xl">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-6 md:gap-12">
                 <span class="text-[var(--text-main)] font-black tracking-tighter text-xl">FAIQ.</span>
                 <div class="hidden md:flex gap-8 text-[11px] font-bold tracking-[0.2em] text-[var(--text-sub)]">
                     <a href="#home" class="hover:text-[var(--accent)] transition-colors uppercase">Home</a>
@@ -117,13 +149,13 @@
                     <a href="#about" class="hover:text-[var(--accent)] transition-colors uppercase">About</a>
                 </div>
             </div>
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4">
                 <button id="searchBtn"
-                    class="flex items-center gap-3 px-4 py-2 rounded-full border border-[var(--border)] bg-[var(--text-main)]/5 hover:bg-[var(--text-main)]/10 transition-all group">
+                    class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-full border border-[var(--border)] bg-[var(--text-main)]/5 hover:bg-[var(--text-main)]/10 transition-all group">
                     <i data-lucide="search"
                         class="w-3.5 h-3.5 text-[var(--text-sub)] group-hover:text-[var(--text-main)]"></i>
                     <span
-                        class="text-[10px] font-mono text-[var(--text-sub)] group-hover:text-[var(--text-main)] uppercase hidden sm:inline">Search...</span>
+                        class="text-[10px] font-mono text-[var(--text-sub)] group-hover:text-[var(--text-main)] uppercase hidden xs:inline">Search...</span>
                     <kbd
                         class="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded bg-[var(--text-main)]/10 text-[9px] text-[var(--text-sub)] border border-[var(--border)] font-mono">
                         ⌘ K
@@ -133,17 +165,17 @@
         </div>
     </nav>
 
-    <!-- Command Palette Modal -->
-    <div id="commandPalette" class="fixed inset-0 z-[100] hidden flex items-start justify-center pt-32 px-4">
+    <!-- Command Palette -->
+    <div id="commandPalette" class="fixed inset-0 z-[100] hidden flex items-start justify-center pt-24 sm:pt-32 px-4">
         <div id="paletteOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
         <div
             class="relative w-full max-w-lg bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden scale-95 transition-transform duration-200">
-            <div class="p-5 border-b border-white/5 flex items-center gap-4">
+            <div class="p-4 sm:p-5 border-b border-white/5 flex items-center gap-4">
                 <i data-lucide="command" class="text-zinc-500 w-5 h-5"></i>
                 <input id="paletteInput" type="text" autofocus placeholder="Type a command or search..."
                     class="w-full bg-transparent border-none outline-none text-white text-base placeholder:text-zinc-600">
             </div>
-            <div class="max-h-[450px] overflow-y-auto p-3 space-y-4">
+            <div class="max-h-[60vh] overflow-y-auto p-3 space-y-4">
                 <div>
                     <div class="px-3 py-2 text-[10px] font-bold text-zinc-500 tracking-widest uppercase">Navigation
                     </div>
@@ -185,170 +217,162 @@
         </div>
     </div>
 
-    <!-- Hero Section -->
-    <section id="home" class="relative min-h-screen flex flex-col justify-center px-6 pt-20 overflow-hidden">
-        <!-- Blueprint Background -->
+    <!-- Hero -->
+    <section id="home"
+        class="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-24 pb-20 overflow-hidden">
         <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
             <div
                 class="absolute inset-0 bg-[radial-gradient(var(--text-sub)_0.5px,transparent_0.5px)] [background-size:40px_40px] opacity-20">
             </div>
             <div
-                class="blueprint-circle absolute top-1/2 left-1/2 w-[900px] h-[900px] border border-[var(--accent)]/10 rounded-full flex items-center justify-center">
-                <div class="w-[700px] h-[700px] border border-[var(--accent)]/5 rounded-full"></div>
-                <div class="w-[500px] h-[500px] border border-[var(--accent)]/5 rounded-full"></div>
+                class="blueprint-circle absolute top-1/2 left-1/2 w-[600px] sm:w-[900px] h-[600px] sm:h-[900px] border border-[var(--accent)]/10 rounded-full flex items-center justify-center">
+                <div class="w-[400px] sm:w-[700px] h-[400px] sm:h-[700px] border border-[var(--accent)]/5 rounded-full">
+                </div>
                 <div class="absolute w-full h-[1px] bg-[var(--accent)]/5"></div>
                 <div class="absolute h-full w-[1px] bg-[var(--accent)]/5"></div>
-                <!-- Coordinates -->
-                <div class="absolute top-0 text-[9px] font-mono text-[var(--accent)]/30 tracking-widest">COORD_NORTH_001
-                </div>
-                <div class="absolute right-0 text-[9px] font-mono text-[var(--accent)]/30 tracking-widest rotate-90">
-                    COORD_EAST_992</div>
             </div>
         </div>
 
         <div class="max-w-7xl mx-auto w-full relative z-10">
-            <div class="reveal flex items-center gap-3 mb-10">
+            <div class="reveal flex items-center gap-3 mb-8">
                 <div
                     class="w-2.5 h-2.5 rounded-full bg-[var(--accent)] shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse">
                 </div>
                 <span
-                    class="text-[var(--accent)] text-[11px] font-mono font-bold tracking-[0.4em] uppercase">system_online_available</span>
+                    class="text-[var(--accent)] text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.4em] uppercase">it_engineer_active</span>
             </div>
 
-            <h1
-                class="reveal text-[15vw] sm:text-[11vw] lg:text-[11rem] font-black leading-[0.78] tracking-tighter text-[var(--text-main)] uppercase transition-all duration-1000">
+            <h1 class="reveal hero-title font-black tracking-tighter text-[var(--text-main)] uppercase">
                 FAIQ<br />
-                <span class="opacity-10" id="heroLastName">HAMMAM</span>
+                <span class="opacity-10">HAMMAM</span>
             </h1>
 
             <div
-                class="reveal mt-20 flex flex-col md:flex-row md:items-end justify-between gap-12 border-t border-[var(--border)] pt-12">
+                class="reveal mt-16 sm:mt-24 flex flex-col md:flex-row md:items-end justify-between gap-10 border-t border-[var(--border)] pt-10 sm:pt-14">
                 <div class="max-w-xl">
-                    <p class="text-[var(--text-sub)] text-xl leading-relaxed font-medium">
-                        Product Engineer specializing in architectural patterns, technical systems, and high-performance
-                        digital interfaces.
+                    <p class="text-[var(--text-sub)] text-lg sm:text-xl leading-relaxed font-medium">
+                        IT Engineer with a passion for tech, tinkering, and turning coffee into code. Exploring the
+                        frontiers of AI/ML and Web Technologies.
                     </p>
                 </div>
                 <div
-                    class="flex flex-col items-start md:items-end gap-4 font-mono text-[12px] text-[var(--text-sub)] font-bold tracking-[0.2em] uppercase">
-                    <div class="flex gap-6"><span>FULLSTACK</span> <span class="opacity-20">/</span> <span>MOBILE</span>
-                    </div>
-                    <div class="flex gap-6"><span>NEXT.JS</span> <span class="opacity-20">/</span> <span>AI SAAS</span>
-                    </div>
+                    class="flex flex-row md:flex-col flex-wrap items-start md:items-end gap-x-6 gap-y-3 font-mono text-[11px] sm:text-[12px] text-[var(--text-sub)] font-bold tracking-[0.2em] uppercase">
+                    <div class="flex gap-4 sm:gap-6"><span>AI / ML</span> <span class="opacity-20">/</span>
+                        <span>FULLSTACK</span></div>
+                    <div class="flex gap-4 sm:gap-6"><span>BLOCKCHAIN</span> <span class="opacity-20">/</span>
+                        <span>IOT</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Tech Marquee -->
         <div
             class="absolute bottom-0 left-0 w-full overflow-hidden py-8 border-y border-[var(--border)] bg-[var(--bg-color)]">
             <div class="animate-marquee">
                 <div
-                    class="flex gap-20 text-[12px] font-black text-[var(--text-sub)]/30 tracking-[0.5em] px-10 uppercase">
-                    <span>React</span><span>Next.js</span><span>Flutter</span><span>Tailwind</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span><span>TypeScript</span>
+                    class="flex gap-20 text-[11px] sm:text-[12px] font-black text-[var(--text-sub)]/30 tracking-[0.5em] px-10 uppercase">
+                    <span>Python</span><span>Tensorflow</span><span>Keras</span><span>React.js</span><span>PHP</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span>
                 </div>
                 <div
-                    class="flex gap-20 text-[12px] font-black text-[var(--text-sub)]/30 tracking-[0.5em] px-10 uppercase">
-                    <span>React</span><span>Next.js</span><span>Flutter</span><span>Tailwind</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span><span>TypeScript</span>
+                    class="flex gap-20 text-[11px] sm:text-[12px] font-black text-[var(--text-sub)]/30 tracking-[0.5em] px-10 uppercase">
+                    <span>Python</span><span>Tensorflow</span><span>Keras</span><span>React.js</span><span>PHP</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Works Section -->
-    <section id="works" class="py-48 px-6 bg-[var(--bg-color)]">
+    <!-- Works -->
+    <section id="works" class="py-24 sm:py-48 px-4 sm:px-6 bg-[var(--bg-color)]">
         <div class="max-w-7xl mx-auto">
-            <div class="reveal flex flex-col md:flex-row md:items-end justify-between mb-20 gap-10">
-                <div>
-                    <span class="text-[var(--accent)] font-mono text-[11px] font-bold uppercase tracking-[0.4em]">01 //
-                        Repository</span>
-                    <h2
-                        class="text-8xl font-black text-[var(--text-main)] mt-6 tracking-tighter uppercase leading-none">
-                        Works</h2>
+            <div class="reveal flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+                <div class="w-full">
+                    <span
+                        class="text-[var(--accent)] font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.4em]">01
+                        // Repository</span>
+                    <h2 class="section-title font-black text-[var(--text-main)] mt-4 tracking-tighter uppercase">Works
+                    </h2>
                 </div>
 
                 <div
-                    class="flex items-center gap-2 p-1.5 bg-[var(--text-main)]/5 rounded-2xl border border-[var(--border)]">
+                    class="flex items-center gap-1.5 p-1.5 bg-[var(--text-main)]/5 rounded-2xl border border-[var(--border)] w-fit overflow-x-auto no-scrollbar max-w-full">
                     <button
-                        class="filter-btn px-6 py-2.5 text-[11px] font-bold rounded-xl bg-[var(--text-main)] text-[var(--bg-color)] shadow-xl transition-all"
+                        class="filter-btn shrink-0 px-6 py-2.5 text-[11px] font-bold rounded-xl bg-[var(--text-main)] text-[var(--bg-color)] whitespace-nowrap"
                         data-category="ALL">ALL</button>
                     <button
-                        class="filter-btn px-6 py-2.5 text-[11px] font-bold rounded-xl text-[var(--text-sub)] hover:text-[var(--text-main)] transition-all"
-                        data-category="APP">APP</button>
+                        class="filter-btn shrink-0 px-6 py-2.5 text-[11px] font-bold rounded-xl text-[var(--text-sub)] whitespace-nowrap"
+                        data-category="ML">AI/ML</button>
                     <button
-                        class="filter-btn px-6 py-2.5 text-[11px] font-bold rounded-xl text-[var(--text-sub)] hover:text-[var(--text-main)] transition-all"
+                        class="filter-btn shrink-0 px-6 py-2.5 text-[11px] font-bold rounded-xl text-[var(--text-sub)] whitespace-nowrap"
                         data-category="WEB">WEB</button>
                 </div>
             </div>
 
-            <div id="projectGrid" class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <!-- Projects injected via JS -->
+            <div id="projectGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
+                <!-- Data injected via JS -->
             </div>
         </div>
     </section>
 
-    <!-- Contact Section -->
+    <!-- Contact -->
     <section id="about"
-        class="py-56 px-6 relative overflow-hidden border-t border-[var(--border)] bg-[var(--bg-color)]">
-        <div class="max-w-7xl mx-auto text-center relative z-10">
+        class="py-48 sm:py-72 px-4 sm:px-6 relative overflow-hidden border-t border-[var(--border)] bg-[var(--bg-color)] flex flex-col justify-center">
+        <!-- Main Content with explicit higher z-index -->
+        <div class="max-w-7xl mx-auto text-center relative z-20 pb-24">
             <span
-                class="reveal text-[var(--accent)] font-mono text-[11px] font-bold uppercase tracking-[0.5em]">Initiate
-                Contact</span>
+                class="reveal text-[var(--accent)] font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.5em]">Credits
+                Scene?</span>
             <h2
-                class="reveal text-[13vw] md:text-[10rem] font-black text-[var(--text-main)] mt-8 mb-16 tracking-tighter uppercase leading-[0.75]">
+                class="reveal text-[13vw] sm:text-[10vw] lg:text-[10rem] font-black text-[var(--text-main)] mt-6 mb-12 tracking-tighter uppercase leading-[0.75]">
                 LET'S <br /> CONNECT
             </h2>
-            <div class="reveal flex flex-col sm:flex-row gap-8 justify-center items-center">
+            <div class="reveal flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center relative z-30">
                 <button
-                    class="group px-12 py-6 bg-[var(--text-main)] text-[var(--bg-color)] font-black text-sm rounded-2xl hover:bg-[var(--accent)] hover:text-black transition-all flex items-center gap-4 active:scale-95">
+                    class="w-full sm:w-auto px-12 py-5 bg-[var(--text-main)] text-[var(--bg-color)] font-black text-sm rounded-2xl hover:bg-[var(--accent)] hover:text-black transition-all flex items-center justify-center gap-4 active:scale-95 shadow-2xl">
                     <i data-lucide="mail" class="w-5 h-5"></i> START PROJECT
                 </button>
                 <button
-                    class="group px-12 py-6 border border-[var(--border)] text-[var(--text-main)] font-black text-sm rounded-2xl hover:bg-[var(--text-main)] hover:text-[var(--bg-color)] transition-all flex items-center gap-4 active:scale-95">
-                    VIEW RESUME <i data-lucide="arrow-right"
-                        class="w-5 h-5 group-hover:translate-x-2 transition-transform"></i>
+                    class="w-full sm:w-auto px-12 py-5 border border-[var(--border)] text-[var(--text-main)] font-black text-sm rounded-2xl hover:bg-[var(--text-main)] hover:text-[var(--bg-color)] transition-all flex items-center justify-center gap-4 active:scale-95 shadow-2xl">
+                    VIEW RESUME <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
+
+        <!-- Background Text Fixed & Forced to Bottom -->
         <div
-            class="absolute -bottom-24 left-1/2 -translate-x-1/2 text-[30vw] font-black text-[var(--text-main)]/[0.015] select-none pointer-events-none tracking-tighter">
+            class="absolute bottom-[-5%] sm:bottom-[-10%] left-1/2 -translate-x-1/2 text-[35vw] sm:text-[25vw] font-black ghost-text tracking-tighter z-0">
             FAIQ
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="py-20 px-6 border-t border-[var(--border)]">
+    <footer class="py-16 px-6 border-t border-[var(--border)] bg-[var(--bg-color)] relative z-10">
         <div
             class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 text-[var(--text-sub)]">
-            <div class="flex flex-col items-center md:items-start gap-3">
-                <span class="text-[var(--text-main)] font-black text-2xl tracking-tighter">FAIQ.</span>
-                <span class="text-[10px] font-mono tracking-widest uppercase italic opacity-50">Deploying Quality
+            <div class="flex flex-col items-center md:items-start gap-2">
+                <span class="text-[var(--text-main)] font-black text-2xl tracking-tighter uppercase">Faiq.</span>
+                <span class="text-[10px] font-mono tracking-widest uppercase opacity-50 italic">Deploying Quality
                     Systems since 2020</span>
             </div>
-            <div class="flex gap-16 text-[11px] font-bold tracking-[0.3em] uppercase">
-                <a href="#" class="hover:text-[var(--accent)] transition-colors">Twitter</a>
-                <a href="#" class="hover:text-[var(--accent)] transition-colors">Github</a>
-                <a href="#" class="hover:text-[var(--accent)] transition-colors">LinkedIn</a>
+            <div class="flex gap-12 text-[11px] font-bold tracking-[0.3em] uppercase">
+                <a href="https://github.com/cyclocerine"
+                    class="hover:text-[var(--accent)] transition-colors">Twitter</a>
+                <a href="https://www.linkedin.com/in/faiqhammam/"
+                    class="hover:text-[var(--accent)] transition-colors">LinkedIn</a>
             </div>
-            <div class="text-[10px] font-mono opacity-50 uppercase tracking-widest">
+            <div class="text-[10px] font-mono opacity-50 uppercase tracking-widest text-center">
                 &copy; 2026 / 6.2088° S, 106.8456° E
             </div>
         </div>
     </footer>
 
     <script>
-        // --- LUCIDE ICONS ---
         lucide.createIcons();
 
-        // --- DATA ---
         const PROJECTS = [
-            { id: 1, category: 'APP', title: "E-COMMERCE MOBILE", desc: "A robust cross-platform mobile application built for large scale MSME distribution networks.", tags: ["Flutter", "Riverpod", "Firebase"] },
-            { id: 2, category: 'WEB', title: "AI CONTENT ENGINE", desc: "Marketing automation platform that generates high-converting content using neural networks.", tags: ["Next.js", "Python", "OpenAI"] },
-            { id: 3, category: 'WEB', title: "FINANCIAL DASHBOARD", desc: "Real-time wealth management platform with advanced data visualization and crypto tracking.", tags: ["React", "D3.js", "Node.js"] },
-            { id: 4, category: 'APP', title: "SMART LOGISTICS", desc: "Internal tracking system for warehouse management with real-time route optimization.", tags: ["React Native", "Go", "Redis"] }
+            { id: 1, category: 'ML', title: "AI HEDGE FUND", desc: "Automated trading strategies utilizing reinforcement learning and neural architecture.", tags: ["Python", "Tensorflow", "FinTech"] },
+            { id: 2, category: 'WEB', title: "STOCK PREDICTOR", desc: "Time-series forecasting models for financial markets using deep learning techniques.", tags: ["LSTM", "Keras", "Analytics"] },
+            { id: 3, category: 'WEB', title: "SUDOKU SOLVER", desc: "Efficient backtracking algorithm visualization with a modern UI approach.", tags: ["JavaScript", "Algorithm", "UI/UX"] },
+            { id: 4, category: 'ML', title: "NEURAL NETWORK ARCH", desc: "Interactive visualization of data flowing through deep learning layers.", tags: ["GSAP", "SVG", "AI"] }
         ];
 
-        // --- DOM ELEMENTS ---
         const projectGrid = document.getElementById('projectGrid');
         const searchBtn = document.getElementById('searchBtn');
         const commandPalette = document.getElementById('commandPalette');
@@ -358,123 +382,82 @@
         const themeDark = document.getElementById('themeDark');
         const themeOverlay = document.getElementById('themeOverlay');
 
-        // --- THEME MANAGEMENT ---
         function setTheme(theme) {
             themeOverlay.style.opacity = '1';
             setTimeout(() => {
-                if (theme === 'light') {
-                    document.body.classList.add('light-mode');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    document.body.classList.remove('light-mode');
-                    localStorage.setItem('theme', 'dark');
-                }
+                if (theme === 'light') { document.body.classList.add('light-mode'); localStorage.setItem('theme', 'light'); }
+                else { document.body.classList.remove('light-mode'); localStorage.setItem('theme', 'dark'); }
                 themeOverlay.style.opacity = '0';
             }, 300);
         }
 
         themeLight.addEventListener('click', () => { setTheme('light'); toggleCP(); });
         themeDark.addEventListener('click', () => { setTheme('dark'); toggleCP(); });
+        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
 
-        // Load saved theme
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-mode');
-        }
-
-        // --- RENDER PROJECTS ---
         function renderProjects(filter = 'ALL') {
             const filtered = filter === 'ALL' ? PROJECTS : PROJECTS.filter(p => p.category === filter);
-
             projectGrid.innerHTML = filtered.map(p => `
-                <div class="filtering-item reveal group relative bg-[var(--card-bg)] border border-[var(--border)] rounded-[2.5rem] overflow-hidden hover:border-[var(--accent)]/40 transition-all duration-500 active" data-category="${p.category}">
+                <div class="filtering-item reveal group relative bg-[var(--card-bg)] border border-[var(--border)] rounded-[2rem] overflow-hidden hover:border-[var(--accent)]/40 transition-all duration-500 active" data-category="${p.category}">
                     <div class="aspect-[16/10] bg-[var(--bg-color)] relative overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] via-transparent to-transparent opacity-90"></div>
                         <div class="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-40 transition-opacity duration-700">
-                            <i data-lucide="${p.category === 'APP' ? 'smartphone' : 'globe'}" class="w-40 h-40 stroke-[0.3]"></i>
+                            <i data-lucide="${p.category === 'ML' ? 'brain' : 'layout'}" class="w-32 h-32 stroke-[0.3]"></i>
                         </div>
-                        <div class="absolute top-8 right-8 p-4 rounded-full bg-[var(--bg-color)]/50 backdrop-blur-xl border border-[var(--border)] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                        <div class="absolute top-8 right-8 p-4 rounded-full bg-[var(--bg-color)]/50 backdrop-blur-xl border border-[var(--border)] opacity-0 lg:group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
                             <i data-lucide="arrow-up-right" class="w-5 h-5 text-[var(--text-main)]"></i>
                         </div>
                     </div>
-                    <div class="p-10">
-                        <div class="flex justify-between items-start mb-6">
-                            <h3 class="text-3xl font-black text-[var(--text-main)] tracking-tight">${p.title}</h3>
-                            <span class="text-[10px] font-mono text-[var(--accent)] font-bold border border-[var(--accent)]/30 px-3 py-1 rounded-full uppercase tracking-widest">${p.category}</span>
+                    <div class="p-8 sm:p-10">
+                        <div class="flex flex-col sm:flex-row justify-between items-start mb-4 sm:mb-6 gap-3">
+                            <h3 class="text-xl sm:text-3xl font-black text-[var(--text-main)] tracking-tight project-card-title uppercase">${p.title}</h3>
+                            <span class="shrink-0 text-[9px] font-mono text-[var(--accent)] font-bold border border-[var(--accent)]/30 px-3 py-1 rounded-full uppercase tracking-widest">${p.category}</span>
                         </div>
-                        <p class="text-[var(--text-sub)] text-base leading-relaxed mb-8 line-clamp-2 font-medium">${p.desc}</p>
-                        <div class="flex flex-wrap gap-3">
-                            ${p.tags.map(tag => `<span class="text-[10px] font-mono font-bold px-4 py-1.5 bg-[var(--text-main)]/5 text-[var(--text-sub)] rounded-full border border-[var(--border)] uppercase tracking-wider">${tag}</span>`).join('')}
+                        <p class="text-[var(--text-sub)] text-sm sm:text-base leading-relaxed mb-8 line-clamp-2 font-medium">${p.desc}</p>
+                        <div class="flex flex-wrap gap-2 sm:gap-3">
+                            ${p.tags.map(tag => `<span class="text-[9px] font-mono font-bold px-4 py-1.5 bg-[var(--text-main)]/5 text-[var(--text-sub)] rounded-full border border-[var(--border)] uppercase tracking-wider">${tag}</span>`).join('')}
                         </div>
                     </div>
                 </div>
             `).join('');
-
             lucide.createIcons();
             observeElements();
         }
 
         renderProjects();
 
-        // --- FILTER LOGIC ---
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 filterBtns.forEach(b => {
-                    b.classList.remove('bg-[var(--text-main)]', 'text-[var(--bg-color)]', 'shadow-xl');
+                    b.classList.remove('bg-[var(--text-main)]', 'text-[var(--bg-color)]');
                     b.classList.add('text-[var(--text-sub)]');
                 });
-                btn.classList.add('bg-[var(--text-main)]', 'text-[var(--bg-color)]', 'shadow-xl');
+                btn.classList.add('bg-[var(--text-main)]', 'text-[var(--bg-color)]');
                 btn.classList.remove('text-[var(--text-sub)]');
-
                 renderProjects(btn.dataset.category);
             });
         });
 
-        // --- COMMAND PALETTE LOGIC ---
         function toggleCP() {
             commandPalette.classList.toggle('hidden');
-            if (!commandPalette.classList.contains('hidden')) {
-                paletteInput.focus();
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'auto';
-            }
+            if (!commandPalette.classList.contains('hidden')) { paletteInput.focus(); document.body.style.overflow = 'hidden'; }
+            else { document.body.style.overflow = 'auto'; }
         }
 
         searchBtn.addEventListener('click', toggleCP);
         paletteOverlay.addEventListener('click', toggleCP);
-
-        document.querySelectorAll('.palette-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const target = e.currentTarget.dataset.href;
-                toggleCP();
-                window.location.href = target;
-            });
-        });
-
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                toggleCP();
-            }
-            if (e.key === 'Escape' && !commandPalette.classList.contains('hidden')) {
-                toggleCP();
-            }
+            if (e.key === 'k' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); toggleCP(); }
+            if (e.key === 'Escape' && !commandPalette.classList.contains('hidden')) toggleCP();
         });
 
-        // --- REVEAL ANIMATION ---
         function observeElements() {
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                    }
-                });
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
             }, { threshold: 0.1 });
-
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
-
         observeElements();
     </script>
 </body>
