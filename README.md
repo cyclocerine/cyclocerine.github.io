@@ -30,6 +30,8 @@ Biarkan aku beristirahat di kedalaman matamu
 Isyarat tulus yang tak perlu banyak bicara
 Titip hela napasku pada setiap doamu
 Akhirnya, kaulah tempatku benar-benar berlabuh
+
+00:00
 ```
 
 ```bash
