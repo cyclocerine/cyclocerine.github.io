@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Tugas ECPTS - Faiq Hammam Mutaqin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono&display=swap');
+        
+        body {
+            font-family: 'Crimson Pro', serif;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+        }
+
+        .document-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            border: 1px solid #000;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .identity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: underline;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #f9f9f9;
+            border: 1px solid #000;
+            padding: 15px;
+            margin: 15px 0;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        .step {
+            margin-bottom: 20px;
+        }
+
+        .array-table {
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .array-table td {
+            border: 1px solid #000;
+            width: 35px;
+            height: 35px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .highlight {
+            background-color: #e0e0e0;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .document-container {
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document-container">
+        <header>
+            <h1>Laporan Jawaban Tugas Mandiri (ECPTS)</h1>
+            <p>Mata Kuliah: Algoritma dan Pemrograman Lanjut 2026</p>
+        </header>
+
+        <div class="identity-grid">
+            <div>
+                <p><strong>Nama :</strong> Faiq Hammam Mutaqin</p>
+                <p><strong>NIM  :</strong> 123250016</p>
+            </div>
+            <div style="text-align: right;">
+                <p><strong>Kelas  :</strong> A</p>
+                <p><strong>Tanggal:</strong> 23 April 2026</p>
+            </div>
+        </div>
+
+        <!-- Nomor 1 -->
+        <div class="section-title">1. Ilustrasi Pengurutan Data (Insertion Sort)</div>
+        
+        <div class="step">
+            <p><strong>Data Awal:</strong></p>
+            <table class="array-table">
+                <tr>
+                    <td>F</td><td>A</td><td>I</td><td>Q</td><td>H</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <p><strong>Langkah 1 (Indeks 1, Key = 'A'):</strong></p>
+            <p>Membandingkan 'A' dengan 'F'. Karena 'A' < 'F', geser 'F' ke kanan dan sisipkan 'A'.</p>
+            <table class="array-table">
+                <tr>
+                    <td class="highlight">A</td><td class="highlight">F</td><td>I</td><td>Q</td><td>H</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <p><strong>Langkah 2 (Indeks 2, Key = 'I'):</strong></p>
+            <p>Membandingkan 'I' dengan 'F'. Karena 'I' > 'F', posisi elemen sudah tepat.</p>
+            <table class="array-table">
+                <tr>
+                    <td>A</td><td>F</td><td class="highlight">I</td><td>Q</td><td>H</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <p><strong>Langkah 3 (Indeks 3, Key = 'Q'):</strong></p>
+            <p>Membandingkan 'Q' dengan 'I'. Karena 'Q' > 'I', posisi elemen sudah tepat.</p>
+            <table class="array-table">
+                <tr>
+                    <td>A</td><td>F</td><td>I</td><td class="highlight">Q</td><td>H</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step">
+            <p><strong>Langkah 4 (Indeks 4, Key = 'H'):</strong></p>
+            <p>Membandingkan 'H' dengan 'Q' dan 'I'. Geser 'Q' dan 'I', sisipkan 'H' setelah 'F'.</p>
+            <table class="array-table">
+                <tr>
+                    <td>A</td><td>F</td><td class="highlight">H</td><td class="highlight">I</td><td class="highlight">Q</td>
+                </tr>
+            </table>
+        </div>
+
+        <p><strong>Hasil Akhir:</strong> A, F, H, I, Q</p>
+
+        <!-- Nomor 2 -->
+        <div class="section-title">2. Implementasi Fungsi Rekursi</div>
+        
+        <div class="code-block">
+void angka (int n) {
+    // Kondisi berhenti (Base Case)
+    if (n < 1) {
+        return;
+    }
+
+    // Mencetak angka 1 sampai n pada baris saat ini
+    for (int j = 1; j <= n; j++) {
+        cout << j << " ";
+    }
+    cout << endl;
+
+    // Pemanggilan fungsi secara rekursif untuk n-1
+    angka(n - 1);
+}
+        </div>
+
+        <footer style="margin-top: 50px; text-align: center; font-size: 12px; border-top: 1px solid #eee; padding-top: 10px;">
+            Halaman Jawaban ECPTS - Algoritma dan Pemrograman Lanjut
+        </footer>
+    </div>
+
+</body>
+</html>
