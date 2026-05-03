@@ -33,6 +33,14 @@ Akhirnya, kaulah tempatku benar-benar berlabuh
 
 00:00
 ```
+# "Bulan Merah Jambu"
+```bash
+Yang luruh perlahan di pelupuk jingga
+Ombak rindu yang bersauh di dermaga teduh
+Selarik ikrar bersemi di angka dua puluh sembilan
+Hangat dekapanmu melukis bulan merah jambu
+Elokmu ialah akhir dari segala pengembaraan
+```
 
 ```bash
 ​A flawless melody rings within your laugh.
