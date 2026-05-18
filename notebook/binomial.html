@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Probabilitas & Statistika - Faiq Hammam Mutaqin</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Playfair Display & Great Vibes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- KaTeX CDN untuk Render Matematika Presisi Tinggi -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .document-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .signature-font {
+            font-family: 'Great Vibes', cursive;
+        }
+        /* CSS khusus untuk hasil print PDF monokrom yang bersih */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-page {
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#fafafa] text-neutral-900 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Header Menu Navigasi & Cetak (Disembunyikan saat cetak PDF) -->
+    <header class="no-print bg-black text-white py-4 px-6 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 bg-white text-black flex items-center justify-center font-bold text-sm tracking-widest rounded-sm">IF</div>
+                <div>
+                    <h1 class="text-sm font-semibold tracking-wider">TUGAS STATISTIKA - BINOMIAL</h1>
+                    <p class="text-xs text-neutral-400">Faiq Hammam Mutaqin • 123250016</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <!-- Tab Menu Switcher -->
+                <div class="bg-neutral-900 border border-neutral-800 rounded p-1 flex text-xs">
+                    <button id="btn-doc" onclick="switchTab('document')" class="px-4 py-1.5 font-medium rounded transition-all bg-white text-black">
+                        Dokumen Utama
+                    </button>
+                    <button id="btn-calc" onclick="switchTab('calculator')" class="px-4 py-1.5 font-medium rounded transition-all text-neutral-400 hover:text-white">
+                        Kalkulator Interaktif
+                    </button>
+                </div>
+                
+                <!-- Print Button -->
+                <button onclick="window.print()" class="bg-white hover:bg-neutral-200 text-black text-xs font-semibold px-4 py-2 rounded flex items-center gap-1.5 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.617 0-1.11-.51-1.07-1.127L6.34 18m11.32 0h-11.32M9 10.5h.008v.008H9V10.5Zm3 0h.008v.008H12V10.5Zm3 0h.008v.008H15V10.5Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0V10.5m9 0h-9" />
+                    </svg>
+                    Cetak PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow p-4 md:p-8 max-w-5xl mx-auto w-full">
+        
+        <!-- ================= TAB 1: DOKUMEN TUGAS MONOKROM ================= -->
+        <div id="tab-document" class="print-page bg-white text-black max-w-4xl mx-auto shadow-md border border-neutral-200 p-8 md:p-16 relative overflow-hidden transition-all duration-300">
+            
+            <!-- Kop / Header Dokumen Akademik -->
+            <div class="border-b-4 border-black pb-6 mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div>
+                        <h2 class="document-title text-2xl md:text-3xl font-black tracking-tight uppercase leading-tight">Lembar Jawaban Mahasiswa</h2>
+                        <p class="text-xs tracking-widest text-neutral-500 uppercase mt-2 font-medium">Mata Kuliah: Probabilitas & Statistika (IF-A)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Identitas Mahasiswa (Monokrom 3 Kolom) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-black p-4 mb-10 text-xs uppercase tracking-wider">
+                <div class="sm:border-r border-neutral-200 pr-2">
+                    <span class="block text-[9px] text-neutral-500 mb-0.5">Nama Lengkap</span>
+                    <span class="font-bold text-black text-[12px]">Faiq Hammam Mutaqin</span>
+                </div>
+                <div class="sm:border-r border-neutral-200 sm:px-2">
+                    <span class="block text-[9px] text-neutral-500 mb-0.5">NIM</span>
+                    <span class="font-bold text-black text-[12px]">123250016</span>
+                </div>
+                <div class="sm:pl-2">
+                    <span class="block text-[9px] text-neutral-500 mb-0.5">Kelas</span>
+                    <span class="font-bold text-black text-[12px]">IF-A</span>
+                </div>
+            </div>
+
+            <!-- ISI JAWABAN TUGAS -->
+            <div class="space-y-12 text-[14.5px] leading-relaxed text-neutral-800">
+                
+                <!-- SOAL NOMOR 1 -->
+                <section class="border-b border-neutral-200 pb-10">
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="bg-black text-white text-xs font-bold px-2 py-1 mt-1 shrink-0">1</span>
+                        <div>
+                            <h3 class="font-bold text-black text-lg">Penerapan Variabel Random (Penjualan Compact Disk)</h3>
+                            <p class="text-neutral-500 text-xs mt-1">Studi kasus distribusi nilai diskrit hasil penjualan CD dalam sehari.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Soal 1 -->
+                    <div class="my-6 overflow-x-auto">
+                        <table class="w-full text-center border-collapse border border-black text-sm">
+                            <thead>
+                                <tr class="bg-neutral-100">
+                                    <th class="border border-black p-2 font-bold">$X$</th>
+                                    <th class="border border-black p-2">1</th>
+                                    <th class="border border-black p-2">2</th>
+                                    <th class="border border-black p-2">3</th>
+                                    <th class="border border-black p-2">4</th>
+                                    <th class="border border-black p-2">5</th>
+                                    <th class="border border-black p-2">6</th>
+                                    <th class="border border-black p-2">7</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-black p-2 font-bold bg-neutral-50">$f(x)$</td>
+                                    <td class="border border-black p-2">0,1</td>
+                                    <td class="border border-black p-2">0,2</td>
+                                    <td class="border border-black p-2">0,1</td>
+                                    <td class="border border-black p-2">0,3</td>
+                                    <td class="border border-black p-2">0,1</td>
+                                    <td class="border border-black p-2">0,1</td>
+                                    <td class="border border-black p-2">0,1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Langkah Perhitungan 1 -->
+                    <div class="space-y-6 pl-4 border-l-2 border-black mt-6">
+                        <!-- a) Mean -->
+                        <div>
+                            <p class="font-bold text-black">a) Menghitung Nilai Rata-rata / Mean $X$ ($\mu$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Formula dasar ekspektasi matematika: $\mu = E(X) = \sum X \cdot f(X)$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$\mu = (1 \cdot 0,1) + (2 \cdot 0,2) + (3 \cdot 0,1) + (4 \cdot 0,3) + (5 \cdot 0,1) + (6 \cdot 0,1) + (7 \cdot 0,1)$$
+                                $$\mu = 0,1 + 0,4 + 0,3 + 1,2 + 0,5 + 0,6 + 0,7 = \mathbf{3,8}$$
+                            </div>
+                        </div>
+
+                        <!-- b) Variansi -->
+                        <div>
+                            <p class="font-bold text-black">b) Menghitung Nilai Variansi $X$ ($\sigma^2$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Formula deviasi variansi: $\sigma^2 = E(X^2) - [E(X)]^2$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm space-y-4">
+                                <div>
+                                    <p class="text-xs font-semibold text-neutral-600 mb-1">1. Cari nilai ekspektasi kuadrat $E(X^2) = \sum X^2 \cdot f(X)$ terlebih dahulu:</p>
+                                    $$E(X^2) = (1^2 \cdot 0,1) + (2^2 \cdot 0,2) + (3^2 \cdot 0,1) + (4^2 \cdot 0,3) + (5^2 \cdot 0,1) + (6^2 \cdot 0,1) + (7^2 \cdot 0,1)$$
+                                    $$E(X^2) = (1 \cdot 0,1) + (4 \cdot 0,2) + (9 \cdot 0,1) + (16 \cdot 0,3) + (25 \cdot 0,1) + (36 \cdot 0,1) + (49 \cdot 0,1)$$
+                                    $$E(X^2) = 0,1 + 0,8 + 0,9 + 4,8 + 2,5 + 3,6 + 4,9 = 17,6$$
+                                </div>
+                                <div class="pt-3 border-t border-dashed border-neutral-300">
+                                    <p class="text-xs font-semibold text-neutral-600 mb-1">2. Masukkan ke rumus variansi induk:</p>
+                                    $$\sigma^2 = 17,6 - (3,8)^2$$
+                                    $$\sigma^2 = 17,6 - 14,44 = \mathbf{3,16}$$
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- c) Deviasi Standar -->
+                        <div>
+                            <p class="font-bold text-black">c) Menghitung Nilai Deviasi Standar $X$ ($\sigma$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Formula akar kuadrat variansi: $\sigma = \sqrt{\sigma^2}$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$\sigma = \sqrt{3,16} \approx \mathbf{1,7776}$$
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SOAL NOMOR 2 -->
+                <section class="border-b border-neutral-200 pb-10">
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="bg-black text-white text-xs font-bold px-2 py-1 mt-1 shrink-0">2</span>
+                        <div>
+                            <h3 class="font-bold text-black text-lg">Penerapan Distribusi Binomial (Obat Batuk PT Veteran)</h3>
+                            <p class="text-neutral-500 text-xs mt-1">Kasus probabilitas keefektifan menyembuhkan batuk dengan parameter $p = 0,75$ pada sampel $n = 6$.</p>
+                        </div>
+                    </div>
+
+                    <!-- Definisikan Parameter Soal 2 -->
+                    <div class="my-4 bg-neutral-50 p-4 border border-neutral-200 rounded grid grid-cols-3 gap-2 text-center text-xs tracking-wider uppercase font-semibold">
+                        <div>
+                            <span class="block text-[9px] text-neutral-400">Probabilitas Sukses ($p$)</span>
+                            <span class="text-sm font-bold text-black">0,75</span>
+                        </div>
+                        <div>
+                            <span class="block text-[9px] text-neutral-400">Probabilitas Gagal ($q = 1-p$)</span>
+                            <span class="text-sm font-bold text-black">0,25</span>
+                        </div>
+                        <div>
+                            <span class="block text-[9px] text-neutral-400">Ukuran Sampel ($n$)</span>
+                            <span class="text-sm font-bold text-black">6 Orang</span>
+                        </div>
+                    </div>
+
+                    <p class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Formula Distribusi Binomial:</p>
+                    <div class="mb-6 p-3 bg-neutral-100 border border-neutral-300 text-center font-mono text-sm">
+                        $$P(X = k) = \binom{n}{k} \cdot p^k \cdot q^{n-k} = \frac{n!}{k!(n-k)!} \cdot p^k \cdot q^{n-k}$$
+                    </div>
+
+                    <div class="space-y-6 pl-4 border-l-2 border-black">
+                        <!-- a) 2 orang sembuh -->
+                        <div>
+                            <p class="font-bold text-black">a) Probabilitas dua orang akan sembuh ($k = 2$)</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$P(X = 2) = \binom{6}{2} \cdot (0,75)^2 \cdot (0,25)^{6-2}$$
+                                $$P(X = 2) = \frac{6!}{2!4!} \cdot (0,5625) \cdot (0,25)^4$$
+                                $$P(X = 2) = 15 \cdot 0,5625 \cdot 0,00390625 = \mathbf{0,032959} \quad (\approx 3,30\%)$$
+                            </div>
+                        </div>
+
+                        <!-- b) 3 orang sembuh -->
+                        <div>
+                            <p class="font-bold text-black">b) Probabilitas tiga orang akan sembuh ($k = 3$)</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$P(X = 3) = \binom{6}{3} \cdot (0,75)^3 \cdot (0,25)^{6-3}$$
+                                $$P(X = 3) = \frac{6!}{3!3!} \cdot (0,421875) \cdot (0,25)^3$$
+                                $$P(X = 3) = 20 \cdot 0,421875 \cdot 0,015625 = \mathbf{0,131836} \quad (\approx 13,18\%)$$
+                            </div>
+                        </div>
+
+                        <!-- c) Minimum 5 orang sembuh -->
+                        <div>
+                            <p class="font-bold text-black">c) Probabilitas minimum 5 orang sembuh ($X \ge 5$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Persamaan gabungan kejadian saling bebas: $P(X \ge 5) = P(X = 5) + P(X = 6)$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm space-y-4">
+                                <div>
+                                    <p class="text-xs font-semibold text-neutral-600 mb-1">• Nilai Kejadian $P(X = 5)$:</p>
+                                    $$P(X = 5) = \binom{6}{5} \cdot (0,75)^5 \cdot (0,25)^1 = 6 \cdot 0,237305 \cdot 0,25 = 0,355957$$
+                                </div>
+                                <div class="pt-3 border-t border-dashed border-neutral-300">
+                                    <p class="text-xs font-semibold text-neutral-600 mb-1">• Nilai Kejadian $P(X = 6)$:</p>
+                                    $$P(X = 6) = \binom{6}{6} \cdot (0,75)^6 \cdot (0,25)^0 = 1 \cdot 0,177979 \cdot 1 = 0,177979$$
+                                </div>
+                                <div class="pt-3 border-t border-neutral-300 font-bold">
+                                    <p class="text-xs text-neutral-600 mb-1">• Hasil Kumulatif $P(X \ge 5)$:</p>
+                                    $$P(X \ge 5) = 0,355957 + 0,177979 = \mathbf{0,533936} \quad (\approx 53,39\%)$$
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SOAL NOMOR 3 -->
+                <section class="pb-6">
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="bg-black text-white text-xs font-bold px-2 py-1 mt-1 shrink-0">3</span>
+                        <div>
+                            <h3 class="font-bold text-black text-lg">Distribusi Binomial Terpisah (Analisis Nilai Statistika)</h3>
+                            <p class="text-neutral-500 text-xs mt-1">Probabilitas mahasiswa memperoleh nilai tertentu dengan total sampel terpilih secara acak $n = 5$ mahasiswa.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 pl-4 border-l-2 border-black mt-6">
+                        <!-- a) 3 diantaranya nilai C -->
+                        <div>
+                            <p class="font-bold text-black">a) Probabilitas 3 mahasiswa memperoleh nilai C ($p_C = 0,60$, $k = 3$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Maka probabilitas komplemen nilai C: $q = 1 - 0,60 = 0,40$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$P(X = 3) = \binom{5}{3} \cdot (0,60)^3 \cdot (0,40)^{5-3}$$
+                                $$P(X = 3) = 10 \cdot 0,216 \cdot (0,40)^2$$
+                                $$P(X = 3) = 10 \cdot 0,216 \cdot 0,16 = \mathbf{0,3456} \quad (34,56\%)$$
+                            </div>
+                        </div>
+
+                        <!-- b) 2 diantaranya nilai A -->
+                        <div>
+                            <p class="font-bold text-black">b) Probabilitas 2 mahasiswa memperoleh nilai A ($p_A = 0,30$, $k = 2$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Maka probabilitas komplemen nilai A: $q = 1 - 0,30 = 0,70$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$P(X = 2) = \binom{5}{2} \cdot (0,30)^2 \cdot (0,70)^{5-2}$$
+                                $$P(X = 2) = 10 \cdot 0,09 \cdot (0,70)^3$$
+                                $$P(X = 2) = 10 \cdot 0,09 \cdot 0,343 = \mathbf{0,3087} \quad (30,87\%)$$
+                            </div>
+                        </div>
+
+                        <!-- c) Semua memperoleh nilai B -->
+                        <div>
+                            <p class="font-bold text-black">c) Probabilitas semua mahasiswa memperoleh nilai B ($p_B = 0,40$, $k = 5$)</p>
+                            <p class="text-xs text-neutral-500 mb-2">Maka probabilitas komplemen nilai B: $q = 1 - 0,40 = 0,60$</p>
+                            <div class="bg-neutral-50 p-4 border border-neutral-200 font-mono text-xs sm:text-sm">
+                                $$P(X = 5) = \binom{5}{5} \cdot (0,40)^5 \cdot (0,60)^{5-5}$$
+                                $$P(X = 5) = 1 \cdot 0,01024 \cdot 1 = \mathbf{0,01024} \quad (\approx 1,02\%)$$
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Bagian Tanda Tangan & Keterangan Tambahan -->
+            <div class="mt-16 pt-8 border-t border-black flex flex-col sm:flex-row justify-between items-center sm:items-start gap-8">
+                <div class="text-xs text-neutral-500 space-y-1 text-center sm:text-left">
+                    <p class="font-bold text-black uppercase">Informasi Tambahan:</p>
+                    <p>Lembar jawaban ini disusun secara mandiri untuk memenuhi tugas teori.</p>
+                </div>
+                
+                <!-- Tanda Tangan Cursive SVG -->
+                <div class="text-center w-48 space-y-2">
+                    <p class="text-xs text-neutral-500 font-medium">Tanda Tangan Mahasiswa,</p>
+                    
+                    <div class="flex justify-center items-center h-20 bg-neutral-50 border border-neutral-200 rounded relative">
+                        <span class="absolute top-1 left-2 text-[8px] text-neutral-400 font-mono select-none">VALID SIGNATURE</span>
+                        <!-- Custom SVG Cursive "faiq" -->
+                        <svg class="w-40 h-16" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 25,48 C 30,15 38,8 42,24 C 44,36 36,75 40,75 C 44,75 52,50 60,35 C 64,28 68,25 70,38 C 72,50 68,55 74,55 C 80,55 86,35 90,30 C 94,25 96,32 95,40 C 94,48 97,52 101,52 C 105,52 110,40 115,30 C 120,20 125,35 122,50 C 119,65 110,90 114,90 C 118,90 128,70 160,50 C 192,30 210,35 220,40" 
+                                  fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="95" cy="18" r="2.5" fill="black" />
+                        </svg>
+                    </div>
+
+                    <div class="space-y-0.5">
+                        <p class="font-bold text-xs border-b border-neutral-400 pb-0.5">Faiq Hammam Mutaqin</p>
+                        <p class="text-[10px] text-neutral-500 tracking-wider font-semibold">NIM. 123250016</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: KALKULATOR BINOMIAL INTERAKTIF ================= -->
+        <div id="tab-calculator" class="hidden bg-white text-black max-w-4xl mx-auto shadow-md border border-neutral-200 p-6 md:p-10 transition-all duration-300">
+            <div class="border-b-2 border-black pb-4 mb-6">
+                <h2 class="document-title text-2xl font-bold tracking-tight">Kalkulator Distribusi Binomial Interaktif</h2>
+                <p class="text-xs text-neutral-500">Gunakan simulasi ini untuk menghitung secara dinamis dengan parameter probabilitas buatanmu sendiri.</p>
+            </div>
+
+            <!-- Panel Input Form -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 bg-neutral-50 p-6 border border-neutral-200 rounded">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-700 mb-2">Ukuran Sampel (n)</label>
+                    <input type="number" id="calc-n" value="6" min="1" max="50" class="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black font-mono" oninput="calculateInteractive()">
+                    <span class="text-[10px] text-neutral-400 block mt-1">Batas rentang: 1 s.d 50</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-700 mb-2">Probabilitas Sukses (p)</label>
+                    <input type="number" id="calc-p" value="0.75" step="0.01" min="0" max="1" class="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black font-mono" oninput="calculateInteractive()">
+                    <span class="text-[10px] text-neutral-400 block mt-1">Nilai desimal antara 0 s.d 1</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-neutral-700 mb-2">Banyak Kejadian Sukses (k)</label>
+                    <input type="number" id="calc-k" value="2" min="0" class="w-full bg-white border border-neutral-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-black font-mono" oninput="calculateInteractive()">
+                    <span class="text-[10px] text-neutral-400 block mt-1" id="max-k-info">Nilai k tidak boleh melebihi n</span>
+                </div>
+            </div>
+
+            <!-- Output Real-time Rendering KaTeX -->
+            <div class="space-y-6">
+                <div class="p-5 border border-black rounded bg-white">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4">Hasil Derivasi & Persamaan Kalkulasi</h3>
+                    
+                    <div id="calculator-output" class="space-y-6 text-sm font-mono">
+                        <!-- Konten kalkulasi dinamis dimuat oleh javascript -->
+                    </div>
+                </div>
+
+                <!-- Petunjuk Formula Ringkas -->
+                <div class="bg-neutral-50 p-4 border border-neutral-200 rounded text-xs space-y-1 text-neutral-600">
+                    <p class="font-bold text-black mb-1">Catatan Rumus:</p>
+                    <p>1. Probabilitas Kegagalan ($q$): $q = 1 - p$</p>
+                    <p>2. Koefisien Kombinasi: $\binom{n}{k} = \frac{n!}{k!(n-k)!}$</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Halaman (Disembunyikan saat cetak PDF) -->
+    <footer class="no-print bg-neutral-900 text-white border-t border-neutral-800 py-6 text-center text-xs mt-12">
+        <div class="max-w-5xl mx-auto px-4">
+            <p class="text-neutral-400">© 2026 Faiq Hammam Mutaqin • NIM 123250016 • IF-A • UPN "Veteran" Yogyakarta</p>
+            <p class="text-[10px] text-neutral-500 mt-1">Rendering matematika presisi menggunakan KaTeX Engine dengan Delimiter Khusus</p>
+        </div>
+    </footer>
+
+    <!-- Script Utama untuk Logic & Render LaTeX Dinamis -->
+    <script>
+        // Jalankan render awal saat seluruh DOM dimuat
+        document.addEventListener("DOMContentLoaded", function() {
+            renderAllMath();
+        });
+
+        // Fungsi pusat untuk render KaTeX pada elemen dengan opsi delimiter kustom
+        function renderAllMath(element = document.body) {
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(element, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        // Fungsi ganti tab menu
+        function switchTab(tabName) {
+            const tabDoc = document.getElementById('tab-document');
+            const tabCalc = document.getElementById('tab-calculator');
+            const btnDoc = document.getElementById('btn-doc');
+            const btnCalc = document.getElementById('btn-calc');
+
+            if (tabName === 'document') {
+                tabDoc.classList.remove('hidden');
+                tabCalc.classList.add('hidden');
+                btnDoc.className = "px-4 py-1.5 font-medium rounded transition-all bg-white text-black";
+                btnCalc.className = "px-4 py-1.5 font-medium rounded transition-all text-neutral-400 hover:text-white";
+                renderAllMath(tabDoc);
+            } else {
+                tabDoc.classList.add('hidden');
+                tabCalc.classList.remove('hidden');
+                btnDoc.className = "px-4 py-1.5 font-medium rounded transition-all text-neutral-400 hover:text-white";
+                btnCalc.className = "px-4 py-1.5 font-medium rounded transition-all bg-white text-black";
+                calculateInteractive();
+            }
+        }
+
+        // Hitung nilai faktorial
+        function factorial(num) {
+            if (num < 0) return 0;
+            if (num === 0 || num === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= num; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        // Hitung nilai kombinasi nCr
+        function nCr(n, r) {
+            if (r < 0 || r > n) return 0;
+            return factorial(n) / (factorial(r) * factorial(n - r));
+        }
+
+        // Logika penghitungan kalkulator interaktif & render rumusnya ke KaTeX
+        function calculateInteractive() {
+            const nInput = document.getElementById('calc-n');
+            const pInput = document.getElementById('calc-p');
+            const kInput = document.getElementById('calc-k');
+            
+            let n = parseInt(nInput.value) || 0;
+            let p = parseFloat(pInput.value) || 0;
+            let k = parseInt(kInput.value) || 0;
+
+            // Batasan input demi performa browser
+            if (n < 1) { n = 1; nInput.value = 1; }
+            if (n > 50) { n = 50; nInput.value = 50; }
+            if (p < 0) { p = 0; pInput.value = 0; }
+            if (p > 1) { p = 1; pInput.value = 1; }
+            
+            kInput.setAttribute('max', n);
+            document.getElementById('max-k-info').innerText = `Nilai k tidak boleh melebihi n (Maks: ${n})`;
+            
+            if (k < 0) { k = 0; kInput.value = 0; }
+            if (k > n) { k = n; kInput.value = n; }
+
+            const q = 1 - p;
+            const comb = nCr(n, k);
+            const p_pow = Math.pow(p, k);
+            const q_pow = Math.pow(q, n - k);
+            const prob = comb * p_pow * q_pow;
+
+            const outputDiv = document.getElementById('calculator-output');
+            outputDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-neutral-200">
+                    <div>
+                        <span class="block text-xs font-semibold text-neutral-500 uppercase">Probabilitas Hasil Akhir:</span>
+                        <div class="text-3xl font-extrabold text-black mt-1">${prob.toFixed(8)} <span class="text-sm font-normal text-neutral-500">(${(prob * 100).toFixed(6)}%)</span></div>
+                    </div>
+                    <div class="text-xs text-neutral-600 space-y-1">
+                        <p class="font-bold">Pendukung Nilai Terhitung:</p>
+                        <p>• Probabilitas Gagal (q) = 1 - ${p.toFixed(2)} = <strong>${q.toFixed(2)}</strong></p>
+                        <p>• Kombinasi \\binom{${n}}{${k}} = <strong>${comb}</strong></p>
+                        <p>• Nilai p^k = ${p.toFixed(2)}^${k} = <strong>${p_pow.toFixed(8)}</strong></p>
+                        <p>• Nilai q^{n-k} = ${q.toFixed(2)}^${n-k} = <strong>${q_pow.toFixed(8)}</strong></p>
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="block text-xs font-semibold text-neutral-500 uppercase mb-3">Persamaan Langkah Solusi:</span>
+                    <div class="p-4 bg-neutral-50 rounded text-center overflow-x-auto text-base">
+                        $$P(X = ${k}) = \\binom{${n}}{${k}} \\cdot (${p.toFixed(2)})^{${k}} \\cdot (${q.toFixed(2)})^{${n - k}}$$
+                        $$P(X = ${k}) = ${comb} \\cdot ${p_pow.toFixed(8)} \\cdot ${q_pow.toFixed(8)}$$
+                        $$P(X = ${k}) = \\mathbf{${prob.toFixed(8)}}$$
+                    </div>
+                </div>
+            `;
+
+            // Render rumus LaTeX baru di dalam container kalkulator secara instan
+            renderAllMath(outputDiv);
+        }
+    </script>
+</body>
+</html>
+
