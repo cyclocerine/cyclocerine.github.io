@@ -4,229 +4,648 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator IP Pro Ultimate</title>
+    <!-- Mengimpor Tailwind CSS untuk desain UI modern -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        // Mengonfigurasi Tailwind agar mendukung dark mode berbasis class
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <!-- Mengimpor Font Monospace Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #3b82f6; }
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
-        .dark { background-color: #0f172a; color: #f1f5f9; }
-        .dark .card { background-color: #1e293b; border-color: #334155; color: #f1f5f9; }
-        .dark .tab-active { color: #60a5fa; border-color: #60a5fa; }
-        .mono { font-family: 'Fira Code', monospace; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .tab-active { border-bottom: 3px solid var(--primary); color: var(--primary); font-weight: 700; }
-        .btn-copy:active { transform: scale(0.9); }
-        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.5em; }
+        :root { 
+            --primary: #3b82f6; 
+        }
+        /* Memaksa penggunaan font Fira Code untuk semua elemen agar konsisten */
+        * {
+            font-family: 'Fira Code', monospace !important;
+        }
+        body { 
+            transition: background-color 0.3s, color 0.3s; 
+        }
+        .tab-active { 
+            border-bottom: 3px solid var(--primary); 
+            color: var(--primary); 
+            font-weight: 700; 
+        }
+        /* Desain kustom untuk drop-down select */
+        select { 
+            appearance: none; 
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+            background-repeat: no-repeat; 
+            background-position: right 0.75rem center; 
+            background-size: 1.2em; 
+        }
+        /* Menghilangkan scrollbar default pada navigasi tab mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
-<body class="min-h-screen py-6 px-4" id="body-tag">
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-6 px-4">
     <div class="max-w-6xl mx-auto">
-        <!-- Header -->
+        <!-- Header Utama -->
         <div class="flex justify-between items-start mb-8">
             <div class="text-left">
-                <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">IP Network <span class="text-blue-600">Pro</span></h1>
-                <p class="text-slate-500 dark:text-slate-400">Toolkit lengkap untuk IPv4, IPv6, VLSM, dan FLSM.</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-2">
+                    IP Network <span class="text-blue-600 dark:text-blue-400">Pro</span>
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base">
+                    Toolkit lengkap untuk kalkulasi IPv4, IPv6, VLSM, FLSM, OSPF, RIPv2, Static Route, VLAN, dan DHCP Cisco CLI.
+                </p>
             </div>
-            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-slate-200 dark:bg-slate-700 hover:opacity-80 transition">
-                <span id="dark-icon">🌙</span>
+            <!-- Tombol Pengalih Tema (Dark Mode) -->
+            <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-slate-200 dark:bg-slate-800 hover:opacity-80 transition duration-200 focus:outline-none" aria-label="Toggle Dark Mode">
+                <span id="dark-icon" class="text-xl">🌙</span>
             </button>
         </div>
 
-        <!-- Navigation Tabs -->
-        <div class="flex overflow-x-auto no-scrollbar justify-start md:justify-center mb-8 space-x-4 md:space-x-8 border-b border-slate-200 dark:border-slate-700">
-            <button onclick="switchTab('ipv4')" id="tab-ipv4" class="px-4 py-2 text-slate-500 whitespace-nowrap transition tab-active">IPv4</button>
-            <button onclick="switchTab('ipv6')" id="tab-ipv6" class="px-4 py-2 text-slate-500 whitespace-nowrap transition">IPv6</button>
-            <button onclick="switchTab('vlsm')" id="tab-vlsm" class="px-4 py-2 text-slate-500 whitespace-nowrap transition">VLSM</button>
-            <button onclick="switchTab('flsm')" id="tab-flsm" class="px-4 py-2 text-slate-500 whitespace-nowrap transition">FLSM</button>
+        <!-- Navigasi Tab Utama -->
+        <div class="flex overflow-x-auto no-scrollbar justify-start md:justify-center mb-8 space-x-4 md:space-x-8 border-b border-slate-200 dark:border-slate-800">
+            <button onclick="switchTab('ipv4')" id="tab-ipv4" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition tab-active">IPv4</button>
+            <button onclick="switchTab('ipv6')" id="tab-ipv6" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">IPv6</button>
+            <button onclick="switchTab('vlsm')" id="tab-vlsm" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">VLSM</button>
+            <button onclick="switchTab('flsm')" id="tab-flsm" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">FLSM</button>
+            <button onclick="switchTab('ospf')" id="tab-ospf" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">OSPF</button>
+            <button onclick="switchTab('ripv2')" id="tab-ripv2" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">RIPv2</button>
+            <button onclick="switchTab('static')" id="tab-static" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">Static Route</button>
+            <button onclick="switchTab('vlan')" id="tab-vlan" class="px-4 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap transition">VLAN</button>
         </div>
 
-        <!-- IPv4 Content -->
+        <!-- Konten Kalkulator IPv4 -->
         <div id="content-ipv4" class="tab-content">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1">
-                    <div class="card p-6">
-                        <h2 class="text-xl font-bold mb-4">Input IPv4</h2>
+                <!-- Panel Input IPv4 -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Input IPv4</h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Alamat IP</label>
-                                <input type="text" id="v4-ip" value="192.168.1.1" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Alamat IP</label>
+                                <input type="text" id="v4-ip" value="192.168.1.1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Subnet Mask / Prefix</label>
-                                <select id="v4-mask" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Subnet Mask / Prefix</label>
+                                <select id="v4-mask" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
                                 </select>
                             </div>
-                            <button onclick="calculateIPv4()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition">Hitung</button>
+                            <button onclick="calculateIPv4()" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">Hitung</button>
+                        </div>
+                    </div>
+
+                    <!-- Input CLI untuk IPv4 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold mb-4 dark:text-white">Cisco CLI Options</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Interface</label>
+                                <input type="text" id="v4-cli-interface" value="GigabitEthernet0/0" class="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="v4-cli-dhcp" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label class="ml-2 block text-sm text-slate-700 dark:text-slate-300">Configure DHCP Pool</label>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">DHCP Pool Name</label>
+                                <input type="text" id="v4-cli-poolname" value="POOL-LAN" class="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Panel Hasil & Visualisasi IPv4 -->
                 <div class="lg:col-span-2 space-y-6">
-                    <div class="card p-6 overflow-x-auto">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-x-auto">
                         <table class="w-full text-left">
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                 <tr>
-                                    <td class="py-3 text-slate-500">Network Address</td>
-                                    <td class="py-3 font-bold mono flex justify-between">
-                                        <span id="v4-res-net">-</span>
-                                        <button onclick="copyToClipboard('v4-res-net')" class="text-blue-500 text-xs hover:underline">Copy</button>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Network Address</td>
+                                    <td class="py-3.5 font-bold flex justify-between items-center gap-4">
+                                        <span id="v4-res-net" class="dark:text-white">-</span>
+                                        <button onclick="copyToClipboard('v4-res-net', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy</button>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="py-3 text-slate-500">Broadcast Address</td>
-                                    <td class="py-3 font-bold mono flex justify-between">
-                                        <span id="v4-res-bc">-</span>
-                                        <button onclick="copyToClipboard('v4-res-bc')" class="text-blue-500 text-xs hover:underline">Copy</button>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Broadcast Address</td>
+                                    <td class="py-3.5 font-bold flex justify-between items-center gap-4">
+                                        <span id="v4-res-bc" class="dark:text-white">-</span>
+                                        <button onclick="copyToClipboard('v4-res-bc', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy</button>
                                     </td>
                                 </tr>
-                                <tr><td class="py-3 text-slate-500">Usable Range</td><td id="v4-res-range" class="py-3 mono">-</td></tr>
-                                <tr><td class="py-3 text-slate-500">Total Usable Hosts</td><td id="v4-res-count" class="py-3 font-semibold">-</td></tr>
-                                <tr><td class="py-3 text-slate-500">Subnet Mask</td><td id="v4-res-mask" class="py-3 mono">-</td></tr>
-                                <tr><td class="py-3 text-slate-500">IP Type / Class</td><td id="v4-res-type" class="py-3">-</td></tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Usable Range</td>
+                                    <td id="v4-res-range" class="py-3.5 dark:text-white">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Total Usable Hosts</td>
+                                    <td id="v4-res-count" class="py-3.5 font-semibold text-emerald-600 dark:text-emerald-400">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Subnet Mask</td>
+                                    <td id="v4-res-mask" class="py-3.5 dark:text-white">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">IP Type / Class</td>
+                                    <td id="v4-res-type" class="py-3.5 dark:text-white">-</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="card p-6">
-                        <h3 class="text-sm font-bold text-slate-400 uppercase mb-3">Binary Bitmask Visualization</h3>
-                        <div id="v4-bits" class="flex flex-wrap gap-1 font-mono text-[10px] md:text-xs">
+
+                    <!-- Output Kode Konfigurasi Cisco CLI IPv4 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase">Cisco IOS CLI Configuration</h3>
+                            <button onclick="copyToClipboard('v4-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy Command</button>
+                        </div>
+                        <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="v4-cli-code">-</code></pre>
+                    </div>
+
+                    <!-- Visualisasi Biner Bitmask -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase mb-3">Binary Bitmask Visualization</h3>
+                        <div id="v4-bits" class="flex flex-wrap gap-1 text-[10px] md:text-xs leading-relaxed">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- IPv6 Content -->
+        <!-- Konten Kalkulator IPv6 -->
         <div id="content-ipv6" class="tab-content hidden">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1">
-                    <div class="card p-6">
-                        <h2 class="text-xl font-bold mb-4">Input IPv6</h2>
+                <!-- Panel Input IPv6 -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Input IPv6</h2>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">IPv6 Address</label>
-                                <input type="text" id="v6-ip" value="2001:db8::1" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">IPv6 Address</label>
+                                <input type="text" id="v6-ip" value="2001:db8::1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1">Prefix Length</label>
-                                <select id="v6-mask" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Prefix Length</label>
+                                <select id="v6-mask" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition cursor-pointer">
                                 </select>
                             </div>
-                            <button onclick="calculateIPv6()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700">Hitung IPv6</button>
+                            <button onclick="calculateIPv6()" class="w-full bg-indigo-600 dark:bg-indigo-500 text-white font-bold py-2.5 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">Hitung IPv6</button>
+                        </div>
+                    </div>
+
+                    <!-- Input CLI untuk IPv6 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold mb-4 dark:text-white">Cisco CLI Options</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Interface</label>
+                                <input type="text" id="v6-cli-interface" value="GigabitEthernet0/0" class="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="v6-cli-dhcp" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label class="ml-2 block text-sm text-slate-700 dark:text-slate-300">Configure DHCPv6 Pool</label>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">DHCPv6 Pool Name</label>
+                                <input type="text" id="v6-cli-poolname" value="POOL-IPV6-LAN" class="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="lg:col-span-2">
-                    <div class="card p-6 space-y-6">
+
+                <!-- Panel Hasil IPv6 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
                         <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase">Expanded (Full) Address</p>
-                            <p id="v6-res-full" class="mono break-all text-indigo-600 font-bold">-</p>
+                            <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Expanded (Full) Address</p>
+                            <p id="v6-res-full" class="break-all text-indigo-600 dark:text-indigo-400 font-bold">-</p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase">Network Prefix</p>
-                                <p id="v6-res-net" class="mono">-</p>
+                                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Network Prefix</p>
+                                <p id="v6-res-net" class="dark:text-white">-</p>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase">Total Addresses</p>
-                                <p id="v6-res-hosts" class="mono">2^n</p>
+                                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Total Addresses</p>
+                                <p id="v6-res-hosts" class="text-emerald-600 dark:text-emerald-400 font-semibold">2^n</p>
                             </div>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase">Address Type</p>
-                            <p id="v6-res-type" class="font-semibold">-</p>
+                            <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1">Address Type</p>
+                            <p id="v6-res-type" class="font-semibold dark:text-white">-</p>
                         </div>
+                    </div>
+
+                    <!-- Output Kode Konfigurasi Cisco CLI IPv6 -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase">Cisco IOS CLI Configuration</h3>
+                            <button onclick="copyToClipboard('v6-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy Command</button>
+                        </div>
+                        <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="v6-cli-code">-</code></pre>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VLSM Content -->
+        <!-- Konten Kalkulator VLSM -->
         <div id="content-vlsm" class="tab-content hidden">
-            <div class="card p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-blue-600">Perhitungan VLSM</h2>
-                    <button onclick="exportToCSV('vlsm-table-body', 'vlsm_export.csv')" class="text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded hover:bg-slate-200 transition">Export CSV</button>
+            <!-- Warning Box untuk Limit Kapasitas VLSM -->
+            <div id="vlsm-warning" class="hidden mb-6 bg-red-100 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
+                ⚠️ <strong>Peringatan!</strong> Total alokasi IP untuk subnet VLSM melebihi kapasitas Major Network yang ditentukan. Mohon sesuaikan jumlah host atau perluas prefix Major Network Anda.
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm mb-6">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                    <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400">Perhitungan VLSM</h2>
+                    <button onclick="exportToCSV('vlsm-table-body', 'vlsm_export.csv')" class="self-start sm:self-auto text-sm bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg transition duration-200">Export CSV</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Major Network (e.g., 192.168.1.0/24)</label>
-                        <input type="text" id="vlsm-major" value="192.168.1.0/24" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Major Network (e.g., 192.168.1.0/24)</label>
+                        <input type="text" id="vlsm-major" value="192.168.20.0/24" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
                     </div>
                 </div>
-                <div id="vlsm-inputs" class="space-y-3 mb-4">
-                    <div class="flex space-x-2 items-center">
-                        <input type="text" placeholder="Nama" class="flex-1 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-name">
-                        <input type="number" placeholder="Host" class="w-24 md:w-32 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-hosts">
-                        <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded">✕</button>
+                <!-- Row Input Dinamis Subnet VLSM -->
+                <div id="vlsm-inputs" class="space-y-3 mb-6">
+                    <!-- Default Subnet dumasar Tugas 4 -->
+                    <div class="flex flex-wrap md:flex-nowrap gap-2 items-center bg-slate-50 dark:bg-slate-800/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                        <input type="text" placeholder="Nama Subnet" value="Lantai 1" class="flex-1 min-w-[120px] p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-name transition">
+                        <input type="number" placeholder="Host" value="80" class="w-24 p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-hosts transition">
+                        <label class="flex items-center space-x-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" class="subnet-server rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500">
+                            <span>Aya Server?</span>
+                        </label>
+                        <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 p-2 rounded-lg transition">✕</button>
+                    </div>
+                    <div class="flex flex-wrap md:flex-nowrap gap-2 items-center bg-slate-50 dark:bg-slate-800/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                        <input type="text" placeholder="Nama Subnet" value="Ruang A VLAN 10" class="flex-1 min-w-[120px] p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-name transition">
+                        <input type="number" placeholder="Host" value="10" class="w-24 p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-hosts transition">
+                        <label class="flex items-center space-x-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" class="subnet-server rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500">
+                            <span>Aya Server?</span>
+                        </label>
+                        <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 p-2 rounded-lg transition">✕</button>
+                    </div>
+                    <div class="flex flex-wrap md:flex-nowrap gap-2 items-center bg-slate-50 dark:bg-slate-800/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                        <input type="text" placeholder="Nama Subnet" value="Ruang B VLAN 20" class="flex-1 min-w-[120px] p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-name transition">
+                        <input type="number" placeholder="Host" value="5" class="w-24 p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-hosts transition">
+                        <label class="flex items-center space-x-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" checked class="subnet-server rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500">
+                            <span>Aya Server?</span>
+                        </label>
+                        <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 p-2 rounded-lg transition">✕</button>
                     </div>
                 </div>
-                <div class="flex space-x-3">
-                    <button onclick="addVlsmRow()" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition">Tambah Subnet</button>
-                    <button onclick="calculateVLSM()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none">Hitung VLSM</button>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="addVlsmRow()" class="px-4 py-2 border border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/20 transition">Tambah Subnet</button>
+                    <button onclick="calculateVLSM()" class="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition shadow-md">Hitung VLSM</button>
                 </div>
             </div>
-            <div id="vlsm-result" class="card overflow-x-auto hidden">
+
+            <!-- Tabel Hasil VLSM -->
+            <div id="vlsm-result" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-x-auto hidden mb-6">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                         <tr>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Nama</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Req</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Avail</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Network</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Prefix</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 text-blue-500">Start IP</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 text-blue-500">End IP</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Broadcast</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Nama</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Req</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Avail</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Network</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Prefix</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-blue-500 dark:text-blue-400">Start IP</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-blue-500 dark:text-blue-400">End IP</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Broadcast</th>
                         </tr>
                     </thead>
-                    <tbody id="vlsm-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 mono text-sm"></tbody>
+                    <tbody id="vlsm-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm dark:text-slate-300"></tbody>
                 </table>
+            </div>
+
+            <!-- Cisco CLI Opsi & Konfigurasi VLSM (DHCP + Inter-VLAN) -->
+            <div id="vlsm-cli-card" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hidden">
+                <h3 class="text-xl font-bold mb-4 dark:text-white">Cisco CLI Config (VLSM DHCP & Inter-VLAN)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Physical Interface</label>
+                        <input type="text" id="vlsm-cli-interface" value="GigabitEthernet0/0" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Default Gateway Option</label>
+                        <select id="vlsm-cli-gateway-opt" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                            <option value="first">First Valid Host (Standard)</option>
+                            <option value="last">Last Valid Host</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Base VLAN ID Start</label>
+                        <input type="number" id="vlsm-cli-vlan-start" value="10" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm text-slate-500 dark:text-slate-400">Copy paréntah ieu pikeun dikonfigurasi dina Router Utama Packet Tracer.</span>
+                    <button onclick="copyToClipboard('vlsm-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-sm hover:underline focus:outline-none">Copy Config</button>
+                </div>
+                <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="vlsm-cli-code">-</code></pre>
             </div>
         </div>
 
-        <!-- FLSM Content -->
+        <!-- Konten Kalkulator FLSM -->
         <div id="content-flsm" class="tab-content hidden">
-            <div class="card p-6 mb-6">
-                <h2 class="text-xl font-bold mb-4 text-emerald-600">Perhitungan FLSM</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Warning Box untuk Limit Kapasitas FLSM -->
+            <div id="flsm-warning" class="hidden mb-6 bg-red-100 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
+                ⚠️ <strong>Peringatan!</strong> Pembagian subnet FLSM melebihi rentang IP Major Network yang tersedia.
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm mb-6">
+                <h2 class="text-xl font-bold mb-4 text-emerald-600 dark:text-emerald-400">Perhitungan FLSM</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Major Network</label>
-                        <input type="text" id="flsm-major" value="10.0.0.0/8" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Major Network</label>
+                        <input type="text" id="flsm-major" value="10.0.0.0/8" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Jumlah Subnet</label>
-                        <input type="number" id="flsm-count" value="8" class="w-full p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Jumlah Subnet</label>
+                        <input type="number" id="flsm-count" value="8" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
                     </div>
                 </div>
-                <button onclick="calculateFLSM()" class="mt-4 px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">Proses FLSM</button>
+                <button onclick="calculateFLSM()" class="px-6 py-2 bg-emerald-600 dark:bg-emerald-500 text-white font-bold rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 transition shadow-md">Proses FLSM</button>
             </div>
-            <div id="flsm-result" class="card overflow-x-auto hidden">
+
+            <!-- Tabel Hasil FLSM -->
+            <div id="flsm-result" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-x-auto hidden mb-6">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 dark:bg-slate-800">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                         <tr>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">#</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Network</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Range Host</th>
-                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500">Broadcast</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">#</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Network</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Range Host</th>
+                            <th class="px-4 py-3 text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Broadcast</th>
                         </tr>
                     </thead>
-                    <tbody id="flsm-table-body" class="divide-y divide-slate-100 dark:divide-slate-700 mono text-sm"></tbody>
+                    <tbody id="flsm-table-body" class="divide-y divide-slate-100 dark:divide-slate-300 text-sm dark:text-slate-300"></tbody>
                 </table>
+            </div>
+
+            <!-- Cisco CLI Opsi & Konfigurasi FLSM (DHCP + Interface List) -->
+            <div id="flsm-cli-card" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hidden">
+                <h3 class="text-xl font-bold mb-4 dark:text-white">Cisco CLI Config (FLSM DHCP & Multi-Interface)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Physical Interface Root (e.g. GigabitEthernet0/)</label>
+                        <input type="text" id="flsm-cli-interface-root" value="GigabitEthernet0/" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Default Gateway Option</label>
+                        <select id="flsm-cli-gateway-opt" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                            <option value="first">First Valid Host (Standard)</option>
+                            <option value="last">Last Valid Host</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm text-slate-500 dark:text-slate-400">Copy paréntah ieu pikeun otomatisasi multi-interface & DHCP Server Pool.</span>
+                    <button onclick="copyToClipboard('flsm-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-sm hover:underline focus:outline-none">Copy Config</button>
+                </div>
+                <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="flsm-cli-code">-</code></pre>
+            </div>
+        </div>
+
+        <!-- Konten Kalkulator & Generator OSPF -->
+        <div id="content-ospf" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Panel Input OSPF -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Input OSPF</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">IP Network / Host</label>
+                                <input type="text" id="ospf-ip" value="192.168.20.0" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Subnet Mask / Prefix</label>
+                                <select id="ospf-mask" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Process ID</label>
+                                <input type="number" id="ospf-process" value="1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Area ID</label>
+                                <input type="text" id="ospf-area" value="1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Router ID (Opsional)</label>
+                                <input type="text" id="ospf-router-id" placeholder="Contoh: 1.1.1.1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <button onclick="calculateOSPF()" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">Generate Config</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Panel Hasil OSPF -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                        <table class="w-full text-left">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Network Address</td>
+                                    <td id="ospf-res-net" class="py-3.5 font-bold dark:text-white">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Wildcard Mask</td>
+                                    <td id="ospf-res-wildcard" class="py-3.5 font-bold text-blue-600 dark:text-blue-400">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Output Kode Konfigurasi Cisco CLI -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase">Cisco IOS CLI Configuration</h3>
+                            <button onclick="copyToClipboard('ospf-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy Command</button>
+                        </div>
+                        <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="ospf-cli-code">-</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten Kalkulator & Generator RIPv2 -->
+        <div id="content-ripv2" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Panel Input RIPv2 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Input RIPv2</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">IP Address / Host</label>
+                                <input type="text" id="rip-ip" value="192.168.10.0" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Subnet Mask / Prefix</label>
+                                <select id="rip-mask" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                </select>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="rip-no-summary" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label class="ml-2 block text-sm text-slate-700 dark:text-slate-300">No Auto-Summary</label>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Passive Interface (Opsional)</label>
+                                <input type="text" id="rip-passive-if" placeholder="Contoh: g0/0, g0/1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <button onclick="calculateRIPv2()" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">Generate RIPv2</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Panel Hasil RIPv2 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                        <table class="w-full text-left">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Classful Network Address</td>
+                                    <td id="rip-res-classful" class="py-3.5 font-bold dark:text-white">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Subnet Network Address</td>
+                                    <td id="rip-res-net" class="py-3.5 font-bold dark:text-white">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Output Kode Konfigurasi Cisco CLI -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase">Cisco IOS CLI Configuration (RIPv2)</h3>
+                            <button onclick="copyToClipboard('rip-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy Command</button>
+                        </div>
+                        <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="rip-cli-code">-</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten Kalkulator & Generator Static Routing -->
+        <div id="content-static" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Panel Input Static Route -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Input Static Route</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Destination Network</label>
+                                <input type="text" id="static-dest-ip" value="192.168.10.128" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Subnet Mask / Prefix</label>
+                                <select id="static-mask" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Next-Hop IP / Exit Interface</label>
+                                <input type="text" id="static-next-hop" value="192.168.20.145" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <button onclick="calculateStaticRoute()" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">Generate Static Route</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Panel Hasil Static Route -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                        <table class="w-full text-left">
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Target Netmask</td>
+                                    <td id="static-res-mask" class="py-3.5 font-bold dark:text-white">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 text-slate-500 dark:text-slate-400">Target Subnet ID</td>
+                                    <td id="static-res-net" class="py-3.5 font-bold dark:text-white">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Output Kode Konfigurasi Cisco CLI -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase">Cisco IOS CLI Configuration (Static Route)</h3>
+                            <button onclick="copyToClipboard('static-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy Command</button>
+                        </div>
+                        <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="static-cli-code">-</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten Kalkulator & Generator VLAN -->
+        <div id="content-vlan" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Panel Input VLAN -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Input VLAN</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">VLAN ID</label>
+                                <input type="number" id="vlan-id" value="10" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Nama VLAN</label>
+                                <input type="text" id="vlan-name" value="RUANG_A" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Access Port(s)</label>
+                                <input type="text" id="vlan-access-ports" value="FastEthernet0/1 - 10" placeholder="Contoh: f0/1 atau FastEthernet0/1-10" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">Trunk Port(s) (Opsional)</label>
+                                <input type="text" id="vlan-trunk-ports" value="GigabitEthernet0/1" placeholder="Contoh: g0/1" class="w-full p-2.5 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <button onclick="calculateVLAN()" class="w-full bg-blue-600 dark:bg-blue-500 text-white font-bold py-2.5 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">Generate Switch Config</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Panel Hasil & Konfigurasi CLI Switch -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase">Cisco Switch CLI Configuration (VLAN)</h3>
+                            <button onclick="copyToClipboard('vlan-cli-code', event)" class="text-blue-500 dark:text-blue-400 text-xs hover:underline focus:outline-none">Copy Command</button>
+                        </div>
+                        <pre class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg text-xs md:text-sm text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre border border-slate-100 dark:border-slate-800"><code id="vlan-cli-code">-</code></pre>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Logika Aplikasi (JavaScript) -->
     <script>
-        // -- Utility --
+        // -- Fungsi Utilitas Konversi IP --
         const ipToLong = ip => ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
         const longToIp = long => [(long >>> 24) & 0xFF, (long >>> 16) & 0xFF, (long >>> 8) & 0xFF, long & 0xFF].join('.');
         
+        // -- Logika Pengalih Dark/Light Mode --
         function toggleDarkMode() {
-            const body = document.getElementById('body-tag');
+            const html = document.documentElement;
             const icon = document.getElementById('dark-icon');
-            body.classList.toggle('dark');
-            icon.innerText = body.classList.contains('dark') ? '☀️' : '🌙';
+            html.classList.toggle('dark');
+            icon.innerText = html.classList.contains('dark') ? '☀️' : '🌙';
         }
 
+        // -- Fungsi Pengalih Tab Navigasi --
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
             document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.remove('tab-active'));
@@ -234,7 +653,8 @@
             document.getElementById('tab-' + tab).classList.add('tab-active');
         }
 
-        function copyToClipboard(id) {
+        // -- Menyalin Teks ke Clipboard --
+        function copyToClipboard(id, e) {
             const text = document.getElementById(id).innerText;
             const el = document.createElement('textarea');
             el.value = text;
@@ -243,25 +663,51 @@
             document.execCommand('copy');
             document.body.removeChild(el);
             
-            const btn = event.target;
+            const btn = e.target;
             const originalText = btn.innerText;
             btn.innerText = "Copied!";
             setTimeout(() => btn.innerText = originalText, 1500);
         }
 
-        // -- Population Logic --
+        // -- Mengisi Drop-down Masker Otomatis --
         function populateMasks() {
             const v4Select = document.getElementById('v4-mask');
+            const ospfSelect = document.getElementById('ospf-mask');
+            const ripSelect = document.getElementById('rip-mask');
+            const staticSelect = document.getElementById('static-mask');
+            
+            v4Select.innerHTML = "";
+            if (ospfSelect) ospfSelect.innerHTML = "";
+            if (ripSelect) ripSelect.innerHTML = "";
+            if (staticSelect) staticSelect.innerHTML = "";
+            
             for (let i = 32; i >= 0; i--) {
                 const maskLong = (0xFFFFFFFF << (32 - i)) >>> 0;
                 const option = document.createElement('option');
                 option.value = i;
                 option.text = `/${i} (${longToIp(maskLong)})`;
                 if (i === 24) option.selected = true;
-                v4Select.appendChild(option);
+                
+                v4Select.appendChild(option.cloneNode(true));
+                if (ospfSelect) {
+                    const optionOspf = option.cloneNode(true);
+                    if (i === 24) optionOspf.selected = true;
+                    ospfSelect.appendChild(optionOspf);
+                }
+                if (ripSelect) {
+                    const optionRip = option.cloneNode(true);
+                    if (i === 24) optionRip.selected = true;
+                    ripSelect.appendChild(optionRip);
+                }
+                if (staticSelect) {
+                    const optionStatic = option.cloneNode(true);
+                    if (i === 29) optionStatic.selected = true; // Default /29 pikeun Static Ruang Security dumasar VLSM
+                    staticSelect.appendChild(optionStatic);
+                }
             }
 
             const v6Select = document.getElementById('v6-mask');
+            v6Select.innerHTML = "";
             for (let i = 128; i >= 1; i--) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -271,7 +717,7 @@
             }
         }
 
-        // -- IPv4 --
+        // -- Analisis Tipe & Kelas IPv4 --
         function getIPv4Details(long) {
             const first = (long >>> 24) & 0xFF;
             let type = "Public";
@@ -292,6 +738,7 @@
             return `${type} / Kelas ${cls}`;
         }
 
+        // -- Perhitungan IPv4 + Cisco CLI --
         function calculateIPv4() {
             const ip = document.getElementById('v4-ip').value.trim();
             const mask = parseInt(document.getElementById('v4-mask').value);
@@ -303,24 +750,52 @@
             const netLong = (ipLong & maskLong) >>> 0;
             const bcLong = (netLong | (~maskLong)) >>> 0;
 
-            document.getElementById('v4-res-net').innerText = longToIp(netLong);
+            const subnetString = longToIp(maskLong);
+            const netAddress = longToIp(netLong);
+            const gatewayIP = longToIp(netLong + 1);
+
+            document.getElementById('v4-res-net').innerText = netAddress;
             document.getElementById('v4-res-bc').innerText = longToIp(bcLong);
-            document.getElementById('v4-res-range').innerText = mask >= 31 ? "-" : `${longToIp(netLong+1)} - ${longToIp(bcLong-1)}`;
+            document.getElementById('v4-res-range').innerText = mask >= 31 ? "-" : `${gatewayIP} - ${longToIp(bcLong-1)}`;
             document.getElementById('v4-res-count').innerText = mask >= 31 ? 0 : (Math.pow(2, 32-mask)-2).toLocaleString('id-ID');
-            document.getElementById('v4-res-mask').innerText = longToIp(maskLong);
+            document.getElementById('v4-res-mask').innerText = subnetString;
             document.getElementById('v4-res-type').innerText = getIPv4Details(ipLong);
 
+            // Generasi Cisco CLI untuk IPv4
+            const interfaceName = document.getElementById('v4-cli-interface').value.trim() || "GigabitEthernet0/0";
+            const configureDHCP = document.getElementById('v4-cli-dhcp').checked;
+            const poolName = document.getElementById('v4-cli-poolname').value.trim() || "POOL-LAN";
+
+            let cliCode = `enable\nconfigure terminal\n`;
+            cliCode += `interface ${interfaceName}\n`;
+            cliCode += `ip address ${gatewayIP} ${subnetString}\n`;
+            cliCode += `no shutdown\n`;
+            cliCode += `exit\n`;
+
+            if (configureDHCP && mask < 31) {
+                cliCode += `!\n`;
+                cliCode += `ip dhcp excluded-address ${gatewayIP}\n`;
+                cliCode += `ip dhcp pool ${poolName}\n`;
+                cliCode += `network ${netAddress} ${subnetString}\n`;
+                cliCode += `default-router ${gatewayIP}\n`;
+                cliCode += `dns-server 8.8.8.8\n`;
+                cliCode += `exit`;
+            }
+
+            document.getElementById('v4-cli-code').innerText = cliCode;
+
+            // Merender visualisasi bit biner
             const bitsContainer = document.getElementById('v4-bits');
             bitsContainer.innerHTML = "";
             const binaryStr = (ipLong >>> 0).toString(2).padStart(32, '0');
             for(let i=0; i<32; i++) {
                 const dot = (i > 0 && i % 8 === 0) ? '<span class="text-slate-300 dark:text-slate-600 mx-1">.</span>' : '';
-                const color = i < mask ? 'text-blue-500 font-bold' : 'text-slate-400 dark:text-slate-500';
+                const color = i < mask ? 'text-blue-500 dark:text-blue-400 font-bold' : 'text-slate-400 dark:text-slate-600';
                 bitsContainer.innerHTML += `${dot}<span class="${color}">${binaryStr[i]}</span>`;
             }
         }
 
-        // -- IPv6 --
+        // -- Perhitungan IPv6 + Cisco CLI --
         function calculateIPv6() {
             let ip = document.getElementById('v6-ip').value.trim();
             const prefix = parseInt(document.getElementById('v6-mask').value);
@@ -338,7 +813,8 @@
             const full = fullArr.join(':');
 
             document.getElementById('v6-res-full').innerText = full;
-            document.getElementById('v6-res-net').innerText = full.substring(0, Math.ceil(prefix/4) + Math.floor(prefix/16)) + "... /" + prefix;
+            const netPrefixAddress = full.substring(0, Math.ceil(prefix/4) + Math.floor(prefix/16)) + "...";
+            document.getElementById('v6-res-net').innerText = netPrefixAddress + " /" + prefix;
             document.getElementById('v6-res-hosts').innerText = prefix > 120 ? "2^" + (128 - prefix) : (128 - prefix) + " bits available";
             
             let type = "Global Unicast";
@@ -346,35 +822,85 @@
             else if(full.startsWith('ff')) type = "Multicast";
             else if(full === '0000:0000:0000:0000:0000:0000:0000:0001') type = "Loopback";
             document.getElementById('v6-res-type').innerText = type;
+
+            // Generasi Cisco CLI untuk IPv6
+            const interfaceName = document.getElementById('v6-cli-interface').value.trim() || "GigabitEthernet0/0";
+            const configureDHCP = document.getElementById('v6-cli-dhcp').checked;
+            const poolName = document.getElementById('v6-cli-poolname').value.trim() || "POOL-IPV6-LAN";
+
+            let cliCode = `enable\nconfigure terminal\nipv6 unicast-routing\n`;
+            if (configureDHCP) {
+                cliCode += `ipv6 dhcp pool ${poolName}\n`;
+                cliCode += `dns-server 2001:4860:4860::8888\n`;
+                cliCode += `exit\n`;
+                cliCode += `!\n`;
+            }
+            cliCode += `interface ${interfaceName}\n`;
+            cliCode += `ipv6 address ${ip}/${prefix}\n`;
+            if (configureDHCP) {
+                cliCode += `ipv6 dhcp server ${poolName}\n`;
+            }
+            cliCode += `no shutdown\n`;
+            cliCode += `exit`;
+
+            document.getElementById('v6-cli-code').innerText = cliCode;
         }
 
-        // -- VLSM --
+        // -- Dinamika Penambahan / Penghapusan Row VLSM --
         function addVlsmRow() {
             const div = document.createElement('div');
-            div.className = "flex space-x-2 items-center";
+            div.className = "flex flex-wrap md:flex-nowrap gap-2 items-center bg-slate-50 dark:bg-slate-800/20 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40";
+            const currentRows = document.querySelectorAll('.subnet-name').length + 1;
             div.innerHTML = `
-                <input type="text" placeholder="Nama" class="flex-1 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-name">
-                <input type="number" placeholder="Host" class="w-24 md:w-32 p-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 subnet-hosts">
-                <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 p-2 rounded">✕</button>
+                <input type="text" placeholder="Nama" value="Subnet ${currentRows}" class="flex-1 min-w-[120px] p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-name transition">
+                <input type="number" placeholder="Host" value="10" class="w-24 p-2 border rounded-lg bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 subnet-hosts transition">
+                <label class="flex items-center space-x-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                    <input type="checkbox" class="subnet-server rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500">
+                    <span>Aya Server?</span>
+                </label>
+                <button onclick="removeVlsmRow(this)" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 p-2 rounded-lg transition">✕</button>
             `;
             document.getElementById('vlsm-inputs').appendChild(div);
+            calculateVLSM();
         }
-        function removeVlsmRow(btn) { btn.parentElement.remove(); }
+        function removeVlsmRow(btn) { 
+            btn.parentElement.remove(); 
+            calculateVLSM();
+        }
 
+        // -- Logika Utama VLSM + Cisco DHCP/Inter-VLAN Generator --
         function calculateVLSM() {
             const majorRaw = document.getElementById('vlsm-major').value.split('/');
             if (majorRaw.length < 2) return;
+            const majorPrefix = parseInt(majorRaw[1]);
+            const majorSize = Math.pow(2, 32 - majorPrefix);
             let currentIp = ipToLong(majorRaw[0]);
+            const baseIpStart = currentIp;
             const subnets = [];
             
-            document.querySelectorAll('.subnet-name').forEach((el, i) => {
-                const hosts = parseInt(document.querySelectorAll('.subnet-hosts')[i].value);
-                if(hosts) subnets.push({ name: el.value || `Subnet ${i+1}`, req: hosts });
+            const nameNodes = document.querySelectorAll('.subnet-name');
+            const hostNodes = document.querySelectorAll('.subnet-hosts');
+            const serverNodes = document.querySelectorAll('.subnet-server');
+
+            nameNodes.forEach((el, i) => {
+                const hosts = parseInt(hostNodes[i].value);
+                const hasServer = serverNodes[i] ? serverNodes[i].checked : false;
+                if(hosts) {
+                    subnets.push({ 
+                        name: el.value || `Subnet ${i+1}`, 
+                        req: hosts,
+                        hasServer: hasServer
+                    });
+                }
             });
 
+            // VLSM mensyaratkan pengerjaan dari host terbesar ke terkecil
             subnets.sort((a, b) => b.req - a.req);
 
             let html = "";
+            let calculatedSubnets = [];
+            let totalAllocatedSize = 0;
+
             subnets.forEach(s => {
                 let bits = Math.ceil(Math.log2(s.req + 2));
                 let prefix = 32 - bits;
@@ -382,54 +908,324 @@
                 let net = currentIp;
                 let bc = net + size - 1;
 
-                // Hitung rentang host yang bisa digunakan
+                totalAllocatedSize += size;
+
                 let startIp = prefix >= 31 ? "-" : longToIp(net + 1);
                 let endIp = prefix >= 31 ? "-" : longToIp(bc - 1);
+                let serverIp = prefix >= 30 ? longToIp(net + 2) : "-"; // IP kadua dianggo ku server statis dumasar Tugas 4
 
-                html += `<tr>
-                    <td class="px-4 py-3">${s.name}</td>
-                    <td class="px-4 py-3">${s.req}</td>
-                    <td class="px-4 py-3 text-blue-500 font-bold">${size-2}</td>
-                    <td class="px-4 py-3">${longToIp(net)}</td>
-                    <td class="px-4 py-3">/${prefix}</td>
-                    <td class="px-4 py-3 font-medium text-emerald-600">${startIp}</td>
-                    <td class="px-4 py-3 font-medium text-emerald-600">${endIp}</td>
-                    <td class="px-4 py-3">${longToIp(bc)}</td>
+                html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                    <td class="px-4 py-3.5 font-medium dark:text-white">
+                        ${s.name} ${s.hasServer ? '<span class="ml-1 text-[10px] bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-full font-bold">SERVER</span>' : ''}
+                    </td>
+                    <td class="px-4 py-3.5">${s.req}</td>
+                    <td class="px-4 py-3.5 text-blue-500 dark:text-blue-400 font-bold">${size-2}</td>
+                    <td class="px-4 py-3.5">${longToIp(net)}</td>
+                    <td class="px-4 py-3.5">/${prefix}</td>
+                    <td class="px-4 py-3.5 font-medium text-emerald-600 dark:text-emerald-400">${startIp}</td>
+                    <td class="px-4 py-3.5 font-medium text-emerald-600 dark:text-emerald-400">${endIp}</td>
+                    <td class="px-4 py-3.5">${longToIp(bc)}</td>
                 </tr>`;
+
+                calculatedSubnets.push({
+                    name: s.name.replace(/\s+/g, '_'),
+                    net: longToIp(net),
+                    mask: longToIp((0xFFFFFFFF << (32 - prefix)) >>> 0),
+                    firstHost: longToIp(net + 1),
+                    lastHost: longToIp(bc - 1),
+                    prefix: prefix,
+                    hasServer: s.hasServer,
+                    serverIp: serverIp
+                });
+
                 currentIp += size;
             });
 
+            // Validasi Limit Major Network
+            const warningBox = document.getElementById('vlsm-warning');
+            if (totalAllocatedSize > majorSize) {
+                warningBox.classList.remove('hidden');
+            } else {
+                warningBox.classList.add('hidden');
+            }
+
             document.getElementById('vlsm-table-body').innerHTML = html;
             document.getElementById('vlsm-result').classList.remove('hidden');
+            document.getElementById('vlsm-cli-card').classList.remove('hidden');
+
+            generateVlsmCiscoCli(calculatedSubnets);
         }
 
-        // -- FLSM --
+        // -- Generate Cisco CLI untuk VLSM --
+        function generateVlsmCiscoCli(subnets) {
+            const physicalInterface = document.getElementById('vlsm-cli-interface').value.trim() || "GigabitEthernet0/0";
+            const gwOpt = document.getElementById('vlsm-cli-gateway-opt').value;
+            let vlanId = parseInt(document.getElementById('vlsm-cli-vlan-start').value) || 10;
+
+            let cliCode = `enable\nconfigure terminal\n! === KONTROL VLAN & SUB-INTERFACE ===\n`;
+            cliCode += `interface ${physicalInterface}\n`;
+            cliCode += `no shutdown\n`;
+            cliCode += `exit\n`;
+
+            let dhcpCode = `\n! === KONFIGURASI DHCP SERVER POOL ===\n`;
+
+            subnets.forEach((subnet) => {
+                const gateway = (gwOpt === 'first') ? subnet.firstHost : subnet.lastHost;
+                
+                cliCode += `!\n`;
+                cliCode += `interface ${physicalInterface}.${vlanId}\n`;
+                cliCode += `encapsulation dot1Q ${vlanId}\n`;
+                cliCode += `ip address ${gateway} ${subnet.mask}\n`;
+                cliCode += `exit\n`;
+
+                dhcpCode += `!\n`;
+                dhcpCode += `ip dhcp excluded-address ${gateway}\n`;
+                
+                // Exclude IP Web Server sacara otomatis upami diaktifkeun dumasar Tugas 4
+                if (subnet.hasServer && subnet.serverIp !== "-") {
+                    dhcpCode += `ip dhcp excluded-address ${subnet.serverIp} ! Exclude Web Server Statik\n`;
+                }
+
+                dhcpCode += `ip dhcp pool POOL_${subnet.name}\n`;
+                dhcpCode += `network ${subnet.net} ${subnet.mask}\n`;
+                dhcpCode += `default-router ${gateway}\n`;
+                dhcpCode += `dns-server 8.8.8.8\n`;
+                dhcpCode += `exit\n`;
+
+                vlanId += 10; // VLAN otomatis naik per 10
+            });
+
+            document.getElementById('vlsm-cli-code').innerText = cliCode + dhcpCode;
+        }
+
+        // -- Logika Utama FLSM + Cisco CLI Generator --
         function calculateFLSM() {
             const major = document.getElementById('flsm-major').value.split('/');
             if (major.length < 2) return;
             const count = parseInt(document.getElementById('flsm-count').value);
             const baseIp = ipToLong(major[0]);
             const basePrefix = parseInt(major[1]);
+            const majorSize = Math.pow(2, 32 - basePrefix);
 
             let borrowed = Math.ceil(Math.log2(count));
             let newPrefix = basePrefix + borrowed;
             let size = Math.pow(2, 32 - newPrefix);
 
+            // Validasi limit FLSM
+            const warningBox = document.getElementById('flsm-warning');
+            if ((count * size) > majorSize) {
+                warningBox.classList.remove('hidden');
+            } else {
+                warningBox.classList.add('hidden');
+            }
+
             let html = "";
+            let calculatedSubnets = [];
+
             for(let i=0; i < count; i++) {
                 let net = baseIp + (i * size);
                 let bc = net + size - 1;
-                html += `<tr>
-                    <td class="px-4 py-3 text-slate-400">#${i+1}</td>
-                    <td class="px-4 py-3 font-bold">${longToIp(net)}/${newPrefix}</td>
-                    <td class="px-4 py-3">${longToIp(net+1)} - ${longToIp(bc-1)}</td>
-                    <td class="px-4 py-3">${longToIp(bc)}</td>
+                html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition">
+                    <td class="px-4 py-3.5 text-slate-400 dark:text-slate-500 font-bold">#${i+1}</td>
+                    <td class="px-4 py-3.5 font-bold dark:text-white">${longToIp(net)}/${newPrefix}</td>
+                    <td class="px-4 py-3.5">${longToIp(net+1)} - ${longToIp(bc-1)}</td>
+                    <td class="px-4 py-3.5">${longToIp(bc)}</td>
                 </tr>`;
+
+                calculatedSubnets.push({
+                    index: i + 1,
+                    net: longToIp(net),
+                    mask: longToIp((0xFFFFFFFF << (32 - newPrefix)) >>> 0),
+                    firstHost: longToIp(net + 1),
+                    lastHost: longToIp(bc - 1)
+                });
             }
+
             document.getElementById('flsm-table-body').innerHTML = html;
             document.getElementById('flsm-result').classList.remove('hidden');
+            document.getElementById('flsm-cli-card').classList.remove('hidden');
+
+            generateFlsmCiscoCli(calculatedSubnets);
         }
 
+        // -- Generate Cisco CLI untuk FLSM --
+        function generateFlsmCiscoCli(subnets) {
+            const interfaceRoot = document.getElementById('flsm-cli-interface-root').value.trim() || "GigabitEthernet0/";
+            const gwOpt = document.getElementById('flsm-cli-gateway-opt').value;
+
+            let cliCode = `enable\nconfigure terminal\n! === KONFIGURASI MULTI-INTERFACE & DHCP POOL ===\n`;
+
+            subnets.forEach((subnet, idx) => {
+                const gateway = (gwOpt === 'first') ? subnet.firstHost : subnet.lastHost;
+                const portNumber = idx; // GigabitEthernet0/0, GigabitEthernet0/1...
+
+                cliCode += `!\n`;
+                cliCode += `interface ${interfaceRoot}${portNumber}\n`;
+                cliCode += `ip address ${gateway} ${subnet.mask}\n`;
+                cliCode += `no shutdown\n`;
+                cliCode += `exit\n`;
+                cliCode += `!\n`;
+                cliCode += `ip dhcp excluded-address ${gateway}\n`;
+                cliCode += `ip dhcp pool POOL_SUB_#${subnet.index}\n`;
+                cliCode += `network ${subnet.net} ${subnet.mask}\n`;
+                cliCode += `default-router ${gateway}\n`;
+                cliCode += `dns-server 8.8.8.8\n`;
+                cliCode += `exit\n`;
+            });
+
+            document.getElementById('flsm-cli-code').innerText = cliCode;
+        }
+
+        // -- Logika Utama OSPF --
+        function calculateOSPF() {
+            const ip = document.getElementById('ospf-ip').value.trim();
+            const mask = parseInt(document.getElementById('ospf-mask').value);
+            const processId = document.getElementById('ospf-process').value.trim() || "1";
+            const areaId = document.getElementById('ospf-area').value.trim() || "0";
+            const routerId = document.getElementById('ospf-router-id').value.trim();
+
+            if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ip)) return;
+
+            const ipLong = ipToLong(ip);
+            const maskLong = (0xFFFFFFFF << (32 - mask)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+            const wildcardLong = (~maskLong) >>> 0;
+
+            const netAddress = longToIp(netLong);
+            const wildcardMask = longToIp(wildcardLong);
+
+            document.getElementById('ospf-res-net').innerText = netAddress;
+            document.getElementById('ospf-res-wildcard').innerText = wildcardMask;
+
+            // Generate Kode CLI Cisco IOS
+            let cliCode = `enable\nconfigure terminal\nrouter ospf ${processId}\n`;
+            if (routerId) {
+                cliCode += `router-id ${routerId}\n`;
+            }
+            cliCode += `network ${netAddress} ${wildcardMask} area ${areaId}\n`;
+            cliCode += `exit`;
+
+            document.getElementById('ospf-cli-code').innerText = cliCode;
+        }
+
+        // -- Logika Utama RIPv2 --
+        function calculateRIPv2() {
+            const ip = document.getElementById('rip-ip').value.trim();
+            const mask = parseInt(document.getElementById('rip-mask').value);
+            const noSummary = document.getElementById('rip-no-summary').checked;
+            const passiveIfs = document.getElementById('rip-passive-if').value.trim();
+
+            if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ip)) return;
+
+            const ipLong = ipToLong(ip);
+            const maskLong = (0xFFFFFFFF << (32 - mask)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+
+            // Tentukan Classful Network
+            const firstOctet = (ipLong >>> 24) & 0xFF;
+            let classfulNet = "";
+            if (firstOctet < 128) {
+                classfulNet = `${firstOctet}.0.0.0`;
+            } else if (firstOctet < 192) {
+                classfulNet = `${(ipLong >>> 24) & 0xFF}.${(ipLong >>> 16) & 0xFF}.0.0`;
+            } else if (firstOctet < 224) {
+                classfulNet = `${(ipLong >>> 24) & 0xFF}.${(ipLong >>> 16) & 0xFF}.${(ipLong >>> 8) & 0xFF}.0`;
+            } else {
+                classfulNet = longToIp(netLong);
+            }
+
+            document.getElementById('rip-res-net').innerText = longToIp(netLong);
+            document.getElementById('rip-res-classful').innerText = classfulNet;
+
+            // Generate CLI
+            let cliCode = `enable\nconfigure terminal\nrouter rip\n`;
+            cliCode += `version 2\n`;
+            cliCode += `network ${classfulNet}\n`;
+            
+            if (noSummary) {
+                cliCode += `no auto-summary\n`;
+            }
+
+            if (passiveIfs) {
+                const ifs = passiveIfs.split(',');
+                ifs.forEach(iface => {
+                    if (iface.trim()) {
+                        cliCode += `passive-interface ${iface.trim()}\n`;
+                    }
+                });
+            }
+            cliCode += `exit`;
+
+            document.getElementById('rip-cli-code').innerText = cliCode;
+        }
+
+        // -- Logika Utama Static Routing --
+        function calculateStaticRoute() {
+            const destIp = document.getElementById('static-dest-ip').value.trim();
+            const maskPrefix = parseInt(document.getElementById('static-mask').value);
+            const nextHop = document.getElementById('static-next-hop').value.trim() || "192.168.20.145";
+
+            if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(destIp)) return;
+
+            const ipLong = ipToLong(destIp);
+            const maskLong = (0xFFFFFFFF << (32 - maskPrefix)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+
+            const subnetMask = longToIp(maskLong);
+            const subnetId = longToIp(netLong);
+
+            document.getElementById('static-res-mask').innerText = subnetMask;
+            document.getElementById('static-res-net').innerText = subnetId;
+
+            // Generate Cisco CLI
+            let cliCode = `enable\nconfigure terminal\n`;
+            cliCode += `ip route ${subnetId} ${subnetMask} ${nextHop}\n`;
+            cliCode += `exit`;
+
+            document.getElementById('static-cli-code').innerText = cliCode;
+        }
+
+        // -- Logika Utama VLAN - Switch Config --
+        function calculateVLAN() {
+            const vlanIdVal = document.getElementById('vlan-id').value.trim() || "10";
+            const vlanNameVal = document.getElementById('vlan-name').value.trim().replace(/\s+/g, '_') || "RUANG_A";
+            const accessPortsVal = document.getElementById('vlan-access-ports').value.trim();
+            const trunkPortsVal = document.getElementById('vlan-trunk-ports').value.trim();
+
+            let cliCode = `enable\nconfigure terminal\n! === PEMBUATAN DATABASE VLAN ===\n`;
+            cliCode += `vlan ${vlanIdVal}\n`;
+            cliCode += `name ${vlanNameVal}\n`;
+            cliCode += `exit\n`;
+
+            if (accessPortsVal) {
+                cliCode += `!\n! === PENETAPAN ACCESS PORT ===\n`;
+                if (accessPortsVal.toLowerCase().includes('range') || accessPortsVal.includes('-') || accessPortsVal.includes(',')) {
+                    const cleanPorts = accessPortsVal.toLowerCase().replace('range', '').trim();
+                    cliCode += `interface range ${cleanPorts}\n`;
+                } else {
+                    cliCode += `interface ${accessPortsVal}\n`;
+                }
+                cliCode += `switchport mode access\n`;
+                cliCode += `switchport access vlan ${vlanIdVal}\n`;
+                cliCode += `exit\n`;
+            }
+
+            if (trunkPortsVal) {
+                cliCode += `!\n! === PENETAPAN TRUNK PORT ===\n`;
+                if (trunkPortsVal.toLowerCase().includes('range') || trunkPortsVal.includes('-') || trunkPortsVal.includes(',')) {
+                    const cleanTrunk = trunkPortsVal.toLowerCase().replace('range', '').trim();
+                    cliCode += `interface range ${cleanTrunk}\n`;
+                } else {
+                    cliCode += `interface ${trunkPortsVal}\n`;
+                }
+                cliCode += `switchport mode trunk\n`;
+                cliCode += `exit`;
+            }
+
+            document.getElementById('vlan-cli-code').innerText = cliCode;
+        }
+
+        // -- Ekspor Tabel ke CSV --
         function exportToCSV(tableId, filename) {
             let csv = [];
             const rows = document.querySelectorAll(`#${tableId} tr`);
@@ -447,15 +1243,43 @@
             downloadLink.click();
         }
 
+        // -- Inisialisasi Pertama Kali Load --
         window.onload = () => {
             populateMasks();
             calculateIPv4();
-            addVlsmRow();
-            addVlsmRow();
+            calculateVLSM();
+            calculateOSPF();
+            calculateRIPv2();
+            calculateStaticRoute();
+            calculateVLAN();
         };
 
+        // Event Listeners untuk Kalkulasi Real-time
         document.getElementById('v4-mask').addEventListener('change', calculateIPv4);
+        document.getElementById('v4-cli-interface').addEventListener('input', calculateIPv4);
+        document.getElementById('v4-cli-dhcp').addEventListener('change', calculateIPv4);
+        document.getElementById('v4-cli-poolname').addEventListener('input', calculateIPv4);
+
         document.getElementById('v6-mask').addEventListener('change', calculateIPv6);
+        document.getElementById('v6-cli-interface').addEventListener('input', calculateIPv6);
+        document.getElementById('v6-cli-dhcp').addEventListener('change', calculateIPv6);
+        document.getElementById('v6-cli-poolname').addEventListener('input', calculateIPv6);
+
+        document.getElementById('vlsm-major').addEventListener('input', calculateVLSM);
+        document.getElementById('vlsm-cli-interface').addEventListener('input', calculateVLSM);
+        document.getElementById('vlsm-cli-gateway-opt').addEventListener('change', calculateVLSM);
+        document.getElementById('vlsm-cli-vlan-start').addEventListener('input', calculateVLSM);
+
+        document.getElementById('flsm-major').addEventListener('input', calculateFLSM);
+        document.getElementById('flsm-count').addEventListener('input', calculateFLSM);
+        document.getElementById('flsm-cli-interface-root').addEventListener('input', calculateFLSM);
+        document.getElementById('flsm-cli-gateway-opt').addEventListener('change', calculateFLSM);
+
+        document.getElementById('ospf-mask').addEventListener('change', calculateOSPF);
+        document.getElementById('rip-mask').addEventListener('change', calculateRIPv2);
+        
+        document.getElementById('static-mask').addEventListener('change', calculateStaticRoute);
+        document.getElementById('static-next-hop').addEventListener('input', calculateStaticRoute);
     </script>
 </body>
 </html>
