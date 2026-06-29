@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OktaneBlender PRO - CBR 150R</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-200">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
+                    <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">OktaneBlender PRO</h1>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 font-medium">Kalkulator Oktan Pintar CBR 150R</p>
+                </div>
+            </div>
+            
+            <!-- Light/Dark Mode Toggle Button -->
+            <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 p-2 rounded-xl border border-slate-300 dark:border-slate-700 transition">
+                <!-- Sun Icon (Visible in Dark Mode) -->
+                <svg id="sunIcon" class="w-5 h-5 text-amber-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707-.707m12.728 0l-.707.707M6.343 6.364l-.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z"></path>
+                </svg>
+                <!-- Moon Icon (Visible in Light Mode) -->
+                <svg id="moonIcon" class="w-5 h-5 text-indigo-600 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-md w-full mx-auto px-4 py-6 space-y-5">
+
+        <!-- Info Card Motor -->
+        <div class="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-4 border border-slate-300 dark:border-slate-800 shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-xs text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider">Spesifikasi Motor</p>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white mt-0.5">Honda CBR 150R</h2>
+                <p class="text-xs text-emerald-700 dark:text-emerald-400 font-mono font-semibold mt-1">Kompresi 11.3:1 • Tangki Max 12L</p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-semibold block">Min. Oktan</span>
+                <span class="text-2xl font-black text-slate-900 dark:text-white font-mono">92 <span class="text-sm font-normal text-slate-600 dark:text-slate-400">RON</span></span>
+            </div>
+        </div>
+
+        <!-- Section Input Harga & BBM -->
+        <section class="bg-white dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/80 space-y-4">
+            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>
+                1. Setelan Harga Pom Bensin Live
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">BBM A (Pertalite)</label>
+                    <div class="flex items-center space-x-1 mt-1 font-mono text-xs">
+                        <span class="text-slate-500 dark:text-slate-400 font-semibold">RON</span>
+                        <input type="number" id="ronA" value="90" class="w-full bg-transparent font-bold text-slate-900 dark:text-white focus:outline-none" oninput="calculate()">
+                    </div>
+                    <div class="flex items-center space-x-1 mt-1 font-mono">
+                        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold">Rp</span>
+                        <input type="number" id="priceA" value="10000" class="w-full bg-transparent font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">BBM B (Turbo)</label>
+                    <div class="flex items-center space-x-1 mt-1 font-mono text-xs">
+                        <span class="text-slate-500 dark:text-slate-400 font-semibold">RON</span>
+                        <input type="number" id="ronB" value="98" class="w-full bg-transparent font-bold text-slate-900 dark:text-white focus:outline-none" oninput="calculate()">
+                    </div>
+                    <div class="flex items-center space-x-1 mt-1 font-mono">
+                        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold">Rp</span>
+                        <input type="number" id="priceB" value="20750" class="w-full bg-transparent font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">Harga Pembanding (Pertamax)</label>
+                    <input type="number" id="priceBenchmark" value="16250" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 font-mono text-xs text-slate-900 dark:text-white w-full focus:outline-none" oninput="calculate()">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">Target Oktan Diinginkan</label>
+                    <input type="number" id="targetRon" value="92" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 font-mono font-bold text-xs text-slate-900 dark:text-white w-full text-center focus:outline-none" oninput="calculate()">
+                </div>
+            </div>
+        </section>
+
+        <!-- Fitur 1: Pilihan Mode Pengisian (Liter vs Rupiah) -->
+        <section class="bg-white dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/80 space-y-3">
+            <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <span class="w-1.5 h-3 bg-indigo-500 rounded-full"></span>
+                2. Metode Pengisian di Pom
+            </h3>
+            
+            <!-- Tab Mode -->
+            <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                <button id="tabLiter" onclick="setMode('liter')" class="flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm">Mode Literan</button>
+                <button id="tabRupiah" onclick="setMode('rupiah')" class="flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-300">Mode Rupiah (Duit)</button>
+            </div>
+
+            <!-- Input Dinamis Berdasarkan Mode -->
+            <div id="inputVolumeContainer" class="pt-1">
+                <label id="inputModeLabel" class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">Berapa liter mau diisi?</label>
+                <input type="number" id="inputModeValue" value="8" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 font-black font-mono text-slate-900 dark:text-white text-base w-full focus:outline-none" oninput="calculate()">
+                
+                <!-- Preset Cepat Volume / Budget -->
+                <div id="presetButtons" class="flex gap-1.5 mt-2">
+                    <!-- Will be populated dynamically by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Fitur 2: Kalkulator Oktan Aktual Tangki (Sisa Bensin) -->
+        <section class="bg-white dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/80 space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-1.5 h-3 bg-blue-500 rounded-full"></span>
+                    3. Kondisi Sisa Bensin Tangki
+                </h3>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="trackSisa" class="sr-only peer" onchange="toggleSisaContainer(); calculate();">
+                    <div class="w-9 h-5 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
+            </div>
+
+            <div id="sisaContainer" class="hidden grid grid-cols-2 gap-3 pt-1">
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">Sisa di Tangki (L)</label>
+                    <input type="number" id="sisaVolume" value="2" step="0.5" max="12" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 font-mono text-xs text-slate-900 dark:text-white w-full focus:outline-none" oninput="calculate()">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">Oktan Sisa Bensin</label>
+                    <select id="sisaRon" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-1.5 font-mono text-xs text-slate-900 dark:text-white w-full focus:outline-none" onchange="calculate()">
+                        <option value="90">RON 90 (Pertalite)</option>
+                        <option value="92" selected>RON 92 (Pertamax)</option>
+                        <option value="95">RON 95</option>
+                        <option value="98">RON 98 (Turbo)</option>
+                    </select>
+                </div>
+            </div>
+            <p class="text-[10px] text-slate-600 dark:text-slate-400 font-medium italic">Aktifkan jika ingin memprediksi akumulasi oktan akhir setelah bensin baru bercampur dengan sisa bensin di tangki.</p>
+        </section>
+
+        <!-- Fitur Safety Buffer Slider -->
+        <section class="bg-white dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/80 space-y-2">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm">🛡️</span>
+                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Safety Buffer Oktan</span>
+                </div>
+                <span id="safetyValDisplay" class="text-amber-600 dark:text-amber-400 font-mono font-black text-xs">+0.6 RON</span>
+            </div>
+            <input type="range" id="safetyVal" min="0.5" max="0.8" step="0.1" value="0.6" class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" oninput="updateSafetyDisplay(); calculate();">
+        </section>
+
+        <!-- Pesan Error Meluber -->
+        <div id="error-message" class="hidden bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-3 rounded-xl text-xs font-semibold"></div>
+
+        <!-- Section Dashboard Hasil -->
+        <section id="results-section" class="bg-white dark:bg-slate-900/60 rounded-2xl p-4 border border-slate-300 dark:border-slate-800/80 space-y-4 transition-all duration-300 opacity-100">
+            <h3 class="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>Hasil Racikan Pengisian</span>
+            </h3>
+
+            <!-- Oktan Displays -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-100 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-900/60">
+                    <span class="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 block">Oktan Bensin Baru</span>
+                    <span id="displayOktanBaru" class="text-xl font-black font-mono text-slate-900 dark:text-white">92.6 RON</span>
+                </div>
+                <div class="bg-slate-100 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-900/60">
+                    <span class="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 block">Total Oktan Akhir Tangki</span>
+                    <span id="displayOktanTotal" class="text-xl font-black font-mono text-indigo-600 dark:text-indigo-400">92.6 RON</span>
+                </div>
+            </div>
+
+            <!-- Takaran Nosel Pom (Teoritis Eksak) -->
+            <div class="space-y-2">
+                <span class="text-xs font-extrabold text-slate-700 dark:text-slate-300 block">Takaran Presisi (Sesuai Rumus Eksak):</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">Pertalite (BBM A)</span>
+                        <span id="volADisplay" class="text-lg font-black text-slate-900 dark:text-white font-mono block">6.00 L</span>
+                        <span id="costADisplay" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-mono block mt-0.5">Rp 60.000</span>
+                    </div>
+                    <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+                        <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">Turbo (BBM B)</span>
+                        <span id="volBDisplay" class="text-lg font-black text-slate-900 dark:text-white font-mono block">2.00 L</span>
+                        <span id="costBDisplay" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 font-mono block mt-0.5">Rp 41.500</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manfaat Keuangan -->
+            <div id="savingCard" class="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-3.5 flex items-center justify-between text-xs">
+                <div>
+                    <span class="font-black text-slate-900 dark:text-slate-100 block text-xs">Kalkulasi Finansial</span>
+                    <span id="totalVolumeDisplay" class="text-[11px] text-slate-700 dark:text-slate-300 font-medium block mt-0.5">Total muat: 8.00 Liter bensin baru</span>
+                </div>
+                <div class="text-right">
+                    <span id="totalCostDisplay" class="text-slate-600 dark:text-slate-400 font-mono font-bold block text-[11px]">Total: Rp 101.500</span>
+                    <span id="savingValueDisplay" class="font-extrabold text-emerald-700 dark:text-emerald-400 font-mono text-sm block mt-0.5">Hemat Rp 28.500</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FITUR BARU: Rekomendasi Uang Bulat (Round Money) -->
+        <section class="bg-amber-500/5 dark:bg-amber-500/10 rounded-2xl p-4 border border-amber-500/20 space-y-3">
+            <h3 class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>💵</span>
+                <span>Rekomendasi Nominal Uang Bulat (Pas Pom)</span>
+            </h3>
+            <p class="text-[11px] text-slate-700 dark:text-slate-300 font-medium">
+                Biar gak dapet recehan atau bingung nyebutin koma, sebutin nominal rupiah bulat ini aja ke petugas dispenser:
+            </p>
+            
+            <div class="bg-white dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800/60 flex flex-col space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-700 dark:text-slate-400">Pertalite (BBM A):</span>
+                    <span id="roundedPriceA" class="font-black text-slate-900 dark:text-white font-mono text-sm">Rp 60.000</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-700 dark:text-slate-400">Pertamax Turbo (BBM B):</span>
+                    <span id="roundedPriceB" class="font-black text-slate-900 dark:text-white font-mono text-sm">Rp 40.000</span>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-800/80 my-1"></div>
+                <div class="flex justify-between items-center text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    <span>Total Bayar Uang Pas:</span>
+                    <span id="roundedTotalCost" class="font-black font-mono text-sm">Rp 100.000</span>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-slate-600 dark:text-slate-300">
+                    <span>Hasil Oktan Aktual Uang Bulat:</span>
+                    <span id="roundedResultRon" class="font-mono font-bold text-amber-600 dark:text-amber-400">92.4 RON</span>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-slate-600 dark:text-slate-300">
+                    <span>Total Volume Didapat:</span>
+                    <span id="roundedTotalVol" class="font-mono font-bold text-slate-800 dark:text-slate-200">7.93 Liter</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FITUR BARU: Detail Rumus & Langkah Perhitungan -->
+        <section class="bg-white dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/80 space-y-3">
+            <button onclick="toggleMathLogs()" class="w-full flex justify-between items-center text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                <span class="flex items-center gap-1.5">
+                    <span>📊</span>
+                    <span>Detail Rumus & Langkah Perhitungan</span>
+                </span>
+                <span id="mathLogsIcon" class="transform transition-transform">▼</span>
+            </button>
+            
+            <div id="mathLogsContainer" class="hidden space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300">
+                <div class="space-y-2 font-mono bg-slate-100 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-900/80 text-[11px] leading-relaxed">
+                    <div>
+                        <span class="text-amber-600 dark:text-amber-500">// Langkah 1: Target Oktan Real</span><br>
+                        Target_Real = TargetRON + SafetyBuffer<br>
+                        <span id="mathStep1" class="text-emerald-600 dark:text-emerald-400"></span>
+                    </div>
+                    <div class="border-t border-slate-200 dark:border-slate-900 my-2"></div>
+                    <div>
+                        <span class="text-amber-600 dark:text-amber-500">// Langkah 2: Menghitung Rasio Proporsi (Oktan Blending)</span><br>
+                        Prop_A = (Ron_B - Target_Real) / (Ron_B - Ron_A)<br>
+                        <span id="mathStep2" class="text-emerald-600 dark:text-emerald-400"></span><br>
+                        Prop_B = 100% - Prop_A<br>
+                        <span id="mathStep3" class="text-emerald-600 dark:text-emerald-400"></span>
+                    </div>
+                    <div class="border-t border-slate-200 dark:border-slate-900 my-2"></div>
+                    <div>
+                        <span class="text-amber-600 dark:text-amber-500">// Langkah 3: Menghitung Volume & Biaya Eksak</span><br>
+                        Vol_A = Prop_A * TotalVolume<br>
+                        Vol_B = Prop_B * TotalVolume<br>
+                        <span id="mathStep4" class="text-emerald-600 dark:text-emerald-400"></span>
+                    </div>
+                    <div class="border-t border-slate-200 dark:border-slate-900 my-2"></div>
+                    <div>
+                        <span class="text-amber-600 dark:text-amber-500">// Langkah 4: Optimasi Pembulatan Uang Bulat (Kelipatan Rp 5.000)</span><br>
+                        Sistem memindai kombinasi nominal kelipatan Rp 5.000 yang menghasilkan deviasi oktan terkecil & pas dengan budget.<br>
+                        <span id="mathStep5" class="text-emerald-600 dark:text-emerald-400"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-3 text-center text-[10px] text-slate-500 dark:text-slate-400 font-bold">
+        OktaneBlender PRO • Teman Setia CBR 150R Lu iqq
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        let currentMode = 'liter'; // 'liter' atau 'rupiah'
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+        }
+
+        function toggleMathLogs() {
+            const container = document.getElementById('mathLogsContainer');
+            const icon = document.getElementById('mathLogsIcon');
+            const isHidden = container.classList.toggle('hidden');
+            icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            const tabLiter = document.getElementById('tabLiter');
+            const tabRupiah = document.getElementById('tabRupiah');
+            const label = document.getElementById('inputModeLabel');
+            const input = document.getElementById('inputModeValue');
+
+            if (mode === 'liter') {
+                tabLiter.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm";
+                tabRupiah.className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400";
+                label.innerText = "Berapa liter mau diisi?";
+                input.value = "8";
+            } else {
+                tabRupiah.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm";
+                tabLiter.className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400";
+                label.innerText = "Berapa total nominal duit lu? (Rp)";
+                input.value = "100000";
+            }
+            renderPresets();
+            calculate();
+        }
+
+        function renderPresets() {
+            const container = document.getElementById('presetButtons');
+            container.innerHTML = '';
+            const presets = currentMode === 'liter' ? [4, 6, 8, 10] : [50000, 75000, 100000, 150000];
+            
+            presets.forEach(val => {
+                const btn = document.createElement('button');
+                btn.className = "flex-1 bg-slate-200/60 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold py-1.5 rounded-lg transition border border-slate-300 dark:border-slate-700";
+                btn.innerText = currentMode === 'liter' ? `${val} L` : `Rp ${val.toLocaleString('id-ID')}`;
+                btn.onclick = () => {
+                    document.getElementById('inputModeValue').value = val;
+                    calculate();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function toggleSisaContainer() {
+            const checked = document.getElementById('trackSisa').checked;
+            document.getElementById('sisaContainer').classList.toggle('hidden', !checked);
+        }
+
+        function updateSafetyDisplay() {
+            const val = parseFloat(document.getElementById('safetyVal').value);
+            document.getElementById('safetyValDisplay').innerText = `+${val.toFixed(1)} RON`;
+        }
+
+        // Fungsi Cari Kombinasi Uang Bulat dengan Deviasi Oktan Terkecil
+        function findBestUangBulat(targetRon, totalBudget, ronA, priceA, ronB, priceB) {
+            let bestDiff = Infinity;
+            let bestMA = 0;
+            let bestMB = 0;
+            let bestRon = 0;
+            let bestVolA = 0;
+            let bestVolB = 0;
+
+            // Kita cari kelipatan Rp 5.000
+            for (let mA = 0; mA <= totalBudget; mA += 5000) {
+                let mB = totalBudget - mA;
+                if (mA === 0 || mB === 0) continue; // Harus campur dua-duanya
+
+                let vA = mA / priceA;
+                let vB = mB / priceB;
+                let totV = vA + vB;
+                let mixRon = (vA * ronA + vB * ronB) / totV;
+
+                let diff = Math.abs(mixRon - targetRon);
+                
+                // Prioritaskan yang di atas atau sama dengan target RON
+                if (mixRon >= targetRon) {
+                    if (diff < bestDiff) {
+                        bestDiff = diff;
+                        bestMA = mA;
+                        bestMB = mB;
+                        bestRon = mixRon;
+                        bestVolA = vA;
+                        bestVolB = vB;
+                    }
+                }
+            }
+
+            // Fallback jika tidak ada kelipatan 5rb yang di atas target, cari yang absolut terdekat
+            if (bestMA === 0) {
+                bestDiff = Infinity;
+                for (let mA = 0; mA <= totalBudget; mA += 5000) {
+                    let mB = totalBudget - mA;
+                    if (mA === 0 || mB === 0) continue;
+                    let vA = mA / priceA;
+                    let vB = mB / priceB;
+                    let totV = vA + vB;
+                    let mixRon = (vA * ronA + vB * ronB) / totV;
+                    let diff = Math.abs(mixRon - targetRon);
+                    if (diff < bestDiff) {
+                        bestDiff = diff;
+                        bestMA = mA;
+                        bestMB = mB;
+                        bestRon = mixRon;
+                        bestVolA = vA;
+                        bestVolB = vB;
+                    }
+                }
+            }
+
+            return { mA: bestMA, mB: bestMB, ron: bestRon, volA: bestVolA, volB: bestVolB };
+        }
+
+        function calculate() {
+            const ronA = parseFloat(document.getElementById('ronA').value) || 90;
+            const priceA = parseFloat(document.getElementById('priceA').value) || 10000;
+            const ronB = parseFloat(document.getElementById('ronB').value) || 98;
+            const priceB = parseFloat(document.getElementById('priceB').value) || 20750;
+            
+            const targetRon = parseFloat(document.getElementById('targetRon').value) || 92;
+            const priceBenchmark = parseFloat(document.getElementById('priceBenchmark').value) || 16250;
+            
+            const inputVal = parseFloat(document.getElementById('inputModeValue').value) || 0;
+            const safetyVal = parseFloat(document.getElementById('safetyVal').value) || 0.6;
+            
+            const targetDenganSafety = targetRon + safetyVal;
+            
+            const errorEl = document.getElementById('error-message');
+            const resultsEl = document.getElementById('results-section');
+
+            if (targetDenganSafety < ronA || targetDenganSafety > ronB) {
+                errorEl.classList.remove('hidden');
+                resultsEl.classList.add('opacity-30', 'pointer-events-none');
+                resultsEl.classList.remove('opacity-100');
+                errorEl.innerHTML = `⚠️ Rentang target RON + Safety Buffer (${targetDenganSafety.toFixed(1)}) gak masuk di range oktan bahan bakar lu!`;
+                return;
+            } else {
+                errorEl.classList.add('hidden');
+                resultsEl.classList.remove('opacity-30', 'pointer-events-none');
+                resultsEl.classList.add('opacity-100');
+            }
+
+            // Hitung Rasio Proporsi Campuran Baru
+            const propA = (ronB - targetDenganSafety) / (ronB - ronA);
+            const propB = 1 - propA;
+            
+            let totalVolBaru = 0;
+            let totalCostBaru = 0;
+
+            if (currentMode === 'liter') {
+                totalVolBaru = inputVal;
+                const volA = propA * totalVolBaru;
+                const volB = propB * totalVolBaru;
+                totalCostBaru = (volA * priceA) + (volB * priceB);
+            } else {
+                // Mode Rupiah
+                const totalDuit = inputVal;
+                const hargaPerCampuranLiter = (propA * priceA) + (propB * priceB);
+                totalVolBaru = totalDuit / hargaPerCampuranLiter;
+                totalCostBaru = totalDuit;
+            }
+
+            const volA = propA * totalVolBaru;
+            const volB = propB * totalVolBaru;
+            const costA = volA * priceA;
+            const costB = volB * priceB;
+
+            // Hitung Penghematan
+            const costBenchmark = totalVolBaru * priceBenchmark;
+            const hemat = costBenchmark - totalCostBaru;
+
+            // Hitung Rekomendasi Uang Bulat
+            const budgetUntukUangBulat = currentMode === 'liter' ? totalCostBaru : inputVal;
+            const roundedBudget = Math.round(budgetUntukUangBulat / 5000) * 5000;
+            const bestUangBulat = findBestUangBulat(targetDenganSafety, roundedBudget, ronA, priceA, ronB, priceB);
+
+            // Render Hasil Opsi Uang Bulat ke UI
+            document.getElementById('roundedPriceA').innerText = `Rp ${bestUangBulat.mA.toLocaleString('id-ID')}`;
+            document.getElementById('roundedPriceB').innerText = `Rp ${bestUangBulat.mB.toLocaleString('id-ID')}`;
+            document.getElementById('roundedTotalCost').innerText = `Rp ${(bestUangBulat.mA + bestUangBulat.mB).toLocaleString('id-ID')}`;
+            document.getElementById('roundedResultRon').innerText = `${bestUangBulat.ron.toFixed(1)} RON`;
+            document.getElementById('roundedTotalVol').innerText = `${(bestUangBulat.volA + bestUangBulat.volB).toFixed(2)} Liter`;
+
+            // Fitur Sisa Bensin Akumulasi Tangki
+            const trackSisa = document.getElementById('trackSisa').checked;
+            let oktanAkhirTangki = targetDenganSafety;
+            let totalVolTangki = totalVolBaru;
+
+            if (trackSisa) {
+                const sisaVol = parseFloat(document.getElementById('sisaVolume').value) || 0;
+                const sisaRonVal = parseFloat(document.getElementById('sisaRon').value) || 92;
+                totalVolTangki = sisaVol + totalVolBaru;
+                oktanAkhirTangki = ((sisaVol * sisaRonVal) + (volA * ronA) + (volB * ronB)) / totalVolTangki;
+
+                // Cek meluber dari tangki CBR 12 Liter
+                if (totalVolTangki > 12) {
+                    errorEl.classList.remove('hidden');
+                    errorEl.innerHTML = `⚠️ <strong>Tangki Meluber!</strong> Total volume bensin di tangki jadi <strong>${totalVolTangki.toFixed(2)} L</strong> (Maksimal CBR 150R hanya 12 Liter). Kurangi jumlah pengisian!`;
+                } else {
+                    errorEl.classList.add('hidden');
+                }
+            } else {
+                errorEl.classList.add('hidden');
+            }
+
+            // Render Output ke UI Utama
+            document.getElementById('displayOktanBaru').innerText = `${targetDenganSafety.toFixed(1)} RON`;
+            document.getElementById('displayOktanTotal').innerText = `${oktanAkhirTangki.toFixed(1)} RON`;
+            
+            document.getElementById('volADisplay').innerText = `${volA.toFixed(2)} L`;
+            document.getElementById('costADisplay').innerText = `Rp ${Math.round(costA).toLocaleString('id-ID')}`;
+            
+            document.getElementById('volBDisplay').innerText = `${volB.toFixed(2)} L`;
+            document.getElementById('costBDisplay').innerText = `Rp ${Math.round(costB).toLocaleString('id-ID')}`;
+            
+            document.getElementById('totalVolumeDisplay').innerText = `Total muat: ${totalVolBaru.toFixed(2)} Liter bensin baru`;
+            document.getElementById('totalCostDisplay').innerText = `Total: Rp ${Math.round(totalCostBaru).toLocaleString('id-ID')}`;
+            
+            const savingValueDisplay = document.getElementById('savingValueDisplay');
+            const savingCard = document.getElementById('savingCard');
+            if (hemat >= 0) {
+                savingCard.className = "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-3.5 flex items-center justify-between text-xs";
+                savingValueDisplay.className = "font-extrabold text-emerald-700 dark:text-emerald-400 font-mono text-sm";
+                savingValueDisplay.innerText = `Hemat Rp ${Math.round(hemat).toLocaleString('id-ID')}`;
+            } else {
+                savingCard.className = "bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 rounded-xl p-3.5 flex items-center justify-between text-xs";
+                savingValueDisplay.className = "font-extrabold text-rose-700 dark:text-rose-400 font-mono text-sm";
+                savingValueDisplay.innerText = `Nombok Rp ${Math.round(Math.abs(hemat)).toLocaleString('id-ID')}`;
+            }
+
+            // Render Log Perhitungan Matematika Eksak
+            document.getElementById('mathStep1').innerHTML = `↳ = ${targetRon} + ${safetyVal} = ${targetDenganSafety.toFixed(1)} RON`;
+            document.getElementById('mathStep2').innerHTML = `↳ = (${ronB} - ${targetDenganSafety.toFixed(1)}) / (${ronB} - ${ronA})<br>↳ = ${(ronB - targetDenganSafety).toFixed(1)} / ${(ronB - ronA)} = ${(propA * 100).toFixed(2)}%`;
+            document.getElementById('mathStep3').innerHTML = `↳ = 100% - ${(propA * 100).toFixed(2)}% = ${(propB * 100).toFixed(2)}%`;
+            document.getElementById('mathStep4').innerHTML = `↳ Vol_A = ${(propA * 100).toFixed(2)}% * ${totalVolBaru.toFixed(2)}L = ${volA.toFixed(2)}L (Rp ${Math.round(costA).toLocaleString('id-ID')})<br>↳ Vol_B = ${(propB * 100).toFixed(2)}% * ${totalVolBaru.toFixed(2)}L = ${volB.toFixed(2)}L (Rp ${Math.round(costB).toLocaleString('id-ID')})`;
+            document.getElementById('mathStep5').innerHTML = `↳ Membandingkan kombinasi nominal dari total Rp ${roundedBudget.toLocaleString('id-ID')}:<br>↳ Pilih Rp ${bestUangBulat.mA.toLocaleString('id-ID')} Pertalite + Rp ${bestUangBulat.mB.toLocaleString('id-ID')} Turbo.<br>↳ Menghasilkan ${(bestUangBulat.volA + bestUangBulat.volB).toFixed(2)} L bensin dengan oktan aktual ${bestUangBulat.ron.toFixed(2)} RON.`;
+        }
+
+        window.onload = function() {
+            renderPresets();
+            calculate();
+        };
+    </script>
+</body>
+</html>
