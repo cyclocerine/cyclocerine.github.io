@@ -47,3 +47,9 @@ Elokmu ialah akhir dari segala pengembaraan
  Keep it echoing, and I shall cherish its
  sound from across the distance.
 ```
+
+```poet
+jika suatu hari duka mengetuk pintumu biarkan namaku pertama yang melintas di pikiranmu
+
+bawalah serumpun lukamu aku mau menjadi yang kau tuju ceritakanlah sendu biru itu dan izinkan kedua tanganku yang menadah tangismu
+```
