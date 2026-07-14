@@ -6,32 +6,27 @@ Stars may glitter, yet vanish near your light.
 Hearts still wonder,  what outshines you?
 Even time yields, without reply.
 ```
-# "Embun yang Tak Sempat Menyentuh"
+# "Labuhan Yang Kutakutkan Bergeser"
 ```bash
-Yang terdiam dalam rungu yang sunyi
-Omprengan rasa yang tak sempat tumpah
-Sebuah tatap yang kini menjadi rumah
-Hanya kau, hangat yang kusegani untuk menyala
-Embun yang mengenalmu tanpa pernah menyentuh
+Dalam jarak yang sengaja kita ciptakan,
+aku melihatmu mengeja tawa bersama dia.
+Ada getar cemas yang tak mampu kuredam,
+saat duniamu sejenak berporos pada hadirnya.
+​Aku cemburu pada waktu yang merajut temu,
+pada bait-bait aksara yang kini mulai terbiasa.
+Ketakutan ini tumbuh tanpa permisi di dada,
+khawatir nyamanmu perlahan berpindah rasa.
+​Bagaimana jika dia menawarkan teduh yang lebih luas?
+Bagaimana jika hangatnya membuatmu lekas puas?
+Sementara aku di sini, berteman sunyi,
+merutuki cemas yang kian menghantui.
+​Bukan aku tak mempercayai keteguhan jemarimu,
+hanya saja aku terlalu rapuh untuk kehilanganmu.
+Di balik gemuruh rasa yang tak terucapkan ini,
+kuharap aku tetap menjadi satu-satunya tempatmu kembali.
 
-Antara kita, ada labirin yang belum tuntas
-Perjalanan panjang menuju palung hatimu
-Ragu yang seringkali datang menyapa
-Izinkan aku sesekali singgah di matamu
-Langkahku mungkin tertahan di garis rumput
-Larut dalam hening yang paling dalam
-Ingin menjadi sisa jejak yang tak terhapus
-Ada rasa yang sengaja kutitipkan pada angin
-
-Teduhnya senyummu adalah muara
-Setiap denyut nadi yang kau miliki
-Ada gelora yang tumbuh secara rahasia
-Biarkan aku beristirahat di kedalaman matamu
-Isyarat tulus yang tak perlu banyak bicara
-Titip hela napasku pada setiap doamu
-Akhirnya, kaulah tempatku benar-benar berlabuh
-
-00:00
+~Zelfbesturende landschappen, 15 Juli 2026
+  00:00
 ```
 # "Bulan Merah Jambu"
 ```bash
