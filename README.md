@@ -20,6 +20,6 @@ hanya saja aku terlalu rapuh untuk kehilanganmu.
 Di balik gemuruh rasa yang tak terucapkan ini,
 kuharap aku tetap menjadi satu-satunya tempatmu kembali.
 
-~Zelfbesturende landschappen, 15 Juli 2026
-  00:00
+Het land van Mataram, 15 Juli 2026
+00:00
 ```
