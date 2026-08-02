@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timetable 24 SKS - Teknik Informatika</title>
+  <title>Jadwal Kuliah - Teknik Informatika</title>
   
-  <link id="manifest-placeholder" rel="manifest" />
+  <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#4f46e5" />
-  <meta name="description" content="Aplikasi Timetable Mingguan 24 SKS Teknik Informatika PWA" />
+  <meta name="description" content="Aplikasi Jadwal Kuliah Mingguan 24 SKS Teknik Informatika PWA" />
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -48,10 +48,6 @@
     .glass-card {
       backdrop-filter: blur(12px);
     }
-    .grid-timetable {
-      display: grid;
-      grid-template-columns: 80px repeat(5, minmax(160px, 1fr));
-    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-300 pb-16">
@@ -65,7 +61,7 @@
         </div>
         <div>
           <h1 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
-            Timetable Kuliah
+            Jadwal Kuliah
           </h1>
           <p class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
@@ -183,7 +179,7 @@
       </div>
     </div>
 
-    <!-- DAY TABS (VISIBLE IN 'TABS' MODE) -->
+    <!-- DAY TABS -->
     <div id="day-tabs-container" class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
       <button onclick="selectDay('Senin')" id="tab-Senin" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
         <span class="day-label">Senin</span>
@@ -225,38 +221,38 @@
       {
         day: 'Senin',
         items: [
-          { id: 'S1', timeStart: '07:30', timeEnd: '09:15', time: '07:30 - 09:15', title: 'Bela Negara dan Widya Mwat Yasa', sks: 2, classCode: 'IF-A', room: 'Patt.II-3D', lecturer: 'Heriyanto Dr. A.Md., S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-blue-600', gridRowStart: 1, gridRowSpan: 2 },
-          { id: 'S2', timeStart: '12:30', timeEnd: '14:15', time: '12:30 - 14:15', title: 'Komputasi Numerik', sks: 2, classCode: 'IF-D', room: 'Patt.III-3A', lecturer: 'Frans Richard Kodong S.T., M.Kom., Ph.D', category: 'Teori', badgeColor: 'bg-indigo-600', gridRowStart: 6, gridRowSpan: 2 }
+          { id: 'S1', timeStart: '07:30', timeEnd: '09:15', time: '07:30 - 09:15', title: 'Bela Negara dan Widya Mwat Yasa', sks: 2, classCode: 'IF-A', room: 'Patt.II-3D', lecturer: 'Heriyanto Dr. A.Md., S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-blue-600' },
+          { id: 'S2', timeStart: '12:30', timeEnd: '14:15', time: '12:30 - 14:15', title: 'Komputasi Numerik', sks: 2, classCode: 'IF-D', room: 'Patt.III-3A', lecturer: 'Frans Richard Kodong S.T., M.Kom., Ph.D', category: 'Teori', badgeColor: 'bg-indigo-600' }
         ]
       },
       {
         day: 'Selasa',
         items: [
-          { id: 'SL1', timeStart: '07:30', timeEnd: '10:00', time: '07:30 - 10:00', title: 'Struktur Data', sks: 3, classCode: 'IF-E', room: 'Patt.II-3B', lecturer: 'Heru Cahya Rustamaji Dr. S.Si., M.T.', category: 'Teori', badgeColor: 'bg-emerald-600', gridRowStart: 1, gridRowSpan: 3 },
-          { id: 'SL2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Pemrograman Web', sks: 2, classCode: 'IF-B', room: 'Patt.II-3B', lecturer: 'Dessyanto Boedi P S.T., M.T.', category: 'Teori', badgeColor: 'bg-purple-600', gridRowStart: 4, gridRowSpan: 2 },
-          { id: 'SL3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Interaksi Manusia dan Komputer', sks: 2, classCode: 'IF-F', room: 'Patt.III-3B', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-rose-600', gridRowStart: 9, gridRowSpan: 2 }
+          { id: 'SL1', timeStart: '07:30', timeEnd: '10:00', time: '07:30 - 10:00', title: 'Struktur Data', sks: 3, classCode: 'IF-E', room: 'Patt.II-3B', lecturer: 'Heru Cahya Rustamaji Dr. S.Si., M.T.', category: 'Teori', badgeColor: 'bg-emerald-600' },
+          { id: 'SL2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Pemrograman Web', sks: 2, classCode: 'IF-B', room: 'Patt.II-3B', lecturer: 'Dessyanto Boedi P S.T., M.T.', category: 'Teori', badgeColor: 'bg-purple-600' },
+          { id: 'SL3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Interaksi Manusia dan Komputer', sks: 2, classCode: 'IF-F', room: 'Patt.III-3B', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-rose-600' }
         ]
       },
       {
         day: 'Rabu',
         items: [
-          { id: 'R1', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Sistem Digital', sks: 2, classCode: 'IF-D', room: 'Patt.I-3A', lecturer: 'Budi Santosa S.Si., M.T.', category: 'Teori', badgeColor: 'bg-amber-600', gridRowStart: 4, gridRowSpan: 2 },
-          { id: 'R2', timeStart: '12:30', timeEnd: '15:00', time: '12:30 - 15:00', title: 'Geoinformatika', sks: 3, classCode: 'IF-D', room: 'Patt.II-2A', lecturer: 'Andiko Putro Suryotomo S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-teal-600', gridRowStart: 6, gridRowSpan: 3 },
-          { id: 'R3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Bahasa Indonesia', sks: 2, classCode: 'IF-D', room: 'Patt.II-3B', lecturer: 'Hermanto S.Pd., M.Hum.', category: 'Teori', badgeColor: 'bg-cyan-600', gridRowStart: 9, gridRowSpan: 2 }
+          { id: 'R1', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Sistem Digital', sks: 2, classCode: 'IF-D', room: 'Patt.I-3A', lecturer: 'Budi Santosa S.Si., M.T.', category: 'Teori', badgeColor: 'bg-amber-600' },
+          { id: 'R2', timeStart: '12:30', timeEnd: '15:00', time: '12:30 - 15:00', title: 'Geoinformatika', sks: 3, classCode: 'IF-D', room: 'Patt.II-2A', lecturer: 'Andiko Putro Suryotomo S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-teal-600' },
+          { id: 'R3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Bahasa Indonesia', sks: 2, classCode: 'IF-D', room: 'Patt.II-3B', lecturer: 'Hermanto S.Pd., M.Hum.', category: 'Teori', badgeColor: 'bg-cyan-600' }
         ]
       },
       {
         day: 'Kamis',
         items: [
-          { id: 'K1', timeStart: '15:30', timeEnd: '17:30', time: '15:30 - 17:30', title: 'Praktikum Implementasi Struktur Data', sks: 1, classCode: 'IF-J', room: 'Laboratorium Komputasi', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-fuchsia-600', gridRowStart: 9, gridRowSpan: 2 }
+          { id: 'K1', timeStart: '15:30', timeEnd: '17:30', time: '15:30 - 17:30', title: 'Praktikum Implementasi Struktur Data', sks: 1, classCode: 'IF-J', room: 'Laboratorium Komputasi', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-fuchsia-600' }
         ]
       },
       {
         day: 'Jumat',
         items: [
-          { id: 'J1', timeStart: '08:00', timeEnd: '10:00', time: '08:00 - 10:00', title: 'Praktikum Pemrograman Web', sks: 1, classCode: 'IF-L', room: 'Laboratorium Teknologi Mobile', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-violet-600', gridRowStart: 2, gridRowSpan: 2 },
-          { id: 'J2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Riset Operasi (Baru)', sks: 2, classCode: 'IF-D', room: 'Patt.II-3C', lecturer: 'Bambang Yuwono S.T., M.T.', category: 'Teori', badgeColor: 'bg-orange-600', gridRowStart: 4, gridRowSpan: 2 },
-          { id: 'J3', timeStart: '15:30', timeEnd: '17:15', time: '15:30 - 17:15', title: 'Komputer dan Masyarakat', sks: 2, classCode: 'IF-F', room: 'Patt.II-3A', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-pink-600', gridRowStart: 9, gridRowSpan: 2 }
+          { id: 'J1', timeStart: '08:00', timeEnd: '10:00', time: '08:00 - 10:00', title: 'Praktikum Pemrograman Web', sks: 1, classCode: 'IF-L', room: 'Laboratorium Teknologi Mobile', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-violet-600' },
+          { id: 'J2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Riset Operasi (Baru)', sks: 2, classCode: 'IF-D', room: 'Patt.II-3C', lecturer: 'Bambang Yuwono S.T., M.T.', category: 'Teori', badgeColor: 'bg-orange-600' },
+          { id: 'J3', timeStart: '15:30', timeEnd: '17:15', time: '15:30 - 17:15', title: 'Komputer dan Masyarakat', sks: 2, classCode: 'IF-F', room: 'Patt.II-3A', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-pink-600' }
         ]
       }
     ];
@@ -278,7 +274,7 @@
     let activeDay = 'Senin';
     let todayName = 'Senin';
     let isWeekend = false;
-    let viewMode = 'tabs'; // 'tabs', 'full', or 'grid'
+    let viewMode = 'tabs';
     let searchQuery = '';
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -431,7 +427,7 @@
     }
 
     function exportICS() {
-      let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Timetable 24 SKS//ID\n";
+      let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Jadwal Kuliah 24 SKS//ID\n";
       
       TIMETABLE_DATA.forEach(dayData => {
         dayData.items.forEach(item => {
@@ -523,7 +519,6 @@
         return;
       }
 
-      // RENDER MODES
       if (viewMode === 'grid') {
         renderGridView(container, filteredSchedule);
       } else if (viewMode === 'tabs' && !searchQuery) {
@@ -584,14 +579,13 @@
               <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
               </svg>
-              <h3 class="font-bold text-slate-900 dark:text-white text-sm">Matriks Timetable Mingguan</h3>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm">Matriks Jadwal Kuliah Mingguan</h3>
             </div>
             <span class="text-[11px] text-slate-400">Geser kesamping di layar HP</span>
           </div>
           
           <div class="overflow-x-auto">
             <div class="min-w-[880px] p-4">
-              <!-- Grid Header -->
               <div class="grid grid-cols-6 gap-2 mb-2 pb-2 border-b border-slate-200 dark:border-slate-800 text-center font-bold text-xs text-slate-500 dark:text-slate-400">
                 <div class="py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl">Jam / Hari</div>
                 ${days.map(d => `
@@ -601,16 +595,9 @@
                 `).join('')}
               </div>
 
-              <!-- Grid Content Rows -->
               <div class="space-y-2">
       `;
 
-      days.forEach(day => {
-        const dayData = schedule.find(d => d.day === day);
-        if (!dayData) return;
-      });
-
-      // Construct Timeline Rows
       TIME_SLOTS.forEach((slot, slotIdx) => {
         gridHTML += `
           <div class="grid grid-cols-6 gap-2 items-stretch min-h-[72px]">
@@ -746,35 +733,10 @@
     }
 
     function initPWA() {
-      const manifestData = {
-        name: "Timetable 24 SKS",
-        short_name: "Timetable",
-        description: "Jadwal Kuliah Mingguan Updated 24 SKS PWA",
-        start_url: "./",
-        display: "standalone",
-        background_color: "#ffffff",
-        theme_color: "#4f46e5",
-        icons: [
-          {
-            src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%234f46e5'/><text x='50' y='68' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>24</text></svg>",
-            sizes: "192x192 512x512",
-            type: "image/svg+xml",
-            purpose: "any maskable"
-          }
-        ]
-      };
-
-      const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-      document.getElementById('manifest-placeholder').setAttribute('href', URL.createObjectURL(manifestBlob));
-
       if ('serviceWorker' in navigator) {
-        const swCode = `
-          const CACHE = 'timetable-24sks-v4';
-          self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.add('./'))));
-          self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-        `;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('Service Worker Registered'))
+          .catch(err => console.error('Service Worker Registration Failed:', err));
       }
     }
   </script>
