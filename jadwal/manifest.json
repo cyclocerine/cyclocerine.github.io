@@ -3,14 +3,15 @@
   "short_name": "Jadwal Kuliah",
   "description": "Aplikasi Jadwal Kuliah Mingguan Teknik Informatika 24 SKS",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%234f46e5'/><text x='50' y='68' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>24</text></svg>",
-      "sizes": "192x192 512x512",
+      "src": "./icon.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
