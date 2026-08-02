@@ -1,8 +1,9 @@
-const CACHE_NAME = 'jadwal-kuliah-v1';
+const CACHE_NAME = 'jadwal-kuliah-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './icon.svg',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap'
 ];
