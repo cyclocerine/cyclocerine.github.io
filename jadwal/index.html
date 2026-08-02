@@ -48,13 +48,17 @@
     .glass-card {
       backdrop-filter: blur(12px);
     }
+    .grid-timetable {
+      display: grid;
+      grid-template-columns: 80px repeat(5, minmax(160px, 1fr));
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-300 pb-16">
 
   <!-- TOP HEADER -->
   <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 glass-card border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20">
           24
@@ -98,7 +102,7 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
+  <main class="max-w-6xl mx-auto px-4 pt-6 space-y-6">
 
     <!-- SUMMARY CARDS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -166,17 +170,20 @@
         />
       </div>
 
-      <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl self-end sm:self-auto">
-        <button id="view-tab-btn" onclick="setViewMode('tabs')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 shadow-xs transition">
+      <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl self-end sm:self-auto overflow-x-auto">
+        <button id="view-tab-btn" onclick="setViewMode('tabs')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 shadow-xs transition whitespace-nowrap">
           Per Hari
         </button>
-        <button id="view-full-btn" onclick="setViewMode('full')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+        <button id="view-full-btn" onclick="setViewMode('full')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap">
           Semua Hari
+        </button>
+        <button id="view-grid-btn" onclick="setViewMode('grid')" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap">
+          Grid Timetable
         </button>
       </div>
     </div>
 
-    <!-- DAY TABS -->
+    <!-- DAY TABS (VISIBLE IN 'TABS' MODE) -->
     <div id="day-tabs-container" class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
       <button onclick="selectDay('Senin')" id="tab-Senin" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
         <span class="day-label">Senin</span>
@@ -200,7 +207,7 @@
       </button>
     </div>
 
-    <!-- SCHEDULE LIST -->
+    <!-- SCHEDULE CONTENT CONTAINER -->
     <div id="schedule-content" class="space-y-4 min-h-[300px]"></div>
 
   </main>
@@ -218,46 +225,60 @@
       {
         day: 'Senin',
         items: [
-          { id: 'S1', timeStart: '07:30', timeEnd: '09:15', time: '07:30 - 09:15', title: 'Bela Negara dan Widya Mwat Yasa', sks: 2, classCode: 'IF-A', room: 'Patt.II-3D', lecturer: 'Heriyanto Dr. A.Md., S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-blue-600' },
-          { id: 'S2', timeStart: '12:30', timeEnd: '14:15', time: '12:30 - 14:15', title: 'Komputasi Numerik', sks: 2, classCode: 'IF-D', room: 'Patt.III-3A', lecturer: 'Frans Richard Kodong S.T., M.Kom., Ph.D', category: 'Teori', badgeColor: 'bg-indigo-600' }
+          { id: 'S1', timeStart: '07:30', timeEnd: '09:15', time: '07:30 - 09:15', title: 'Bela Negara dan Widya Mwat Yasa', sks: 2, classCode: 'IF-A', room: 'Patt.II-3D', lecturer: 'Heriyanto Dr. A.Md., S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-blue-600', gridRowStart: 1, gridRowSpan: 2 },
+          { id: 'S2', timeStart: '12:30', timeEnd: '14:15', time: '12:30 - 14:15', title: 'Komputasi Numerik', sks: 2, classCode: 'IF-D', room: 'Patt.III-3A', lecturer: 'Frans Richard Kodong S.T., M.Kom., Ph.D', category: 'Teori', badgeColor: 'bg-indigo-600', gridRowStart: 6, gridRowSpan: 2 }
         ]
       },
       {
         day: 'Selasa',
         items: [
-          { id: 'SL1', timeStart: '07:30', timeEnd: '10:00', time: '07:30 - 10:00', title: 'Struktur Data', sks: 3, classCode: 'IF-E', room: 'Patt.II-3B', lecturer: 'Heru Cahya Rustamaji Dr. S.Si., M.T.', category: 'Teori', badgeColor: 'bg-emerald-600' },
-          { id: 'SL2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Pemrograman Web', sks: 2, classCode: 'IF-B', room: 'Patt.II-3B', lecturer: 'Dessyanto Boedi P S.T., M.T.', category: 'Teori', badgeColor: 'bg-purple-600' },
-          { id: 'SL3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Interaksi Manusia dan Komputer', sks: 2, classCode: 'IF-F', room: 'Patt.III-3B', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-rose-600' }
+          { id: 'SL1', timeStart: '07:30', timeEnd: '10:00', time: '07:30 - 10:00', title: 'Struktur Data', sks: 3, classCode: 'IF-E', room: 'Patt.II-3B', lecturer: 'Heru Cahya Rustamaji Dr. S.Si., M.T.', category: 'Teori', badgeColor: 'bg-emerald-600', gridRowStart: 1, gridRowSpan: 3 },
+          { id: 'SL2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Pemrograman Web', sks: 2, classCode: 'IF-B', room: 'Patt.II-3B', lecturer: 'Dessyanto Boedi P S.T., M.T.', category: 'Teori', badgeColor: 'bg-purple-600', gridRowStart: 4, gridRowSpan: 2 },
+          { id: 'SL3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Interaksi Manusia dan Komputer', sks: 2, classCode: 'IF-F', room: 'Patt.III-3B', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-rose-600', gridRowStart: 9, gridRowSpan: 2 }
         ]
       },
       {
         day: 'Rabu',
         items: [
-          { id: 'R1', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Sistem Digital', sks: 2, classCode: 'IF-D', room: 'Patt.I-3A', lecturer: 'Budi Santosa S.Si., M.T.', category: 'Teori', badgeColor: 'bg-amber-600' },
-          { id: 'R2', timeStart: '12:30', timeEnd: '15:00', time: '12:30 - 15:00', title: 'Geoinformatika', sks: 3, classCode: 'IF-D', room: 'Patt.II-2A', lecturer: 'Andiko Putro Suryotomo S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-teal-600' },
-          { id: 'R3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Bahasa Indonesia', sks: 2, classCode: 'IF-D', room: 'Patt.II-3B', lecturer: 'Hermanto S.Pd., M.Hum.', category: 'Teori', badgeColor: 'bg-cyan-600' }
+          { id: 'R1', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Sistem Digital', sks: 2, classCode: 'IF-D', room: 'Patt.I-3A', lecturer: 'Budi Santosa S.Si., M.T.', category: 'Teori', badgeColor: 'bg-amber-600', gridRowStart: 4, gridRowSpan: 2 },
+          { id: 'R2', timeStart: '12:30', timeEnd: '15:00', time: '12:30 - 15:00', title: 'Geoinformatika', sks: 3, classCode: 'IF-D', room: 'Patt.II-2A', lecturer: 'Andiko Putro Suryotomo S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-teal-600', gridRowStart: 6, gridRowSpan: 3 },
+          { id: 'R3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Bahasa Indonesia', sks: 2, classCode: 'IF-D', room: 'Patt.II-3B', lecturer: 'Hermanto S.Pd., M.Hum.', category: 'Teori', badgeColor: 'bg-cyan-600', gridRowStart: 9, gridRowSpan: 2 }
         ]
       },
       {
         day: 'Kamis',
         items: [
-          { id: 'K1', timeStart: '15:30', timeEnd: '17:30', time: '15:30 - 17:30', title: 'Praktikum Implementasi Struktur Data', sks: 1, classCode: 'IF-J', room: 'Laboratorium Komputasi', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-fuchsia-600' }
+          { id: 'K1', timeStart: '15:30', timeEnd: '17:30', time: '15:30 - 17:30', title: 'Praktikum Implementasi Struktur Data', sks: 1, classCode: 'IF-J', room: 'Laboratorium Komputasi', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-fuchsia-600', gridRowStart: 9, gridRowSpan: 2 }
         ]
       },
       {
         day: 'Jumat',
         items: [
-          { id: 'J1', timeStart: '08:00', timeEnd: '10:00', time: '08:00 - 10:00', title: 'Praktikum Pemrograman Web', sks: 1, classCode: 'IF-L', room: 'Laboratorium Teknologi Mobile', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-violet-600' },
-          { id: 'J2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Riset Operasi (Baru)', sks: 2, classCode: 'IF-D', room: 'Patt.II-3C', lecturer: 'Bambang Yuwono S.T., M.T.', category: 'Teori', badgeColor: 'bg-orange-600' },
-          { id: 'J3', timeStart: '15:30', timeEnd: '17:15', time: '15:30 - 17:15', title: 'Komputer dan Masyarakat', sks: 2, classCode: 'IF-F', room: 'Patt.II-3A', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-pink-600' }
+          { id: 'J1', timeStart: '08:00', timeEnd: '10:00', time: '08:00 - 10:00', title: 'Praktikum Pemrograman Web', sks: 1, classCode: 'IF-L', room: 'Laboratorium Teknologi Mobile', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-violet-600', gridRowStart: 2, gridRowSpan: 2 },
+          { id: 'J2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Riset Operasi (Baru)', sks: 2, classCode: 'IF-D', room: 'Patt.II-3C', lecturer: 'Bambang Yuwono S.T., M.T.', category: 'Teori', badgeColor: 'bg-orange-600', gridRowStart: 4, gridRowSpan: 2 },
+          { id: 'J3', timeStart: '15:30', timeEnd: '17:15', time: '15:30 - 17:15', title: 'Komputer dan Masyarakat', sks: 2, classCode: 'IF-F', room: 'Patt.II-3A', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-pink-600', gridRowStart: 9, gridRowSpan: 2 }
         ]
       }
+    ];
+
+    const TIME_SLOTS = [
+      '07:00 - 08:00',
+      '08:00 - 09:00',
+      '09:00 - 10:00',
+      '10:00 - 11:00',
+      '11:00 - 12:00',
+      '12:00 - 13:00',
+      '13:00 - 14:00',
+      '14:00 - 15:00',
+      '15:00 - 16:00',
+      '16:00 - 17:00',
+      '17:00 - 18:00'
     ];
 
     let activeDay = 'Senin';
     let todayName = 'Senin';
     let isWeekend = false;
-    let viewMode = 'tabs';
+    let viewMode = 'tabs'; // 'tabs', 'full', or 'grid'
     let searchQuery = '';
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -313,7 +334,6 @@
         activeDay = todayName;
         isWeekend = false;
       } else {
-        // Sabtu atau Minggu
         activeDay = 'Senin';
         isWeekend = true;
       }
@@ -369,16 +389,20 @@
       viewMode = mode;
       const tabBtn = document.getElementById('view-tab-btn');
       const fullBtn = document.getElementById('view-full-btn');
+      const gridBtn = document.getElementById('view-grid-btn');
       const dayTabs = document.getElementById('day-tabs-container');
 
+      const btnInactive = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition whitespace-nowrap';
+      const btnActive = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 shadow-xs transition whitespace-nowrap';
+
+      tabBtn.className = mode === 'tabs' ? btnActive : btnInactive;
+      fullBtn.className = mode === 'full' ? btnActive : btnInactive;
+      gridBtn.className = mode === 'grid' ? btnActive : btnInactive;
+
       if (mode === 'tabs') {
-        tabBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 shadow-xs transition';
-        fullBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
         dayTabs.classList.remove('hidden');
         scrollTabIntoView(activeDay);
       } else {
-        fullBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 shadow-xs transition';
-        tabBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
         dayTabs.classList.add('hidden');
       }
       render();
@@ -457,7 +481,6 @@
 
         btn.className = activeStyle;
 
-        // Visual Indicator Badge for Real Today
         const existingBadge = btn.querySelector('.today-indicator');
         if (existingBadge) existingBadge.remove();
 
@@ -500,7 +523,10 @@
         return;
       }
 
-      if (viewMode === 'tabs' && !searchQuery) {
+      // RENDER MODES
+      if (viewMode === 'grid') {
+        renderGridView(container, filteredSchedule);
+      } else if (viewMode === 'tabs' && !searchQuery) {
         const daySchedule = filteredSchedule.find(d => d.day === activeDay);
         if (!daySchedule || daySchedule.items.length === 0) {
           container.innerHTML = `
@@ -546,6 +572,104 @@
           </div>
         `).join('<div class="h-4"></div>');
       }
+    }
+
+    function renderGridView(container, schedule) {
+      const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+
+      let gridHTML = `
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs">
+          <div class="p-4 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm">Matriks Timetable Mingguan</h3>
+            </div>
+            <span class="text-[11px] text-slate-400">Geser kesamping di layar HP</span>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <div class="min-w-[880px] p-4">
+              <!-- Grid Header -->
+              <div class="grid grid-cols-6 gap-2 mb-2 pb-2 border-b border-slate-200 dark:border-slate-800 text-center font-bold text-xs text-slate-500 dark:text-slate-400">
+                <div class="py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl">Jam / Hari</div>
+                ${days.map(d => `
+                  <div class="py-2 rounded-xl transition ${d === todayName ? 'bg-indigo-600 text-white font-bold' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300'}">
+                    ${d}
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Grid Content Rows -->
+              <div class="space-y-2">
+      `;
+
+      days.forEach(day => {
+        const dayData = schedule.find(d => d.day === day);
+        if (!dayData) return;
+      });
+
+      // Construct Timeline Rows
+      TIME_SLOTS.forEach((slot, slotIdx) => {
+        gridHTML += `
+          <div class="grid grid-cols-6 gap-2 items-stretch min-h-[72px]">
+            <div class="text-[11px] font-mono text-slate-400 dark:text-slate-500 flex items-center justify-center bg-slate-50/50 dark:bg-slate-800/30 rounded-xl px-1 text-center border border-dashed border-slate-200 dark:border-slate-800">
+              ${slot}
+            </div>
+        `;
+
+        days.forEach(day => {
+          const dayData = TIMETABLE_DATA.find(d => d.day === day);
+          const matchingMatkul = dayData ? dayData.items.filter(item => {
+            const startHour = parseInt(item.timeStart.split(':')[0]);
+            const slotHour = 7 + slotIdx;
+            return startHour === slotHour;
+          }) : [];
+
+          if (matchingMatkul.length > 0) {
+            gridHTML += `<div class="space-y-1.5">`;
+            matchingMatkul.forEach(item => {
+              const matchesSearch = !searchQuery || 
+                item.title.toLowerCase().includes(searchQuery) ||
+                item.room.toLowerCase().includes(searchQuery) ||
+                item.lecturer.toLowerCase().includes(searchQuery);
+
+              gridHTML += `
+                <div onclick="copyInfo('${item.title}', '${item.room}', '${item.lecturer}')" class="p-2.5 rounded-2xl ${item.badgeColor} text-white shadow-xs cursor-pointer hover:opacity-95 transition flex flex-col justify-between ${matchesSearch ? '' : 'opacity-30'}">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 text-[10px] font-semibold opacity-90 mb-1">
+                      <span>${item.time}</span>
+                      <span class="bg-white/20 px-1.5 py-0.5 rounded">${item.sks} SKS</span>
+                    </div>
+                    <div class="font-bold text-xs leading-snug line-clamp-2">${item.title}</div>
+                  </div>
+                  <div class="mt-2 pt-1 border-t border-white/20 text-[10px] flex items-center justify-between font-medium opacity-90">
+                    <span>${item.room}</span>
+                    <span>Kelas ${item.classCode}</span>
+                  </div>
+                </div>
+              `;
+            });
+            gridHTML += `</div>`;
+          } else {
+            gridHTML += `
+              <div class="rounded-2xl border border-slate-100 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-900/30"></div>
+            `;
+          }
+        });
+
+        gridHTML += `</div>`;
+      });
+
+      gridHTML += `
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = gridHTML;
     }
 
     function renderCard(day, item) {
@@ -645,7 +769,7 @@
 
       if ('serviceWorker' in navigator) {
         const swCode = `
-          const CACHE = 'timetable-24sks-v3';
+          const CACHE = 'timetable-24sks-v4';
           self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.add('./'))));
           self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
         `;
