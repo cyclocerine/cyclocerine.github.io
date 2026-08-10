@@ -29,3 +29,12 @@ Het land van Mataram
 15 Juli 2026
 
 ```
+
+# "SEKALI"
+```poet
+"Jika aku meninggal besok, aku ingin sekali 'kau menciumku.'" tuturku.
+"Random sekali ceracaumu." protesmu.
+"Tak apa bukan? Aku ingin sekali 'kau menciumku.'" tandasku.
+"Baiklah." jawabmu seraya mengecup keningku.
+Dan ternyata itu adalah kecupan terakhirmu untukku. Sebab kau abai memaknai 'sekali' sebagai 'sekali' bukan 'sekali'.
+```
