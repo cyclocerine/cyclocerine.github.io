@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kartu Ucapan MABA Informatika UPN Jogja</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    
+    .font-serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Preset Dimensi Kartu */
+    .card-size-5 {
+      width: 5cm;
+      height: 5cm;
+      padding: 0.35cm;
+    }
+    .card-size-6 {
+      width: 6cm;
+      height: 6cm;
+      padding: 0.45cm;
+    }
+    .card-size-7 {
+      width: 7cm;
+      height: 7cm;
+      padding: 0.55cm;
+    }
+
+    /* Theme Styles - Pastel Cowo (Blue) */
+    .theme-m {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+      border-color: #7dd3fc;
+      color: #0369a1;
+    }
+    .theme-m .name-box {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid #93c5fd;
+      color: #0f172a;
+    }
+    .theme-m .cloud-fill {
+      fill: #38bdf8;
+      opacity: 0.18;
+    }
+    .theme-m .cloud-stroke {
+      stroke: #0284c7;
+      opacity: 0.25;
+    }
+    .theme-m .accent-text {
+      color: #0284c7;
+    }
+    .theme-m .quote-box {
+      background: rgba(255, 255, 255, 0.65);
+      border-left: 2px solid #38bdf8;
+    }
+
+    /* Theme Styles - Pastel Cewe (Pink) */
+    .theme-f {
+      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%);
+      border-color: #fda4af;
+      color: #be123c;
+    }
+    .theme-f .name-box {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid #f472b6;
+      color: #0f172a;
+    }
+    .theme-f .cloud-fill {
+      fill: #fb7185;
+      opacity: 0.18;
+    }
+    .theme-f .cloud-stroke {
+      stroke: #e11d48;
+      opacity: 0.25;
+    }
+    .theme-f .accent-text {
+      color: #e11d48;
+    }
+    .theme-f .quote-box {
+      background: rgba(255, 255, 255, 0.65);
+      border-left: 2px solid #fb7185;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-container {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0 !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .card-item {
+        box-shadow: none !important;
+        border: 1px dashed #cbd5e1 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- Header / Controls (No Print) -->
+  <header class="no-print bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+          <span>🎓</span> Ucapan MABA Informatika UPN "Veteran" Jogja
+        </h1>
+        <p class="text-xs text-slate-500 mt-0.5">Setiap nama dengan pesan khusus & personal</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Size Selector -->
+        <div class="bg-slate-100 p-1 rounded-lg flex items-center gap-1 text-xs font-semibold">
+          <button onclick="changeSize(5)" id="btn-size-5" class="px-3 py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900">5×5 cm</button>
+          <button onclick="changeSize(6)" id="btn-size-6" class="px-3 py-1.5 rounded-md transition-all bg-white text-slate-800 shadow-sm">6×6 cm</button>
+          <button onclick="changeSize(7)" id="btn-size-7" class="px-3 py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900">7×7 cm</button>
+        </div>
+
+        <!-- Download All PNG -->
+        <button onclick="downloadAllPNG()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium rounded-lg shadow-sm transition-all flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Unduh Semua PNG
+        </button>
+
+        <!-- Print Button -->
+        <button onclick="window.print()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium rounded-lg shadow-sm transition-all flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Cetak A4 / PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notice Bar -->
+  <div class="no-print max-w-6xl mx-auto px-4 mt-4">
+    <div class="bg-sky-50 border border-sky-200 rounded-xl p-3.5 text-xs text-sky-800 flex items-start gap-3">
+      <span class="text-base">💡</span>
+      <div>
+        <p class="font-semibold mb-0.5">Tips Pencetakan & Penggunaan:</p>
+        <p class="text-sky-700">Setiap pesan di bawah telah disesuaikan secara khusus. Untuk pesan panjang, opsi **6×6 cm** atau **7×7 cm** memberikan keterbacaan paling ideal saat dicetak. Garis putus-putus abu-abu akan membantu Anda memotong dengan rapi menggunakan cutter & penggaris.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards Grid Container -->
+  <main class="max-w-6xl mx-auto px-4 mt-6">
+    <div id="cards-container" class="print-container flex flex-wrap gap-6 justify-center">
+      <!-- Cards rendered dynamically by JS -->
+    </div>
+  </main>
+
+  <script>
+    // Data Mahasiswa dan Ucapan Khusus
+    const studentsData = [
+      { id: 1, name: "Afgan", gender: "m", message: "Selamat datang di babak baru, Afgan! Jalani perkuliahan kamu kedepannya dengan gembira dan sungguh-sungguh yaa. Anggap setiap tantangan sebagai langkah awal untuk membentuk mental juang kamu:D" },
+      { id: 2, name: "Alfa Pradipta Wicaksana", gender: "m", message: "Jangan takut menghadapi hal baru ya, Alfa. Tetap fokus, jaga kesehatan, dan nikmati setiap prosesnya karena momen seperti ini yang bakal jadi kenangan manis di kemudian hari:D" },
+      { id: 3, name: "Amanda Patricia Purba", gender: "f", message: "Di mana ada niat, di situ pasti ada jalan. Tetap semangat yaa Amanda, ikuti alurnya, jalani dengan sungguh-sungguh, dan tunjukkan versi terbaik dari diri kamu di setiap langkahmu:D kedepannya." },
+      { id: 4, name: "Auria Paramitha", gender: "f", message: "Setiap tantangan di dunia perkuliahan dirancang supaya kamu bisa jadi lebih tangguh. Percaya pada kemampuan dirimu sendiri ya Auria, dan teruslah melangkah maju:D" },
+      { id: 5, name: "Muhammad Fadillah Ahyatal", gender: "m", message: "Rasa lelah itu wajar, tapi menyerah bukan pilihan. Tetap semangat, jaga kondisi fisik serta mental kamu yaa Fadil, dan saling merangkul bersama teman seangkatan:D" },
+      { id: 6, name: "Faris Rahman Aziz", gender: "m", message: "Jadikan kegiatan ini sebagai wadah untuk melatih kesabaran dan kedisiplinan. Kamu pasti bisa melalui semuanya dengan sukses dan bangga. Semangat terus Faris:D" },
+      { id: 7, name: "Fika Nailatul Izza", gender: "f", message: "Awal dari perjalanan panjang memang sering kali terasa berat, tapi ingat ya Fika kalau kamu tidak sendirian. Semangat berjuang dan tetap optimistis Fikaa:D" },
+      { id: 8, name: "Afrah Suha Tazkia Idris", gender: "f", message: "Buka diri untuk teman-teman baru dan pengalaman baru. Jadikan ini momen terbaik untuk saling mengenal dan membangun solidaritas yang kuat. Semangat terus yaa Idris:D" },
+      { id: 9, name: "Lanjar Muhammad Al-Qodar", gender: "m", message: "Jangan ragu untuk melangkah keluar dari zona nyaman. Di situlah kamu akan menemukan potensi terhebat yang selama ini belum kamu sadari. Semangat Lanjar:D" },
+      { id: 10, name: "Muhamad Alip Saputra", gender: "m", message: "Rasa lelah akan hilang seiring waktu, tapi pelajaran dan kebersamaan yang kamu dapatkan akan bertahan selamanya. Semangat ya Alip:D" },
+      { id: 11, name: "Muhammad Fahri Firdaus", gender: "m", message: "Tetap fokus pada tujuan utamamu dan jangan biarkan rasa ragu menghentikan langkahmu. Kamu jauh lebih kuat dari apa yang kamu bayangkan. Semangat terus Fahri biar biasmu bangga:P" },
+      { id: 12, name: "Muhammad Sakti Winardi", gender: "m", message: "Setiap lelah yang kamu rasakan hari ini adalah investasi untuk menjadi pribadi yang lebih dewasa dan mandiri. Semangat ya woi Sakti!" },
+      { id: 13, name: "Najwa Bilqistia Arraffi Darmawan", gender: "f", message: "Jalani satu demi satu apapun yang ada di hadapan kamu dengan hati yang lapang dan pikiran positif. Kamu pasti bisa melewati semuanya. Semangat terus Bilqist:D" },
+      { id: 14, name: "Muhammad Ibadurrahman Al Fathon", gender: "m", message: "Masa-masa ospek adalah tempat bertemunya keberanian dan pengalaman baru. Jaga kesehatan, dan berikan kebanggaan buat dirimu sendiri. Semangat terus Ibad:D" },
+      { id: 15, name: "Raza Adrian Candra Pratama Putra", gender: "m", message: "Tetap kompak dan saling menjaga bersama teman seperjuangan. Kekuatan angkatanmu dimulai dari rasa peduli yang kalian bangun mulai hari ini. Semangat terus kedepannya Raza:D" },
+      { id: 16, name: "Yudha Sapta Saputra", gender: "m", message: "Selamat berproses dan menikmati dinamika di Informatika. Percaya deh, setelah melewati ini semua, kamu pasti bakal kangen momen-momen ini. Semangat terus Yudha:D" }
+    ];
+
+    let currentSize = 6; // Default to 6x6cm for text spacing
+
+    // Vector Ornamen Awan Jepang (Kumo Cloud Silhouette)
+    const japaneseCloudSvg = `
+      <svg viewBox="0 0 100 45" class="w-full h-full">
+        <path class="cloud-fill" d="M 10 35 C 5 35 0 30 0 25 C 0 18 6 12 14 13 C 18 5 28 0 38 4 C 46 0 56 3 62 10 C 68 6 78 8 82 15 C 90 14 98 20 98 28 C 98 34 92 38 85 38 L 10 35 Z" />
+        <path class="cloud-stroke" fill="none" stroke-width="1.2" d="M 5 33 C 2 28 4 21 10 20 C 13 13 23 8 32 12 C 40 5 52 8 57 15 C 64 12 73 15 76 22 C 84 21 92 27 91 34" />
+      </svg>
+    `;
+
+    function renderCards() {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+
+      studentsData.forEach(student => {
+        const themeClass = student.gender === 'm' ? 'theme-m' : 'theme-f';
+        
+        // Font sizing scale based on size
+        let headerTextSize = currentSize === 5 ? 'text-[7px]' : currentSize === 6 ? 'text-[8.5px]' : 'text-[10px]';
+        let nameTextSize = currentSize === 5 ? 'text-[10px]' : currentSize === 6 ? 'text-[12px]' : 'text-[14px]';
+        let msgTextSize = currentSize === 5 ? 'text-[7.5px] leading-[1.2]' : currentSize === 6 ? 'text-[9px] leading-[1.3]' : 'text-[10.5px] leading-[1.35]';
+        let footerTextSize = currentSize === 5 ? 'text-[6.5px]' : currentSize === 6 ? 'text-[7.5px]' : 'text-[9px]';
+
+        const card = document.createElement('div');
+        card.id = `card-${student.id}`;
+        card.className = `card-item card-size-${currentSize} ${themeClass} border rounded-2xl shadow-md relative overflow-hidden flex flex-col justify-between transition-all duration-300`;
+
+        card.innerHTML = `
+          <!-- Ornamen Awan Jepang - Kiri Atas -->
+          <div class="absolute -top-2 -left-2 w-16 h-8 pointer-events-none transform -scale-x-100">
+            ${japaneseCloudSvg}
+          </div>
+
+          <!-- Ornamen Awan Jepang - Kanan Bawah -->
+          <div class="absolute -bottom-2 -right-2 w-16 h-8 pointer-events-none">
+            ${japaneseCloudSvg}
+          </div>
+
+          <!-- Header Sub-Title -->
+          <div class="text-center pt-1 z-10">
+            <span class="${headerTextSize} font-bold tracking-widest uppercase accent-text block">
+              INFORMATIKA UPN "VETERAN" JOGJA
+            </span>
+          </div>
+
+          <!-- Name Box -->
+          <div class="z-10 my-1">
+            <div class="name-box rounded-lg py-1 px-2 text-center shadow-sm">
+              <h2 class="${nameTextSize} font-extrabold tracking-tight truncate">
+                ${student.name}
+              </h2>
+            </div>
+          </div>
+
+          <!-- Unique Message Content -->
+          <div class="z-10 flex-1 flex items-center justify-center my-0.5">
+            <div class="quote-box p-1.5 rounded-r-md w-full">
+              <p class="${msgTextSize} font-medium text-slate-700 italic text-center">
+                "${student.message}"
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer Bar -->
+          <div class="z-10 text-center pb-0.5 flex items-center justify-between border-t border-slate-900/10 pt-1 mt-0.5">
+            <span class="${footerTextSize} font-bold tracking-wider accent-text uppercase">Semangat Berjuang!</span>
+            <span class="${footerTextSize} text-slate-500 font-semibold">MABA 2026</span>
+          </div>
+
+          <!-- Individual Download Floating Button (No Print) -->
+          <button onclick="downloadSinglePNG(${student.id}, '${student.name}')" title="Unduh PNG" class="no-print absolute top-1.5 right-1.5 bg-white/80 hover:bg-white text-slate-600 p-1 rounded-full shadow-sm border border-slate-200 transition-all opacity-0 hover:opacity-100 group-hover:opacity-100">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </button>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function changeSize(size) {
+      currentSize = size;
+      
+      // Toggle active state for buttons
+      [5, 6, 7].forEach(s => {
+        const btn = document.getElementById(`btn-size-${s}`);
+        if (s === size) {
+          btn.className = "px-3 py-1.5 rounded-md transition-all bg-white text-slate-800 shadow-sm font-bold";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900";
+        }
+      });
+
+      renderCards();
+    }
+
+    async function downloadSinglePNG(id, name) {
+      const cardElement = document.getElementById(`card-${id}`);
+      const canvas = await html2canvas(cardElement, {
+        scale: 4, // Ultra high res for printing
+        useCORS: true,
+        backgroundColor: null
+      });
+
+      const link = document.createElement('a');
+      link.download = `Kartu_MABA_${name.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function downloadAllPNG() {
+      for (let student of studentsData) {
+        await downloadSinglePNG(student.id, student.name);
+        await new Promise(resolve => setTimeout(resolve, 200)); // Delay for browser download queue
+      }
+    }
+
+    // Initial Render
+    window.onload = () => {
+      renderCards();
+    };
+  </script>
+</body>
+</html>
