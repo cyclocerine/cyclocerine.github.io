@@ -38,3 +38,17 @@ Het land van Mataram
 "Baiklah." jawabmu seraya mengecup keningku.
 Dan ternyata itu adalah kecupan terakhirmu untukku. Sebab kau abai memaknai 'sekali' sebagai 'sekali' bukan 'sekali'.
 ```
+##
+
+```poet
+Jika dalam puisinya pak sapardi mengatakan:
+"aku ingin mencintaimu dengan sederhana, dengan kata yang tak sempat
+diucapkan kayu kepada api yang menjadikannya abu",
+maka dalam puisiku, aku mengatakan:
+"aku akan mencintaimu dengan cara yang paling agung,
+menyematkan namamu dalam sajak yang indah,
+merayakanmu dalam setiap jengkal aksara,
+menjadikanmu tokoh utama dalam setiap cerita."
+```
+
+##
