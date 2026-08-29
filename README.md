@@ -3,9 +3,18 @@ sayang- bagaimana jika biru menggerogoti jasad ku
 terlebih dahulu? Bukan dinginnya biru laut, bukan juga semu birunya langit,
 namun lebam biru yang perlahan menyelimuti mayatku.
 
-Sayang akan kah kau tetap hadir dan menemaniku, bahkan bila atom yang menyusun tubuhku sudah terurai menjadi debu? Dan- apakah kau percaya bila aku berkata, aku akan selalu menemanimu bahkan hingga raga ku kembali menjadi satu dengan alam?
+Sayang akan kah kau tetap hadir dan menemaniku,
+ bahkan bila atom yang menyusun tubuhku sudah terurai menjadi debu? Dan- apakah kau percaya
+ bila aku berkata, aku akan selalu menemanimu
+ bahkan hingga raga ku kembali menjadi satu
+ dengan alam?
 
-Jika hari di mana aku telah membiru dan kembali menjadi satu dengan semesta telah tiba tolong tetaplah datang menyapa dan ceritakan bagaimana hari-harimu agar aku tak lagi lupa akan bara dunia yang pernah menopang keinginan ku untuk hidup.
+Jika hari di mana aku telah membiru dan kembali
+ menjadi satu dengan semesta telah tiba tolong
+ tetaplah datang menyapa dan ceritakan bagaimana
+ hari-harimu agar aku tak lagi lupa akan bara
+ dunia yang pernah menopang keinginan ku untuk
+ hidup.
 ```
 # "Labuhan Yang Kutakutkan Bergeser"
 ```whatifeel
