@@ -97,13 +97,13 @@
       </div>
 
       <div class="flex items-center gap-2 relative">
-        <!-- Tombol SPADA Tetap Terbuka -->
+        <!-- Tombol SPADA Utama -->
         <a 
           href="https://spada.upnyk.ac.id/" 
           target="_blank" 
           rel="noopener noreferrer" 
           class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 dark:text-emerald-300 transition border border-emerald-200 dark:border-emerald-800/50"
-          title="Buka LMS SPADA UPNYK (jendela baru)"
+          title="Buka LMS SPADA UPNYK"
           onclick="triggerFeedback()"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -156,7 +156,7 @@
               </div>
               <div class="flex-1">
                 <span class="block">Mode Kampus</span>
-                <span class="text-[10px] text-slate-400 font-normal">Display besar fokus kelas</span>
+                <span class="text-[10px] text-slate-400 font-normal">Display fokus ruangan & jam</span>
               </div>
             </button>
 
@@ -268,7 +268,7 @@
       </svg>
 
       <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div class="space-y-1">
+        <div class="space-y-1.5 flex-1">
           <div class="flex items-center gap-2">
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white uppercase tracking-wider" id="next-class-badge">
               Kelas Selanjutnya
@@ -276,23 +276,42 @@
             <span class="text-xs text-indigo-200 font-medium" id="next-class-time-range">00:00 - 00:00</span>
           </div>
           <h2 class="text-lg sm:text-xl font-black leading-tight" id="next-class-title">Memuat jadwal...</h2>
-          <p class="text-xs text-indigo-100 flex items-center gap-3 pt-1" id="next-class-meta">
+          <div class="flex flex-wrap items-center gap-2 text-xs text-indigo-100 pt-0.5" id="next-class-meta">
             <span>Ruang: -</span>
             <span>•</span>
             <span>Kelas: -</span>
-          </p>
+          </div>
         </div>
 
-        <div class="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/15 self-stretch md:self-auto flex items-center justify-between md:justify-center gap-4">
-          <div class="text-left md:text-right">
-            <p class="text-[10px] uppercase tracking-wider text-indigo-200 font-bold" id="countdown-label">Mulai Dalam</p>
-            <p class="text-lg font-mono font-bold text-white mt-0.5" id="countdown-timer">00j 00m 00d</p>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 self-stretch md:self-auto">
+          <div class="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/15 flex items-center justify-between sm:justify-center gap-4">
+            <div class="text-left sm:text-right">
+              <p class="text-[10px] uppercase tracking-wider text-indigo-200 font-bold" id="countdown-label">Mulai Dalam</p>
+              <p class="text-lg font-mono font-bold text-white mt-0.5" id="countdown-timer">00j 00m 00d</p>
+            </div>
+            <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
           </div>
-          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0" aria-hidden="true">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+          <!-- Tautan SPADA Kelas Aktif/Berikutnya -->
+          <a 
+            id="next-class-spada-btn" 
+            href="#" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="hidden items-center justify-center gap-1.5 px-3 py-3 rounded-2xl bg-white text-indigo-700 font-bold text-xs hover:bg-indigo-50 shadow-md transition"
+            title="Buka SPADA untuk kelas ini"
+            onclick="triggerFeedback()"
+          >
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
             </svg>
-          </div>
+            <span>Buka SPADA</span>
+          </a>
         </div>
       </div>
     </div>
@@ -377,7 +396,7 @@
       </div>
     </div>
 
-    <!-- DAY TABS WITH ACCESSIBLE ROLES -->
+    <!-- DAY TABS -->
     <div class="space-y-1.5">
       <div id="day-tabs-container" role="tablist" aria-label="Daftar Hari Kuliah" class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         <button role="tab" aria-selected="true" aria-controls="schedule-content" onclick="selectDay('Senin'); triggerFeedback();" id="tab-Senin" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
@@ -414,7 +433,7 @@
       </div>
     </div>
 
-    <!-- SCHEDULE CONTENT CONTAINER WITH SWIPE LISTENER -->
+    <!-- SCHEDULE CONTENT CONTAINER -->
     <div id="schedule-content" role="tabpanel" aria-labelledby="tab-Senin" class="swipe-container space-y-4 min-h-[300px]"></div>
 
   </main>
@@ -457,11 +476,26 @@
             07:30 - 10:00
           </span>
         </div>
-        <div class="col-span-2 border-t border-slate-800 pt-3">
-          <span class="text-slate-500 text-xs font-bold tracking-wider block uppercase">Kelas & Dosen</span>
-          <p class="text-sm sm:text-base font-semibold text-slate-200 mt-0.5" id="focus-meta">
-            Kelas IF-E • Heru Cahya Rustamaji Dr. S.Si., M.T.
-          </p>
+        <div class="col-span-2 border-t border-slate-800 pt-3 flex items-center justify-between">
+          <div>
+            <span class="text-slate-500 text-xs font-bold tracking-wider block uppercase">Kelas & Dosen</span>
+            <p class="text-sm sm:text-base font-semibold text-slate-200 mt-0.5" id="focus-meta">
+              Kelas IF-E • Heru Cahya Rustamaji Dr. S.Si., M.T.
+            </p>
+          </div>
+          <a 
+            id="focus-spada-link" 
+            href="#" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="hidden px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition items-center gap-1.5 shadow-md flex-shrink-0"
+            onclick="triggerFeedback()"
+          >
+            <span>Buka SPADA</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
@@ -485,38 +519,194 @@
       {
         day: 'Senin',
         items: [
-          { id: 'S1', timeStart: '07:30', timeEnd: '09:15', time: '07:30 - 09:15', title: 'Bela Negara dan Widya Mwat Yasa', sks: 2, classCode: 'IF-A', room: 'Patt.II-3D', lecturer: 'Heriyanto Dr. A.Md., S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-blue-600' },
-          { id: 'S2', timeStart: '12:30', timeEnd: '14:15', time: '12:30 - 14:15', title: 'Komputasi Numerik', sks: 2, classCode: 'IF-D', room: 'Patt.III-3A', lecturer: 'Frans Richard Kodong S.T., M.Kom., Ph.D', category: 'Teori', badgeColor: 'bg-indigo-600' }
+          { 
+            id: 'S1', 
+            timeStart: '07:30', 
+            timeEnd: '09:15', 
+            time: '07:30 - 09:15', 
+            title: 'Bela Negara dan Widya Mwat Yasa', 
+            sks: 2, 
+            classCode: 'IF-A', 
+            room: 'Patt.II-3D', 
+            lecturer: 'Heriyanto Dr. A.Md., S.Kom., M.Cs.', 
+            category: 'Teori', 
+            badgeColor: 'bg-blue-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=51557'
+          },
+          { 
+            id: 'S2', 
+            timeStart: '12:30', 
+            timeEnd: '14:15', 
+            time: '12:30 - 14:15', 
+            title: 'Komputasi Numerik', 
+            sks: 2, 
+            classCode: 'IF-D', 
+            room: 'Patt.III-3A', 
+            lecturer: 'Frans Richard Kodong S.T., M.Kom., Ph.D', 
+            category: 'Teori', 
+            badgeColor: 'bg-indigo-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=52846'
+          }
         ]
       },
       {
         day: 'Selasa',
         items: [
-          { id: 'SL1', timeStart: '07:30', timeEnd: '10:00', time: '07:30 - 10:00', title: 'Struktur Data', sks: 3, classCode: 'IF-E', room: 'Patt.II-3B', lecturer: 'Heru Cahya Rustamaji Dr. S.Si., M.T.', category: 'Teori', badgeColor: 'bg-emerald-600' },
-          { id: 'SL2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Pemrograman Web', sks: 2, classCode: 'IF-B', room: 'Patt.II-3B', lecturer: 'Dessyanto Boedi P S.T., M.T.', category: 'Teori', badgeColor: 'bg-purple-600' },
-          { id: 'SL3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Interaksi Manusia dan Komputer', sks: 2, classCode: 'IF-F', room: 'Patt.III-3B', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-rose-600' }
+          { 
+            id: 'SL1', 
+            timeStart: '07:30', 
+            timeEnd: '10:00', 
+            time: '07:30 - 10:00', 
+            title: 'Struktur Data', 
+            sks: 3, 
+            classCode: 'IF-E', 
+            room: 'Patt.II-3B', 
+            lecturer: 'Heru Cahya Rustamaji Dr. S.Si., M.T.', 
+            category: 'Teori', 
+            badgeColor: 'bg-emerald-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=56497'
+          },
+          { 
+            id: 'SL2', 
+            timeStart: '10:00', 
+            timeEnd: '11:45', 
+            time: '10:00 - 11:45', 
+            title: 'Pemrograman Web', 
+            sks: 2, 
+            classCode: 'IF-B', 
+            room: 'Patt.II-3B', 
+            lecturer: 'Dessyanto Boedi P S.T., M.T.', 
+            category: 'Teori', 
+            badgeColor: 'bg-purple-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=53881'
+          },
+          { 
+            id: 'SL3', 
+            timeStart: '15:00', 
+            timeEnd: '16:45', 
+            time: '15:00 - 16:45', 
+            title: 'Interaksi Manusia dan Komputer', 
+            sks: 2, 
+            classCode: 'IF-F', 
+            room: 'Patt.III-3B', 
+            lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', 
+            category: 'Teori', 
+            badgeColor: 'bg-rose-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=52501'
+          }
         ]
       },
       {
         day: 'Rabu',
         items: [
-          { id: 'R1', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Sistem Digital', sks: 2, classCode: 'IF-D', room: 'Patt.I-3A', lecturer: 'Budi Santosa S.Si., M.T.', category: 'Teori', badgeColor: 'bg-amber-600' },
-          { id: 'R2', timeStart: '12:30', timeEnd: '15:00', time: '12:30 - 15:00', title: 'Geoinformatika', sks: 3, classCode: 'IF-D', room: 'Patt.II-2A', lecturer: 'Andiko Putro Suryotomo S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-teal-600' },
-          { id: 'R3', timeStart: '15:00', timeEnd: '16:45', time: '15:00 - 16:45', title: 'Bahasa Indonesia', sks: 2, classCode: 'IF-D', room: 'Patt.II-3B', lecturer: 'Hermanto S.Pd., M.Hum.', category: 'Teori', badgeColor: 'bg-cyan-600' }
+          { 
+            id: 'R1', 
+            timeStart: '10:00', 
+            timeEnd: '11:45', 
+            time: '10:00 - 11:45', 
+            title: 'Sistem Digital', 
+            sks: 2, 
+            classCode: 'IF-D', 
+            room: 'Patt.I-3A', 
+            lecturer: 'Budi Santosa S.Si., M.T.', 
+            category: 'Teori', 
+            badgeColor: 'bg-amber-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=56266'
+          },
+          { 
+            id: 'R2', 
+            timeStart: '12:30', 
+            timeEnd: '15:00', 
+            time: '12:30 - 15:00', 
+            title: 'Geoinformatika', 
+            sks: 3, 
+            classCode: 'IF-D', 
+            room: 'Patt.II-2A', 
+            lecturer: 'Andiko Putro Suryotomo S.Kom., M.Cs.', 
+            category: 'Teori', 
+            badgeColor: 'bg-teal-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=52304'
+          },
+          { 
+            id: 'R3', 
+            timeStart: '15:00', 
+            timeEnd: '16:45', 
+            time: '15:00 - 16:45', 
+            title: 'Bahasa Indonesia', 
+            sks: 2, 
+            classCode: 'IF-D', 
+            room: 'Patt.II-3B', 
+            lecturer: 'Hermanto S.Pd., M.Hum.', 
+            category: 'Teori', 
+            badgeColor: 'bg-cyan-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=51435'
+          }
         ]
       },
       {
         day: 'Kamis',
         items: [
-          { id: 'K1', timeStart: '15:30', timeEnd: '17:30', time: '15:30 - 17:30', title: 'Praktikum Implementasi Struktur Data', sks: 1, classCode: 'IF-J', room: 'Laboratorium Komputasi', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-fuchsia-600' }
+          { 
+            id: 'K1', 
+            timeStart: '15:30', 
+            timeEnd: '17:30', 
+            time: '15:30 - 17:30', 
+            title: 'Praktikum Implementasi Struktur Data', 
+            sks: 1, 
+            classCode: 'IF-J', 
+            room: 'Laboratorium Komputasi', 
+            lecturer: 'Asisten Laboratorium', 
+            category: 'Praktikum', 
+            badgeColor: 'bg-fuchsia-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=55408'
+          }
         ]
       },
       {
         day: 'Jumat',
         items: [
-          { id: 'J1', timeStart: '08:00', timeEnd: '10:00', time: '08:00 - 10:00', title: 'Praktikum Pemrograman Web', sks: 1, classCode: 'IF-L', room: 'Laboratorium Teknologi Mobile', lecturer: 'Asisten Laboratorium', category: 'Praktikum', badgeColor: 'bg-violet-600' },
-          { id: 'J2', timeStart: '10:00', timeEnd: '11:45', time: '10:00 - 11:45', title: 'Riset Operasi (Baru)', sks: 2, classCode: 'IF-D', room: 'Patt.II-3C', lecturer: 'Bambang Yuwono S.T., M.T.', category: 'Teori', badgeColor: 'bg-orange-600' },
-          { id: 'J3', timeStart: '15:30', timeEnd: '17:15', time: '15:30 - 17:15', title: 'Komputer dan Masyarakat', sks: 2, classCode: 'IF-F', room: 'Patt.II-3A', lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', category: 'Teori', badgeColor: 'bg-pink-600' }
+          { 
+            id: 'J1', 
+            timeStart: '08:00', 
+            timeEnd: '10:00', 
+            time: '08:00 - 10:00', 
+            title: 'Praktikum Pemrograman Web', 
+            sks: 1, 
+            classCode: 'IF-L', 
+            room: 'Laboratorium Teknologi Mobile', 
+            lecturer: 'Asisten Laboratorium', 
+            category: 'Praktikum', 
+            badgeColor: 'bg-violet-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=55706'
+          },
+          { 
+            id: 'J2', 
+            timeStart: '10:00', 
+            timeEnd: '11:45', 
+            time: '10:00 - 11:45', 
+            title: 'Riset Operasi (Baru)', 
+            sks: 2, 
+            classCode: 'IF-D', 
+            room: 'Patt.II-3C', 
+            lecturer: 'Bambang Yuwono S.T., M.T.', 
+            category: 'Teori', 
+            badgeColor: 'bg-orange-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=56174'
+          },
+          { 
+            id: 'J3', 
+            timeStart: '15:30', 
+            timeEnd: '17:15', 
+            time: '15:30 - 17:15', 
+            title: 'Komputer dan Masyarakat', 
+            sks: 2, 
+            classCode: 'IF-F', 
+            room: 'Patt.II-3A', 
+            lecturer: 'Aldila Putri Linanzha, S.Kom., M.Cs.', 
+            category: 'Teori', 
+            badgeColor: 'bg-pink-600',
+            spadaUrl: 'https://spada.upnyk.ac.id/course/view.php?id=52855'
+          }
         ]
       }
     ];
@@ -562,7 +752,7 @@
       if (installBtn) installBtn.classList.remove('hidden');
     });
 
-    // Feedback System (Web Audio API & Haptics)
+    // Feedback System
     function initFeedbackSetting() {
       const saved = localStorage.getItem('feedback_enabled');
       feedbackEnabled = saved !== null ? saved === 'true' : true;
@@ -618,7 +808,7 @@
       } catch (e) {}
     }
 
-    // Dropdown Popover Controller
+    // Dropdown Popover
     function toggleMenuDropdown() {
       const menu = document.getElementById('dropdown-menu');
       const btn = document.getElementById('burger-btn');
@@ -649,7 +839,7 @@
       }
     });
 
-    // Gesture Swipe Controller
+    // Gesture Swipe
     function setupSwipeGestures() {
       const container = document.getElementById('schedule-content');
 
@@ -674,13 +864,11 @@
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
         const currentIndex = DAYS_ORDER.indexOf(activeDay);
         if (deltaX < 0) {
-          // Swipe Kiri -> Hari Berikutnya
           if (currentIndex < DAYS_ORDER.length - 1) {
             selectDay(DAYS_ORDER[currentIndex + 1]);
             triggerFeedback();
           }
         } else {
-          // Swipe Kanan -> Hari Sebelumnya
           if (currentIndex > 0) {
             selectDay(DAYS_ORDER[currentIndex - 1]);
             triggerFeedback();
@@ -807,6 +995,7 @@
       const metaEl = document.getElementById('next-class-meta');
       const countLabelEl = document.getElementById('countdown-label');
       const timerEl = document.getElementById('countdown-timer');
+      const spadaBtn = document.getElementById('next-class-spada-btn');
 
       if (!todayData || isWeekend) {
         badgeEl.innerText = 'AKHIR PEKAN';
@@ -816,6 +1005,8 @@
         metaEl.innerHTML = `<span>Selamat beristirahat</span>`;
         countLabelEl.innerText = 'Status';
         timerEl.innerText = 'Akhir Pekan';
+        spadaBtn.classList.add('hidden');
+        spadaBtn.classList.remove('flex');
         currentTargetMatkul = null;
         return;
       }
@@ -837,6 +1028,17 @@
           nextClass = { ...item, startMins, endMins };
           break;
         }
+      }
+
+      const target = ongoingClass || nextClass;
+
+      if (target && target.spadaUrl) {
+        spadaBtn.href = target.spadaUrl;
+        spadaBtn.classList.remove('hidden');
+        spadaBtn.classList.add('flex');
+      } else {
+        spadaBtn.classList.add('hidden');
+        spadaBtn.classList.remove('flex');
       }
 
       if (ongoingClass) {
@@ -888,6 +1090,7 @@
       const timeEl = document.getElementById('focus-time');
       const metaEl = document.getElementById('focus-meta');
       const badgeEl = document.getElementById('focus-status-badge');
+      const spadaLinkEl = document.getElementById('focus-spada-link');
 
       if (currentTargetMatkul) {
         titleEl.innerText = currentTargetMatkul.title;
@@ -895,12 +1098,21 @@
         timeEl.innerText = currentTargetMatkul.time;
         metaEl.innerText = `Kelas ${currentTargetMatkul.classCode} • Dosen: ${currentTargetMatkul.lecturer}`;
         badgeEl.innerText = 'DOKUMEN KELAS FOKUS';
+
+        if (currentTargetMatkul.spadaUrl) {
+          spadaLinkEl.href = currentTargetMatkul.spadaUrl;
+          spadaLinkEl.classList.remove('hidden');
+          spadaLinkEl.classList.add('flex');
+        } else {
+          spadaLinkEl.classList.add('hidden');
+        }
       } else {
         titleEl.innerText = 'Tidak Ada Kelas Aktif';
         roomEl.innerText = '-';
         timeEl.innerText = '-';
         metaEl.innerText = 'Hari ini tidak ada kelas berlangsung atau telah selesai.';
         badgeEl.innerText = 'INFO KAMPUS';
+        spadaLinkEl.classList.add('hidden');
       }
 
       modal.classList.remove('hidden');
@@ -994,7 +1206,8 @@
           icsContent += `BEGIN:VEVENT\n`;
           icsContent += `SUMMARY:${item.title} (${item.classCode})\n`;
           icsContent += `LOCATION:${item.room}\n`;
-          icsContent += `DESCRIPTION:SKS: ${item.sks} | Dosen: ${item.lecturer}\n`;
+          icsContent += `DESCRIPTION:SKS: ${item.sks} | Dosen: ${item.lecturer} | SPADA: ${item.spadaUrl}\n`;
+          icsContent += `URL:${item.spadaUrl}\n`;
           icsContent += `END:VEVENT\n`;
         });
       });
@@ -1151,7 +1364,7 @@
               </svg>
               <h3 class="font-bold text-slate-900 dark:text-white text-sm">Matriks Timetable Presisi (07:00 - 18:00)</h3>
             </div>
-            <span class="text-[11px] text-slate-400">Geser horizontal</span>
+            <span class="text-[11px] text-slate-400">Klik blok untuk salin detail</span>
           </div>
 
           <div class="overflow-x-auto">
@@ -1315,15 +1528,34 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between pt-1">
+          <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/60">
             <span class="text-[11px] font-semibold text-slate-400">
               Kategori: <strong class="text-slate-600 dark:text-slate-300 font-bold">${item.category}</strong>
             </span>
-            <button onclick="copyInfo('${item.title}', '${item.room}', '${item.lecturer}')" class="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Salin Info" aria-label="Salin info matkul ${item.title}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-              </svg>
-            </button>
+
+            <div class="flex items-center gap-1">
+              <!-- Tombol SPADA per Matkul -->
+              <a 
+                href="${item.spadaUrl}" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-800/50 transition"
+                title="Buka kursus SPADA matkul ini"
+                onclick="triggerFeedback()"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span>SPADA</span>
+              </a>
+
+              <!-- Tombol Salin Info -->
+              <button onclick="copyInfo('${item.title}', '${item.room}', '${item.lecturer}')" class="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Salin Info" aria-label="Salin info matkul ${item.title}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       `;
