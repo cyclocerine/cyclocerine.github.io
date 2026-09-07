@@ -55,7 +55,30 @@
     }
     .swipe-container {
       touch-action: pan-y;
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+      transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease-out;
+      will-change: transform, opacity;
+    }
+    .slide-out-left {
+      transform: translateX(-35px);
+      opacity: 0;
+    }
+    .slide-out-right {
+      transform: translateX(35px);
+      opacity: 0;
+    }
+    .slide-in-prepare-right {
+      transform: translateX(35px);
+      opacity: 0;
+      transition: none !important;
+    }
+    .slide-in-prepare-left {
+      transform: translateX(-35px);
+      opacity: 0;
+      transition: none !important;
+    }
+    .slide-active {
+      transform: translateX(0);
+      opacity: 1;
     }
     .skip-to-content {
       position: absolute;
@@ -399,23 +422,23 @@
     <!-- DAY TABS -->
     <div class="space-y-1.5">
       <div id="day-tabs-container" role="tablist" aria-label="Daftar Hari Kuliah" class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <button role="tab" aria-selected="true" aria-controls="schedule-content" onclick="selectDay('Senin'); triggerFeedback();" id="tab-Senin" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
+        <button role="tab" aria-selected="true" aria-controls="schedule-content" onclick="transitionToDay('Senin'); triggerFeedback();" id="tab-Senin" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
           <span class="day-label">Senin</span>
           <span class="block text-[10px] font-normal opacity-80 mt-0.5">4 SKS</span>
         </button>
-        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="selectDay('Selasa'); triggerFeedback();" id="tab-Selasa" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
+        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="transitionToDay('Selasa'); triggerFeedback();" id="tab-Selasa" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
           <span class="day-label">Selasa</span>
           <span class="block text-[10px] font-normal opacity-80 mt-0.5">7 SKS</span>
         </button>
-        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="selectDay('Rabu'); triggerFeedback();" id="tab-Rabu" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
+        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="transitionToDay('Rabu'); triggerFeedback();" id="tab-Rabu" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
           <span class="day-label">Rabu</span>
           <span class="block text-[10px] font-normal opacity-80 mt-0.5">7 SKS</span>
         </button>
-        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="selectDay('Kamis'); triggerFeedback();" id="tab-Kamis" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
+        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="transitionToDay('Kamis'); triggerFeedback();" id="tab-Kamis" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
           <span class="day-label">Kamis</span>
           <span class="block text-[10px] font-normal opacity-80 mt-0.5">1 SKS</span>
         </button>
-        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="selectDay('Jumat'); triggerFeedback();" id="tab-Jumat" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
+        <button role="tab" aria-selected="false" aria-controls="schedule-content" onclick="transitionToDay('Jumat'); triggerFeedback();" id="tab-Jumat" class="day-tab flex-1 min-w-[100px] py-3 px-4 rounded-2xl font-semibold text-sm transition-all text-center border relative">
           <span class="day-label">Jumat</span>
           <span class="block text-[10px] font-normal opacity-80 mt-0.5">5 SKS</span>
         </button>
@@ -433,8 +456,10 @@
       </div>
     </div>
 
-    <!-- SCHEDULE CONTENT CONTAINER -->
-    <div id="schedule-content" role="tabpanel" aria-labelledby="tab-Senin" class="swipe-container space-y-4 min-h-[300px]"></div>
+    <!-- SCHEDULE CONTENT CONTAINER WITH SLIDE TRANSITION -->
+    <div class="overflow-hidden">
+      <div id="schedule-content" role="tabpanel" aria-labelledby="tab-Senin" class="swipe-container slide-active space-y-4 min-h-[300px]"></div>
+    </div>
 
   </main>
 
@@ -725,6 +750,7 @@
     let currentTargetMatkul = null;
     let deferredPrompt = null;
     let feedbackEnabled = true;
+    let isAnimating = false;
 
     // Gesture swipe variables
     let touchStartX = 0;
@@ -839,6 +865,52 @@
       }
     });
 
+    // Animated Day Transition Logic
+    function transitionToDay(targetDay, explicitDirection = null) {
+      if (targetDay === activeDay && !explicitDirection) return;
+      if (isAnimating) return;
+
+      if (viewMode !== 'tabs' || searchQuery) {
+        activeDay = targetDay;
+        render();
+        scrollTabIntoView(targetDay);
+        return;
+      }
+
+      const currentIndex = DAYS_ORDER.indexOf(activeDay);
+      const targetIndex = DAYS_ORDER.indexOf(targetDay);
+      const direction = explicitDirection || (targetIndex > currentIndex ? 'left' : 'right');
+      const container = document.getElementById('schedule-content');
+
+      isAnimating = true;
+
+      // 1. Slide out current cards
+      container.classList.remove('slide-active');
+      container.classList.add(direction === 'left' ? 'slide-out-left' : 'slide-out-right');
+
+      setTimeout(() => {
+        // 2. Switch data while hidden
+        activeDay = targetDay;
+        render();
+        scrollTabIntoView(targetDay);
+
+        // 3. Prepare position for entrance
+        container.classList.remove('slide-out-left', 'slide-out-right');
+        container.classList.add(direction === 'left' ? 'slide-in-prepare-right' : 'slide-in-prepare-left');
+
+        // Trigger reflow
+        void container.offsetWidth;
+
+        // 4. Slide in to active position
+        container.classList.remove('slide-in-prepare-right', 'slide-in-prepare-left');
+        container.classList.add('slide-active');
+
+        setTimeout(() => {
+          isAnimating = false;
+        }, 220);
+      }, 150);
+    }
+
     // Gesture Swipe
     function setupSwipeGestures() {
       const container = document.getElementById('schedule-content');
@@ -856,21 +928,23 @@
     }
 
     function handleSwipe() {
-      if (viewMode !== 'tabs' || searchQuery) return;
+      if (viewMode !== 'tabs' || searchQuery || isAnimating) return;
 
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
 
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 45) {
         const currentIndex = DAYS_ORDER.indexOf(activeDay);
         if (deltaX < 0) {
+          // Geser ke kiri -> Hari berikutnya (masuk dari kanan)
           if (currentIndex < DAYS_ORDER.length - 1) {
-            selectDay(DAYS_ORDER[currentIndex + 1]);
+            transitionToDay(DAYS_ORDER[currentIndex + 1], 'left');
             triggerFeedback();
           }
         } else {
+          // Geser ke kanan -> Hari sebelumnya (masuk dari kiri)
           if (currentIndex > 0) {
-            selectDay(DAYS_ORDER[currentIndex - 1]);
+            transitionToDay(DAYS_ORDER[currentIndex - 1], 'right');
             triggerFeedback();
           }
         }
@@ -883,13 +957,13 @@
           closeFocusMode();
           closeMenuDropdown();
         }
-        if (viewMode === 'tabs' && !searchQuery) {
+        if (viewMode === 'tabs' && !searchQuery && !isAnimating) {
           const currentIndex = DAYS_ORDER.indexOf(activeDay);
           if (e.key === 'ArrowRight' && currentIndex < DAYS_ORDER.length - 1) {
-            selectDay(DAYS_ORDER[currentIndex + 1]);
+            transitionToDay(DAYS_ORDER[currentIndex + 1], 'left');
             triggerFeedback();
           } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-            selectDay(DAYS_ORDER[currentIndex - 1]);
+            transitionToDay(DAYS_ORDER[currentIndex - 1], 'right');
             triggerFeedback();
           }
         }
@@ -1141,12 +1215,6 @@
       } else {
         return { label: 'Selesai Hari Ini', color: 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-500' };
       }
-    }
-
-    function selectDay(day) {
-      activeDay = day;
-      render();
-      scrollTabIntoView(day);
     }
 
     function setViewMode(mode) {
