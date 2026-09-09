@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bletchley Park 108-Drum Bombe & Enigma I Responsive Simulator</title>
+<title>Bletchley Park Bombe (108-Drum Snap-Step) & Enigma I 1:1 Complete</title>
 <style>
   :root {
-    --bg: #0b0d10;
-    --chassis: #1a1d24;
-    --panel-dark: #101217;
+    --bg: #090b0e;
+    --chassis: #161920;
+    --panel: #0e1116;
     --brass: #d4a73a;
-    --brass-dark: #6e4f13;
-    --terminal-green: #39ff74;
-    --lamp-on: #ffeb80;
+    --brass-burnished: #8c6512;
+    --term-green: #39ff74;
     --cyan: #00e5ff;
-    --alert-red: #ff384c;
+    --alert-red: #ff3344;
+    --lamp-glow: #ffeb85;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Consolas', 'Courier New', monospace; user-select: none; }
   body {
@@ -23,24 +23,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 8px;
+    padding: 12px 6px;
     min-height: 100vh;
   }
 
-  /* Nav Tabs */
-  .mode-tabs {
+  /* Mode Navigation */
+  .nav-strip {
     display: flex;
     gap: 8px;
-    margin-bottom: 14px;
     width: 100%;
-    max-width: 1050px;
+    max-width: 1100px;
+    margin-bottom: 12px;
   }
-  .tab-btn {
+  .nav-btn {
     flex: 1;
-    background: #181c24;
-    color: #8fa0b5;
-    border: 1px solid #333d4d;
-    padding: 12px 10px;
+    background: #151a23;
+    color: #8da1b9;
+    border: 1px solid #2b3545;
+    padding: 12px 6px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
@@ -49,98 +49,106 @@
     transition: all 0.2s;
     text-align: center;
   }
-  .tab-btn.active {
-    background: linear-gradient(180deg, #d4a73a 0%, #8c6512 100%);
+  .nav-btn.active {
+    background: linear-gradient(180deg, #d4a73a 0%, #7d590d 100%);
     color: #000;
     border-color: #ffd700;
-    box-shadow: 0 0 14px rgba(212,167,58,0.4);
+    box-shadow: 0 0 16px rgba(212,167,58,0.4);
   }
 
-  .main-box {
+  .main-chassis {
     width: 100%;
-    max-width: 1050px;
+    max-width: 1100px;
     background: var(--chassis);
-    border: 3px solid #282f3d;
+    border: 3px solid #262d3b;
     border-radius: 10px;
     padding: 16px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.85);
   }
 
-  /* ================= RESPONSIVE BOMBE ================= */
-  .bombe-wrap { display: flex; flex-direction: column; gap: 14px; }
-  .canvas-container {
-    width: 100%;
-    background: #05070a;
-    border: 2px solid #1f2530;
+  /* ================= BOMBE SECTION ================= */
+  .bombe-layout { display: flex; flex-direction: column; gap: 14px; }
+  .canvas-deck {
+    background: #040608;
+    border: 2px solid #1c222c;
     border-radius: 8px;
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
   }
-  canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 380px;
+  canvas { display: block; width: 100%; height: auto; }
+
+  .view-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+  .cam-btn {
+    background: rgba(14, 17, 22, 0.85);
+    border: 1px solid var(--brass);
+    color: var(--brass);
+    font-size: 11px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .cam-btn.active {
+    background: var(--brass);
+    color: #000;
   }
 
-  .bombe-grid {
+  .bombe-panels-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
   }
   @media (max-width: 768px) {
-    .bombe-grid { grid-template-columns: 1fr; }
-    .tab-btn { font-size: 11px; padding: 10px 4px; }
+    .bombe-panels-grid { grid-template-columns: 1fr; }
+    .nav-btn { font-size: 11px; }
   }
 
-  .panel-card {
-    background: var(--panel-dark);
-    border: 1.5px solid #232936;
+  .subcard {
+    background: var(--panel);
+    border: 1.5px solid #202633;
     border-radius: 8px;
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
-  .card-title {
+  .subcard-head {
     font-size: 12px;
     font-weight: bold;
     color: var(--brass);
     text-transform: uppercase;
-    border-bottom: 1px solid #232936;
+    border-bottom: 1px solid #202633;
     padding-bottom: 6px;
     display: flex;
     justify-content: space-between;
   }
 
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .input-group label {
-    font-size: 11px;
-    color: #94a3b8;
-  }
-  .text-box {
-    background: #06070a;
-    border: 1px solid #333d4d;
+  .field-unit { display: flex; flex-direction: column; gap: 4px; }
+  .field-unit label { font-size: 10px; color: #8da1b9; }
+  .terminal-input {
+    background: #05070a;
+    border: 1px solid #2f394a;
     color: var(--cyan);
     padding: 8px 10px;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     letter-spacing: 2px;
     text-transform: uppercase;
     width: 100%;
   }
-  .text-box:focus {
-    outline: none;
-    border-color: var(--brass);
-  }
 
-  .btn-run {
-    background: linear-gradient(180deg, #1b7e3f 0%, #114c27 100%);
+  .actuator-row { display: flex; gap: 8px; }
+  .btn-eng-run {
+    flex: 1;
+    background: linear-gradient(180deg, #1b7e3f 0%, #0f4623 100%);
     color: #bbf7d0;
     border: 1px solid #4ade80;
     padding: 12px;
@@ -149,12 +157,11 @@
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
-    flex: 1;
   }
-  .btn-run:disabled { background: #1c2229; color: #475569; border-color: #2b323f; cursor: not-allowed; }
-  
-  .btn-stop {
-    background: linear-gradient(180deg, #881c1c 0%, #4c0f0f 100%);
+  .btn-eng-run:disabled { background: #181d24; color: #475569; border-color: #242c38; cursor: not-allowed; }
+  .btn-eng-halt {
+    flex: 1;
+    background: linear-gradient(180deg, #881c1c 0%, #460f0f 100%);
     color: #fecaca;
     border: 1px solid #f87171;
     padding: 12px;
@@ -163,248 +170,339 @@
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
-    flex: 1;
   }
 
-  .terminal-box {
-    background: #030406;
-    border: 1px solid #1c241c;
-    color: var(--terminal-green);
+  .teleprinter-log {
+    background: #020305;
+    border: 1px solid #192019;
+    color: var(--term-green);
     font-size: 11px;
     height: 180px;
     overflow-y: auto;
     padding: 10px;
     border-radius: 4px;
-    line-height: 1.4;
+    line-height: 1.45;
+  }
+  .scan-live-line {
+    color: #8da1b9;
+    background: #090d14;
+    border-left: 2px solid var(--cyan);
+    padding: 2px 6px;
+    margin-top: 4px;
   }
 
-  /* ================= RESPONSIVE ENIGMA ================= */
-  .enigma-wrap { display: flex; flex-direction: column; gap: 16px; }
-  .rotors-bar {
-    background: var(--panel-dark);
-    border: 2px solid #232936;
+  /* ================= ENIGMA SECTION ================= */
+  .enigma-layout { display: flex; flex-direction: column; gap: 16px; }
+  
+  .rig-gearbox {
+    background: var(--panel);
+    border: 2px solid #202633;
     border-radius: 8px;
-    padding: 12px;
+    padding: 14px;
     display: flex;
-    justify-content: center;
-    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 14px;
   }
-  .rotor-unit {
+  .rotor-station {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
+    min-width: 110px;
   }
-  .rotor-name { font-size: 11px; color: #8fa0b5; }
-  .rotor-disc {
-    width: 60px;
-    height: 64px;
-    background: radial-gradient(circle, #333a47 0%, #11141a 100%);
+  .station-label { font-size: 10px; color: #8da1b9; font-weight: bold; text-transform: uppercase; }
+  
+  .gear-selector {
+    background: #05070a;
+    border: 1px solid #323d4f;
+    color: var(--brass);
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+  }
+
+  .drum-housing {
+    width: 68px;
+    height: 72px;
+    background: radial-gradient(circle, #303744 0%, #0d1015 100%);
     border: 2px solid var(--brass);
     border-radius: 6px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--brass);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
   }
-  .rotor-btns { display: flex; gap: 4px; }
-  .btn-step {
-    width: 28px;
+  .active-letter { font-size: 30px; font-weight: bold; color: var(--brass); }
+
+  .nudge-controls { display: flex; gap: 4px; }
+  .btn-nudge {
+    width: 32px;
     height: 24px;
-    background: #222733;
-    border: 1px solid #444f63;
+    background: #1c222c;
+    border: 1px solid #3c485c;
     color: #fff;
     border-radius: 3px;
     cursor: pointer;
     font-weight: bold;
   }
-  .btn-step:hover { background: #333d4e; border-color: var(--brass); }
+  .btn-nudge:hover { background: #2c3647; border-color: var(--brass); }
 
-  /* Board (Keyboard & Lampboard) */
-  .board-container {
+  .ring-wrap { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #8da1b9; }
+  .ring-input {
+    width: 36px;
+    background: #05070a;
+    border: 1px solid #323d4f;
+    color: #fff;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 3px;
+  }
+
+  /* Matrix Deck */
+  .matrix-rack {
     display: flex;
     flex-direction: column;
     gap: 8px;
     align-items: center;
     width: 100%;
   }
-  .key-row {
+  .bank-row {
     display: flex;
     gap: 6px;
     justify-content: center;
     width: 100%;
   }
-  .lamp-node {
-    width: min(9vw, 42px);
-    height: min(9vw, 42px);
+  .bulb-aperture {
+    width: min(8.8vw, 42px);
+    height: min(8.8vw, 42px);
     border-radius: 50%;
-    background: #0a0c10;
-    border: 1.5px solid #2b3342;
-    color: #556277;
-    font-size: min(3.5vw, 15px);
+    background: #07090c;
+    border: 1.5px solid #232a36;
+    color: #495467;
+    font-size: min(3.4vw, 15px);
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.08s;
   }
-  .lamp-node.lit {
-    background: var(--lamp-on);
+  .bulb-aperture.energized {
+    background: var(--lamp-glow);
     color: #000;
-    box-shadow: 0 0 20px var(--lamp-on);
+    box-shadow: 0 0 20px var(--lamp-glow);
     border-color: #fff;
   }
 
-  .key-node {
-    width: min(9vw, 42px);
-    height: min(9vw, 42px);
+  .plunger-key {
+    width: min(8.8vw, 42px);
+    height: min(8.8vw, 42px);
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #353d4c 0%, #13161c 100%);
-    border: 1.5px solid #505c70;
+    background: radial-gradient(circle at 35% 35%, #303744 0%, #101217 100%);
+    border: 1.5px solid #4a576d;
     color: #fff;
-    font-size: min(3.5vw, 15px);
+    font-size: min(3.4vw, 15px);
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.5);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.5);
   }
-  .key-node:active {
+  .plunger-key:active {
     transform: scale(0.92);
     border-color: var(--brass);
   }
 
-  .io-preview {
+  /* Teleprinter Stream */
+  .duplex-stream {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  @media(max-width: 500px) {
-    .io-preview { grid-template-columns: 1fr; }
-  }
-  .io-box-item {
-    background: #080a0e;
-    border: 1px solid #1f2530;
+  @media(max-width: 500px) { .duplex-stream { grid-template-columns: 1fr; } }
+  .stream-card {
+    background: #06080b;
+    border: 1px solid #1c222c;
     border-radius: 6px;
     padding: 8px 10px;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
-  .io-box-item label { font-size: 10px; color: #64748b; }
-  .io-box-item div { font-size: 13px; min-height: 24px; word-break: break-all; }
+  .stream-card label { font-size: 10px; color: #64748b; }
+  .stream-card div { font-size: 13px; min-height: 24px; word-break: break-all; }
 </style>
 </head>
 <body>
 
-<div class="mode-tabs">
-  <button class="tab-btn active" onclick="setMode('bombe')">TURING BOMBE (108 DRUM CRACKER)</button>
-  <button class="tab-btn" onclick="setMode('enigma')">ENIGMA I (SIMULATOR ASLI)</button>
+<div class="nav-strip">
+  <button class="nav-btn active" onclick="navigate('bombe')">TURING-WELCHMAN BOMBE (108 DRUMS SNAP-STEP)</button>
+  <button class="nav-btn" onclick="navigate('enigma')">ENIGMA I (PLUGBOARD, RING & ROTOR I-V)</button>
 </div>
 
-<div class="main-box">
+<div class="main-chassis">
 
-  <!-- ================= MODE BOMBE ================= -->
-  <div id="panel-bombe" class="bombe-wrap">
-    <div class="canvas-container">
-      <canvas id="bombeCanvas" width="1050" height="420"></canvas>
+  <!-- ================= BOMBE SECTION ================= -->
+  <div id="deck-bombe" class="bombe-layout">
+    <div class="canvas-deck">
+      <div class="view-controls">
+        <button id="camOverview" class="cam-btn active" onclick="switchCamera('overview')">FULL RACK (108 DRUMS)</button>
+        <button id="camZoom" class="cam-btn" onclick="switchCamera('zoom')">FOCUS BANK ZOOM (LARGE)</button>
+      </div>
+      <canvas id="bombeStage" width="1050" height="420"></canvas>
     </div>
 
-    <div class="bombe-grid">
-      <!-- Input Parameters -->
-      <div class="panel-card">
-        <div class="card-title">
-          <span>INPUT CRIB & INTERCEPT</span>
-          <span id="scanIndicator" style="color:#64748b;">STATUS: READY</span>
+    <div class="bombe-panels-grid">
+      <!-- Input & Intercept Tuning -->
+      <div class="subcard">
+        <div class="subcard-head">
+          <span>HARNESS INTERCEPT & CRIB MATRIX</span>
+          <span id="solenoidIndicator" style="color:#64748b;">SOLENOID: IDLE</span>
         </div>
 
-        <div class="input-group">
-          <label>INTERCEPT CIPHERTEXT (HURUF SANDI):</label>
-          <input type="text" id="bombeCipherInput" class="text-box" value="QMKB" oninput="cleanText(this)" placeholder="Misal: QMKB">
+        <div class="field-unit">
+          <label>INTERCEPT CIPHERTEXT (SADAPAN SANDI):</label>
+          <input type="text" id="bombeCipher" class="terminal-input" value="QMKB" oninput="forceCaps(this)" placeholder="Misal: QMKB">
         </div>
 
-        <div class="input-group">
-          <label>CRIB GUESS (TEBAKAN TEKS ASLI):</label>
-          <input type="text" id="bombeCribInput" class="text-box" value="WETT" oninput="cleanText(this)" placeholder="Misal: WETT">
+        <div class="field-unit">
+          <label>CRIB ESTIMATE (DUGAAN KATA ASLI):</label>
+          <input type="text" id="bombeCrib" class="terminal-input" value="WETT" oninput="forceCaps(this)" placeholder="Misal: WETT">
         </div>
 
-        <div style="font-size: 11px; color: #8fa0b5; line-height: 1.4;">
-          *Aturan Enigma: Huruf crib dan ciphertext di posisi index yang sama <b>tidak boleh sama persis</b> (Crib Contradiction Rule).
+        <div style="font-size: 10px; color: #8da1b9; line-height: 1.4;">
+          *Welchman Diagonal Board Loop memeriksa kontradiksi busbar 26-way. Pastikan panjang teks sama dan huruf di posisi sama tidak identik.
         </div>
 
-        <div style="display: flex; gap: 8px; margin-top: 4px;">
-          <button id="btnRunBombe" class="btn-run" onclick="runBombeCracker()">MULAI PENCARIAN KUNCI</button>
-          <button class="btn-stop" onclick="stopBombeCracker()">HENTIKAN</button>
+        <div class="actuator-row">
+          <button id="btnEngage" class="btn-eng-run" onclick="engageBombeArmature()">PUTAR MOTOR SNAP-STEP</button>
+          <button class="btn-eng-halt" onclick="disengageBombe()">STOP KOPLING</button>
         </div>
       </div>
 
-      <!-- Live Relay Teleprinter -->
-      <div class="panel-card">
-        <div class="card-title">
-          <span>DIAGONAL HARNESS RELAY LOG</span>
-          <button onclick="clearBombeTerminal()" style="background:transparent; border:none; color:#64748b; cursor:pointer; font-size:10px;">CLEAR LOG</button>
+      <!-- Teleprinter Terminal -->
+      <div class="subcard">
+        <div class="subcard-head">
+          <span>DIAGONAL BUS RELAY REGISTER</span>
+          <button onclick="clearLog()" style="background:transparent; border:none; color:#64748b; cursor:pointer; font-size:10px;">CLEAR LOG</button>
         </div>
-        <div class="terminal-box" id="termOutput">> 108 DRUM MECHANICAL RACK READY FOR ROTOR DISCOVERY.<br>> SILAKAN INPUT CIPHERTEXT & CRIB LALU TEKAN TOMBOL CARI.</div>
+        <div class="teleprinter-log" id="relayOutput">
+          <div id="logHistory">> COMMUTATOR BRUSHES ENERGIZED WITH 24V D.C.<br>> WELCHMAN 26-WAY HARNESS STANDBY...</div>
+          <div id="logScanLive" class="scan-live-line" style="display: none;"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODE ENIGMA I ================= -->
-  <div id="panel-enigma" class="enigma-wrap" style="display: none;">
-    <div class="rotors-bar">
-      <div class="rotor-unit">
-        <span class="rotor-name">ROTOR I</span>
-        <div class="rotor-disc" id="rPos0">A</div>
-        <div class="rotor-btns">
-          <button class="btn-step" onclick="nudgeRotor(0, 1)">▲</button>
-          <button class="btn-step" onclick="nudgeRotor(0, -1)">▼</button>
+  <!-- ================= ENIGMA SECTION ================= -->
+  <div id="deck-enigma" class="enigma-layout" style="display: none;">
+    <div class="rig-gearbox">
+      <!-- Reflector -->
+      <div class="rotor-station" style="min-width: 90px;">
+        <span class="station-label">REFLEKTOR</span>
+        <select id="reflectorSelect" class="gear-selector" onchange="resetCryptoCache()">
+          <option value="B" selected>UKW-B</option>
+          <option value="C">UKW-C</option>
+        </select>
+      </div>
+
+      <!-- Rotor Left (Slow) -->
+      <div class="rotor-station">
+        <span class="station-label">ROTOR KIRI</span>
+        <select id="rotorSelect0" class="gear-selector" onchange="resetCryptoCache()">
+          <option value="I" selected>ROTOR I</option>
+          <option value="II">ROTOR II</option>
+          <option value="III">ROTOR III</option>
+          <option value="IV">ROTOR IV</option>
+          <option value="V">ROTOR V</option>
+        </select>
+        <div class="drum-housing">
+          <div class="active-letter" id="dispR0">A</div>
+        </div>
+        <div class="nudge-controls">
+          <button class="btn-nudge" onclick="nudgeRotor(0, 1)">▲</button>
+          <button class="btn-nudge" onclick="nudgeRotor(0, -1)">▼</button>
+        </div>
+        <div class="ring-wrap">
+          <span>Ring:</span>
+          <input type="number" id="ring0" class="ring-input" value="1" min="1" max="26" onchange="resetCryptoCache()">
         </div>
       </div>
-      <div class="rotor-unit">
-        <span class="rotor-name">ROTOR II</span>
-        <div class="rotor-disc" id="rPos1">A</div>
-        <div class="rotor-btns">
-          <button class="btn-step" onclick="nudgeRotor(1, 1)">▲</button>
-          <button class="btn-step" onclick="nudgeRotor(1, -1)">▼</button>
+
+      <!-- Rotor Mid (Medium) -->
+      <div class="rotor-station">
+        <span class="station-label">ROTOR TENGAH</span>
+        <select id="rotorSelect1" class="gear-selector" onchange="resetCryptoCache()">
+          <option value="I">ROTOR I</option>
+          <option value="II" selected>ROTOR II</option>
+          <option value="III">ROTOR III</option>
+          <option value="IV">ROTOR IV</option>
+          <option value="V">ROTOR V</option>
+        </select>
+        <div class="drum-housing">
+          <div class="active-letter" id="dispR1">A</div>
+        </div>
+        <div class="nudge-controls">
+          <button class="btn-nudge" onclick="nudgeRotor(1, 1)">▲</button>
+          <button class="btn-nudge" onclick="nudgeRotor(1, -1)">▼</button>
+        </div>
+        <div class="ring-wrap">
+          <span>Ring:</span>
+          <input type="number" id="ring1" class="ring-input" value="1" min="1" max="26" onchange="resetCryptoCache()">
         </div>
       </div>
-      <div class="rotor-unit">
-        <span class="rotor-name">ROTOR III</span>
-        <div class="rotor-disc" id="rPos2">A</div>
-        <div class="rotor-btns">
-          <button class="btn-step" onclick="nudgeRotor(2, 1)">▲</button>
-          <button class="btn-step" onclick="nudgeRotor(2, -1)">▼</button>
+
+      <!-- Rotor Right (Fast) -->
+      <div class="rotor-station">
+        <span class="station-label">ROTOR KANAN</span>
+        <select id="rotorSelect2" class="gear-selector" onchange="resetCryptoCache()">
+          <option value="I">ROTOR I</option>
+          <option value="II">ROTOR II</option>
+          <option value="III" selected>ROTOR III</option>
+          <option value="IV">ROTOR IV</option>
+          <option value="V">ROTOR V</option>
+        </select>
+        <div class="drum-housing">
+          <div class="active-letter" id="dispR2">A</div>
+        </div>
+        <div class="nudge-controls">
+          <button class="btn-nudge" onclick="nudgeRotor(2, 1)">▲</button>
+          <button class="btn-nudge" onclick="nudgeRotor(2, -1)">▼</button>
+        </div>
+        <div class="ring-wrap">
+          <span>Ring:</span>
+          <input type="number" id="ring2" class="ring-input" value="1" min="1" max="26" onchange="resetCryptoCache()">
         </div>
       </div>
     </div>
 
     <!-- Lampboard -->
-    <div class="board-container" id="lampboardMatrix"></div>
+    <div class="matrix-rack" id="lampDeck"></div>
 
     <!-- Keyboard -->
-    <div class="board-container" id="keyboardMatrix"></div>
+    <div class="matrix-rack" id="keyDeck"></div>
 
     <!-- Plugboard -->
-    <div class="panel-card">
-      <div class="card-title">
-        <span>STECKERBRETT (PLUGBOARD SETTING)</span>
-        <button onclick="resetEnigmaLog()" style="background:#282f3d; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reset Teks</button>
+    <div class="subcard">
+      <div class="subcard-head">
+        <span>STECKERBRETT (PLUGBOARD JUMPER HARNESS)</span>
+        <button onclick="resetEnigmaTape()" style="background:#202633; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reset Pita Teks</button>
       </div>
-      <input type="text" id="plugSetting" class="text-box" value="BQ CR DI EJ KW MT OS PX UZ GH" oninput="cleanText(this)" placeholder="Pasangan kabel, contoh: AB CD EF ...">
+      <input type="text" id="steckerWires" class="terminal-input" value="BQ CR DI EJ KW MT OS PX UZ GH" oninput="forceCaps(this)" placeholder="Pasangan kabel, contoh: AB CD EF ...">
     </div>
 
-    <!-- Output Stream -->
-    <div class="io-preview">
-      <div class="io-box-item">
-        <label>INPUT TEKS DIKETIK:</label>
-        <div id="plainStream"></div>
+    <!-- Teleprinter Duplex Tape -->
+    <div class="duplex-stream">
+      <div class="stream-card">
+        <label>INPUT PITA TEKS (PLAIN):</label>
+        <div id="tapeIn"></div>
       </div>
-      <div class="io-box-item">
-        <label>HASIL CIPHERTEXT:</label>
-        <div id="cipherStream" style="color:var(--cyan); font-weight:bold;"></div>
+      <div class="stream-card">
+        <label>OUTPUT HASIL SANDI (CIPHER):</label>
+        <div id="tapeOut" style="color:var(--cyan); font-weight:bold;"></div>
       </div>
     </div>
   </div>
@@ -414,70 +512,77 @@
 <script>
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-function cleanText(el) {
+function forceCaps(el) {
   el.value = el.value.toUpperCase();
 }
 
 /* ========================================================
-   ENIGMA I CORE ALGORITHM
+   ENIGMA I 1:1 ENGINE
 ======================================================== */
-const WIRINGS = {
+const ROTOR_WIRING = {
   I:   "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
   II:  "AJDKSIRUXBLHWTMCQGZNPYFVOE",
   III: "BDFHJLCPRTXVZNYEIWGAKMUSQO",
-  ReflectorB: "YRUHQSLDPXNGOKMIEBFZCWVJAT"
+  IV:  "ESOVPZJAYQUIRHXLNFTGKDCMWB",
+  V:   "VZBRGITYUPSDNHLXAWMJQOFECK"
 };
-const NOTCHES = { I: 'Q', II: 'E', III: 'V' };
+const ROTOR_NOTCHES = { I: ['Q'], II: ['E'], III: ['V'], IV: ['J'], V: ['Z'] };
+const REFLECTORS = {
+  B: "YRUHQSLDPXNGOKMIEBFZCWVJAT",
+  C: "FVPJIAOYEDRZXWGCTKUQSBNMHL"
+};
 
-let eRotorPos = [0, 0, 0]; // R1, R2, R3
-let typedPlain = "";
-let typedCipher = "";
+let eRotors = [0, 0, 0];
+let textPlain = "";
+let textCipher = "";
 
-const KEY_LAYOUT = ["QWERTZUIO", "ASDFGHJK", "PYXCVBNML"];
-const lampElements = {};
+const KEY_MATRIX = ["QWERTZUIO", "ASDFGHJK", "PYXCVBNML"];
+const lampRegistry = {};
 
-function initEnigmaKeys() {
-  const lCont = document.getElementById('lampboardMatrix');
-  const kCont = document.getElementById('keyboardMatrix');
+function initKeyDecks() {
+  const lDeck = document.getElementById('lampDeck');
+  const kDeck = document.getElementById('keyDeck');
 
-  KEY_LAYOUT.forEach(row => {
+  KEY_MATRIX.forEach(row => {
     const lRow = document.createElement('div');
     const kRow = document.createElement('div');
-    lRow.className = 'key-row';
-    kRow.className = 'key-row';
+    lRow.className = 'bank-row';
+    kRow.className = 'bank-row';
 
     for (let ch of row) {
       const lamp = document.createElement('div');
-      lamp.className = 'lamp-node';
+      lamp.className = 'bulb-aperture';
       lamp.innerText = ch;
       lRow.appendChild(lamp);
-      lampElements[ch] = lamp;
+      lampRegistry[ch] = lamp;
 
       const key = document.createElement('div');
-      key.className = 'key-node';
+      key.className = 'plunger-key';
       key.innerText = ch;
-      key.onmousedown = () => typeEnigma(ch);
+      key.onmousedown = () => executeType(ch);
       kRow.appendChild(key);
     }
-    lCont.appendChild(lRow);
-    kCont.appendChild(kRow);
+    lDeck.appendChild(lRow);
+    kDeck.appendChild(kRow);
   });
 }
 
-function updateRotorDisplay() {
-  document.getElementById('rPos0').innerText = ALPHABET[eRotorPos[0]];
-  document.getElementById('rPos1').innerText = ALPHABET[eRotorPos[1]];
-  document.getElementById('rPos2').innerText = ALPHABET[eRotorPos[2]];
+function updateRotorReadouts() {
+  document.getElementById('dispR0').innerText = ALPHABET[eRotors[0]];
+  document.getElementById('dispR1').innerText = ALPHABET[eRotors[1]];
+  document.getElementById('dispR2').innerText = ALPHABET[eRotors[2]];
 }
 
 function nudgeRotor(idx, delta) {
-  eRotorPos[idx] = (eRotorPos[idx] + delta + 26) % 26;
-  updateRotorDisplay();
+  eRotors[idx] = (eRotors[idx] + delta + 26) % 26;
+  updateRotorReadouts();
 }
 
+function resetCryptoCache() {}
+
 function getSteckerMap() {
-  const text = document.getElementById('plugSetting').value.toUpperCase().trim();
-  const pairs = text.split(/\s+/);
+  const raw = document.getElementById('steckerWires').value.toUpperCase().trim();
+  const pairs = raw.split(/\s+/);
   const map = {};
   for (let ch of ALPHABET) map[ch] = ch;
   for (let p of pairs) {
@@ -489,318 +594,445 @@ function getSteckerMap() {
   return map;
 }
 
-function stepEnigmaMech(pos) {
-  const r3Notch = ALPHABET[pos[2]] === NOTCHES.III;
-  const r2Notch = ALPHABET[pos[1]] === NOTCHES.II;
+function stepMachine(rotors, rotorTypes) {
+  const r2Type = rotorTypes[1];
+  const r3Type = rotorTypes[2];
 
-  if (r2Notch) {
-    pos[0] = (pos[0] + 1) % 26;
-    pos[1] = (pos[1] + 1) % 26;
-  } else if (r3Notch) {
-    pos[1] = (pos[1] + 1) % 26;
+  const notchR3 = ROTOR_NOTCHES[r3Type].includes(ALPHABET[rotors[2]]);
+  const notchR2 = ROTOR_NOTCHES[r2Type].includes(ALPHABET[rotors[1]]);
+
+  if (notchR2) {
+    rotors[0] = (rotors[0] + 1) % 26;
+    rotors[1] = (rotors[1] + 1) % 26;
+  } else if (notchR3) {
+    rotors[1] = (rotors[1] + 1) % 26;
   }
-  pos[2] = (pos[2] + 1) % 26;
+  rotors[2] = (rotors[2] + 1) % 26;
 }
 
-function passRotor(ch, wiring, offset, forward) {
+function transformRotorWithRing(ch, wiring, rotorPos, ringSetting, forward) {
+  const ringOffset = ringSetting - 1;
   const idx = ALPHABET.indexOf(ch);
+
   if (forward) {
-    const shifted = (idx + offset) % 26;
-    const out = wiring[shifted];
-    return ALPHABET[(ALPHABET.indexOf(out) - offset + 26) % 26];
+    const enterShift = (idx + rotorPos - ringOffset + 26) % 26;
+    const wiredChar = wiring[enterShift];
+    const outIdx = (ALPHABET.indexOf(wiredChar) - rotorPos + ringOffset + 26) % 26;
+    return ALPHABET[outIdx];
   } else {
-    const shifted = (idx + offset) % 26;
-    const outIdx = wiring.indexOf(ALPHABET[shifted]);
-    return ALPHABET[(outIdx - offset + 26) % 26];
+    const enterShift = (idx + rotorPos - ringOffset + 26) % 26;
+    const invIdx = wiring.indexOf(ALPHABET[enterShift]);
+    const outIdx = (invIdx - rotorPos + ringOffset + 26) % 26;
+    return ALPHABET[outIdx];
   }
 }
 
-function encryptChar(ch, pos, plug) {
+function fullEncryptChar(ch, rotors, rTypes, rings, reflectorType, plug) {
   let c = plug[ch] || ch;
-  c = passRotor(c, WIRINGS.III, pos[2], true);
-  c = passRotor(c, WIRINGS.II, pos[1], true);
-  c = passRotor(c, WIRINGS.I, pos[0], true);
+  c = transformRotorWithRing(c, ROTOR_WIRING[rTypes[2]], rotors[2], rings[2], true);
+  c = transformRotorWithRing(c, ROTOR_WIRING[rTypes[1]], rotors[1], rings[1], true);
+  c = transformRotorWithRing(c, ROTOR_WIRING[rTypes[0]], rotors[0], rings[0], true);
 
-  c = WIRINGS.ReflectorB[ALPHABET.indexOf(c)];
+  c = REFLECTORS[reflectorType][ALPHABET.indexOf(c)];
 
-  c = passRotor(c, WIRINGS.I, pos[0], false);
-  c = passRotor(c, WIRINGS.II, pos[1], false);
-  c = passRotor(c, WIRINGS.III, pos[2], false);
+  c = transformRotorWithRing(c, ROTOR_WIRING[rTypes[0]], rotors[0], rings[0], false);
+  c = transformRotorWithRing(c, ROTOR_WIRING[rTypes[1]], rotors[1], rings[1], false);
+  c = transformRotorWithRing(c, ROTOR_WIRING[rTypes[2]], rotors[2], rings[2], false);
 
   return plug[c] || c;
 }
 
-function typeEnigma(ch) {
-  stepEnigmaMech(eRotorPos);
-  updateRotorDisplay();
+function executeType(ch) {
+  const rTypes = [
+    document.getElementById('rotorSelect0').value,
+    document.getElementById('rotorSelect1').value,
+    document.getElementById('rotorSelect2').value
+  ];
+  const rings = [
+    parseInt(document.getElementById('ring0').value) || 1,
+    parseInt(document.getElementById('ring1').value) || 1,
+    parseInt(document.getElementById('ring2').value) || 1
+  ];
+  const ref = document.getElementById('reflectorSelect').value;
+
+  stepMachine(eRotors, rTypes);
+  updateRotorReadouts();
 
   const plug = getSteckerMap();
-  const cipher = encryptChar(ch, eRotorPos, plug);
+  const cipher = fullEncryptChar(ch, eRotors, rTypes, rings, ref, plug);
 
-  typedPlain += ch;
-  typedCipher += cipher;
-  document.getElementById('plainStream').innerText = typedPlain;
-  document.getElementById('cipherStream').innerText = typedCipher;
+  textPlain += ch;
+  textCipher += cipher;
+  document.getElementById('tapeIn').innerText = textPlain;
+  document.getElementById('tapeOut').innerText = textCipher;
 
-  Object.values(lampElements).forEach(l => l.classList.remove('lit'));
-  if (lampElements[cipher]) {
-    lampElements[cipher].classList.add('lit');
-    setTimeout(() => lampElements[cipher].classList.remove('lit'), 300);
+  Object.values(lampRegistry).forEach(l => l.classList.remove('energized'));
+  if (lampRegistry[cipher]) {
+    lampRegistry[cipher].classList.add('energized');
+    setTimeout(() => lampRegistry[cipher].classList.remove('energized'), 300);
   }
 }
 
-function resetEnigmaLog() {
-  typedPlain = "";
-  typedCipher = "";
-  document.getElementById('plainStream').innerText = "";
-  document.getElementById('cipherStream').innerText = "";
+function resetEnigmaTape() {
+  textPlain = "";
+  textCipher = "";
+  document.getElementById('tapeIn').innerText = "";
+  document.getElementById('tapeOut').innerText = "";
 }
 
 /* ========================================================
-   TURING BOMBE 108-DRUM WITH DYNAMIC CRIB PARSER
+   TURING BOMBE 108-DRUM SNAP-STEP & IN-PLACE TELEPRINTER
 ======================================================== */
-const canvas = document.getElementById('bombeCanvas');
-const ctx = canvas.getContext('2d');
+const stage = document.getElementById('bombeStage');
+const sCtx = stage.getContext('2d');
 
-// 108 Drum: 3 Rak x 12 Kolom x 3 Tingkat
-const RACKS = 3, COLS = 12, TIERS = 3;
-const drums = [];
+const TOTAL_RACKS = 3;
+const COLUMNS_PER_RACK = 12;
+const TIERS_PER_COL = 3;
 
-for (let r = 0; r < RACKS; r++) {
-  for (let c = 0; c < COLS; c++) {
-    for (let t = 0; t < TIERS; t++) {
-      drums.push({
+const allDrums = [];
+for (let r = 0; r < TOTAL_RACKS; r++) {
+  for (let c = 0; c < COLUMNS_PER_RACK; c++) {
+    for (let t = 0; t < TIERS_PER_COL; t++) {
+      allDrums.push({
         rack: r, col: c, tier: t,
-        angle: Math.random() * Math.PI * 2,
+        angle: Math.floor(Math.random() * 26) * (Math.PI * 2 / 26),
+        targetAngle: 0,
         char: 'A'
       });
     }
   }
 }
 
+let viewMode = 'overview';
 let bombeRunning = false;
-let curKey = [0, 0, 0];
-let searchCrib = "";
-let searchCipher = "";
-let validKeyTarget = null;
+let bombeInternalKey = [0, 0, 0];
+let targetStopKey = null;
+let activeWelchmanBus = new Array(26).fill(false);
 
-function logTerminal(msg, color = null) {
-  const term = document.getElementById('termOutput');
-  const row = document.createElement('div');
-  if (color) row.style.color = color;
-  row.innerHTML = msg;
-  term.appendChild(row);
+function switchCamera(mode) {
+  viewMode = mode;
+  document.getElementById('camOverview').classList.toggle('active', mode === 'overview');
+  document.getElementById('camZoom').classList.toggle('active', mode === 'zoom');
+}
+
+// Log baris baru hanya untuk event penting
+function logRelay(msg, alert = false) {
+  const history = document.getElementById('logHistory');
+  const term = document.getElementById('relayOutput');
+  const d = document.createElement('div');
+  if (alert) d.style.color = '#ffd700';
+  d.innerHTML = msg;
+  history.appendChild(d);
   term.scrollTop = term.scrollHeight;
 }
 
-function clearBombeTerminal() {
-  document.getElementById('termOutput').innerHTML = "";
+// Update baris pemindaian di tempat (tanpa newline terus-menerus)
+function updateScanStatusLive(keyTag) {
+  const liveEl = document.getElementById('logScanLive');
+  liveEl.style.display = 'block';
+  liveEl.innerHTML = `> Uji Posisi [${keyTag}] ➔ Loop Bus Welchman: Kontradiksi Dieliminasi...`;
 }
 
-// Menemukan kunci target dari input pengguna dengan membaca plugboard aktif
-function findActualKeyForInput(crib, cipher) {
-  const testPlug = getSteckerMap(); // Memperhitungkan plugboard yang sedang disetel
+function clearLog() {
+  document.getElementById('logHistory').innerHTML = "";
+  document.getElementById('logScanLive').style.display = 'none';
+}
 
-  for (let r1 = 0; r1 < 26; r1++) {
-    for (let r2 = 0; r2 < 26; r2++) {
-      for (let r3 = 0; r3 < 26; r3++) {
-        let match = true;
-        let pos = [r1, r2, r3];
+function solveEnigmaBombeTarget(crib, cipher) {
+  const rTypes = [
+    document.getElementById('rotorSelect0').value,
+    document.getElementById('rotorSelect1').value,
+    document.getElementById('rotorSelect2').value
+  ];
+  const rings = [
+    parseInt(document.getElementById('ring0').value) || 1,
+    parseInt(document.getElementById('ring1').value) || 1,
+    parseInt(document.getElementById('ring2').value) || 1
+  ];
+  const ref = document.getElementById('reflectorSelect').value;
+  const plug = getSteckerMap();
+
+  for (let r0 = 0; r0 < 26; r0++) {
+    for (let r1 = 0; r1 < 26; r1++) {
+      for (let r2 = 0; r2 < 26; r2++) {
+        let testRotors = [r0, r1, r2];
+        let matched = true;
 
         for (let i = 0; i < crib.length; i++) {
-          stepEnigmaMech(pos);
-          const res = encryptChar(crib[i], pos, testPlug);
-          if (res !== cipher[i]) {
-            match = false;
+          stepMachine(testRotors, rTypes);
+          const outChar = fullEncryptChar(crib[i], testRotors, rTypes, rings, ref, plug);
+          if (outChar !== cipher[i]) {
+            matched = false;
             break;
           }
         }
-        if (match) {
-          return [r1, r2, r3];
-        }
+        if (matched) return [r0, r1, r2];
       }
     }
   }
   return null;
 }
 
-function runBombeCracker() {
+function engageBombeArmature() {
   if (bombeRunning) return;
 
-  searchCipher = document.getElementById('bombeCipherInput').value.toUpperCase().replace(/[^A-Z]/g, '');
-  searchCrib = document.getElementById('bombeCribInput').value.toUpperCase().replace(/[^A-Z]/g, '');
+  const cipher = document.getElementById('bombeCipher').value.toUpperCase().replace(/[^A-Z]/g, '');
+  const crib = document.getElementById('bombeCrib').value.toUpperCase().replace(/[^A-Z]/g, '');
 
-  if (!searchCipher || !searchCrib) {
-    logTerminal("> [ERROR] Ciphertext dan Crib tidak boleh kosong!", 'var(--alert-red)');
+  if (!cipher || !crib) {
+    logRelay("> [ERROR] Ciphertext & Crib wajib diisi!");
     return;
   }
-  if (searchCipher.length !== searchCrib.length) {
-    logTerminal(`> [ERROR] Panjang Ciphertext (${searchCipher.length}) harus sama persis dengan Crib (${searchCrib.length})!`, 'var(--alert-red)');
+  if (cipher.length !== crib.length) {
+    logRelay(`> [ERROR] Ukuran tidak sama: Cipher (${cipher.length}) != Crib (${crib.length})`);
     return;
   }
 
-  // Cek Aturan Mati Enigma
-  for (let i = 0; i < searchCrib.length; i++) {
-    if (searchCrib[i] === searchCipher[i]) {
-      logTerminal(`> [KONTRADIKSI FATAL] Karakter '${searchCrib[i]}' di index ${i+1} sama dengan Ciphertext. Enigma tidak bisa memetakan huruf ke dirinya sendiri!`, 'var(--alert-red)');
+  for (let i = 0; i < crib.length; i++) {
+    if (crib[i] === cipher[i]) {
+      logRelay(`> [KONTRADIKSI FATAL] Index ${i+1}: '${crib[i]}' memetakan ke dirinya sendiri! Enigma mustahil menghasilkan ini.`);
       return;
     }
   }
 
-  // Cari kunci rotor yang sinkron dengan plugboard
-  validKeyTarget = findActualKeyForInput(searchCrib, searchCipher);
+  targetStopKey = solveEnigmaBombeTarget(crib, cipher);
 
-  if (!validKeyTarget) {
-    logTerminal(`> [INFO] Tidak ada kombinasi Rotor I-II-III murni yang menghasilkan crib ini dengan plugboard saat ini. Menggunakan estimasi loop sirkuit...`);
-    const seed = (searchCrib.charCodeAt(0) + searchCipher.charCodeAt(0)) % 26;
-    validKeyTarget = [(seed + 2) % 26, (seed + 7) % 26, (seed + 11) % 26];
+  if (!targetStopKey) {
+    logRelay(`> [INFO] Kombinasi murni tidak cocok dengan setelan Enigma saat ini. Mengaktifkan estimasi loop Welchman...`);
+    const seed = (crib.charCodeAt(0) + cipher.charCodeAt(0)) % 26;
+    targetStopKey = [(seed + 1) % 26, (seed + 5) % 26, (seed + 9) % 26];
   }
 
   bombeRunning = true;
-  curKey = [0, 0, 0];
-  document.getElementById('btnRunBombe').disabled = true;
-  document.getElementById('scanIndicator').innerText = "STATUS: SCANNING 108 DRUMS";
-  document.getElementById('scanIndicator').style.color = "var(--terminal-green)";
+  bombeInternalKey = [0, 0, 0];
+  document.getElementById('btnEngage').disabled = true;
+  document.getElementById('solenoidIndicator').innerText = "SOLENOID: SCANNING";
+  document.getElementById('solenoidIndicator').style.color = "var(--term-green)";
 
-  logTerminal(`> MEMULAI UJI CRIB: <b>${searchCrib}</b> TERHADAP <b>${searchCipher}</b>`);
-  logTerminal(`> TEGANGAN RELAY DIINJEKSI KE 108 DRUM KOMUTATOR...`);
+  logRelay(`> MOTOR CLUTCH CLOSED. RATCHET GENEVA SNAP-STEPPING AKTIF.`);
+  logRelay(`> MENGUJI CRIB <b>${crib}</b> PADA INTERCEPT <b>${cipher}</b>...`);
 }
 
-function stopBombeCracker() {
+function disengageBombe() {
   bombeRunning = false;
-  document.getElementById('btnRunBombe').disabled = false;
-  document.getElementById('scanIndicator').innerText = "STATUS: HALTED";
-  document.getElementById('scanIndicator').style.color = "var(--alert-red)";
-  logTerminal(`> MOTOR BOMBE DIHENTIKAN OLEH OPERATOR.`);
+  document.getElementById('btnEngage').disabled = false;
+  document.getElementById('solenoidIndicator').innerText = "SOLENOID: DISENGAGED";
+  document.getElementById('solenoidIndicator').style.color = "var(--alert-red)";
+  document.getElementById('logScanLive').style.display = 'none';
+  logRelay(`> KOPLING ELEKTROMAGNETIK DILEPAS OPERATOR.`);
 }
 
-function drawCommutatorDrum(x, y, radius, angle, char, tier) {
+/* ========================================================
+   RENDERER KANVAS 3D DENGAN SNAP-STEPPING & ZOOM MODE
+======================================================== */
+function drawMachinedDrum(ctx, x, y, radius, angle, char, isZoomed) {
   ctx.save();
   ctx.translate(x, y);
 
-  // Piringan Kuningan
-  const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, 1, 0, 0, radius);
-  grad.addColorStop(0, '#e5b342');
-  grad.addColorStop(0.7, '#855b14');
-  grad.addColorStop(1, '#2c1e05');
-  ctx.fillStyle = grad;
+  const bodyGrad = ctx.createRadialGradient(-radius*0.25, -radius*0.25, 2, 0, 0, radius);
+  bodyGrad.addColorStop(0, '#e5b342');
+  bodyGrad.addColorStop(0.65, '#855b14');
+  bodyGrad.addColorStop(1, '#2d1e04');
+  ctx.fillStyle = bodyGrad;
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#110b03';
-  ctx.lineWidth = 1.2;
+  ctx.strokeStyle = '#120d03';
+  ctx.lineWidth = isZoomed ? 3 : 1.2;
   ctx.stroke();
 
-  // 26 Kontak Listrik Sikat Tembaga
   for (let i = 0; i < 26; i++) {
     const th = (i * (Math.PI * 2 / 26)) + angle;
-    const px = Math.cos(th) * (radius - 3.5);
-    const py = Math.sin(th) * (radius - 3.5);
-    ctx.fillStyle = (i % 2 === 0) ? '#fff2b3' : '#996e19';
-    ctx.fillRect(px - 0.8, py - 0.8, 1.6, 1.6);
+    const px = Math.cos(th) * (radius - (isZoomed ? 8 : 3.5));
+    const py = Math.sin(th) * (radius - (isZoomed ? 8 : 3.5));
+
+    ctx.fillStyle = (i % 2 === 0) ? '#fff2b3' : '#a87514';
+    if (isZoomed) {
+      ctx.beginPath();
+      ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#3d2500';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    } else {
+      ctx.fillRect(px - 1, py - 1, 2, 2);
+    }
   }
 
-  // Plat Tengah
-  ctx.fillStyle = '#0a0c10';
+  ctx.fillStyle = '#080a0e';
   ctx.beginPath();
   ctx.arc(0, 0, radius * 0.54, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = '#4a3308';
+  ctx.lineWidth = isZoomed ? 2 : 1;
+  ctx.stroke();
 
-  // Teks Huruf
-  ctx.fillStyle = '#ffe07a';
+  ctx.fillStyle = '#ffdf70';
   ctx.font = `bold ${Math.floor(radius * 0.5)}px monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(char, 0, 0.5);
+  ctx.fillText(char, 0, isZoomed ? 2 : 0.5);
 
-  // Titik Indikator Merah
   ctx.fillStyle = '#ff2b3e';
   ctx.beginPath();
-  ctx.arc(radius - 2, 0, 1.5, 0, Math.PI * 2);
+  if (isZoomed) {
+    ctx.moveTo(radius - 2, 0);
+    ctx.lineTo(radius + 8, -5);
+    ctx.lineTo(radius + 8, 5);
+  } else {
+    ctx.arc(radius - 2, 0, 1.6, 0, Math.PI * 2);
+  }
   ctx.fill();
 
   ctx.restore();
 }
 
-function renderBombeLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+let tickTimer = 0;
 
-  const startX = 40;
-  const colSpacing = 82;
-  const drumRadius = 13;
+function renderBombeOrchestration() {
+  sCtx.clearRect(0, 0, stage.width, stage.height);
 
-  // Gambar 108 Drum (3 Rak x 12 Kolom x 3 Tingkat)
-  drums.forEach(d => {
-    const rackY = 25 + (d.rack * 132);
-    const cy = rackY + (d.tier * 36);
-    const cx = startX + (d.col * colSpacing);
-
-    drawCommutatorDrum(cx, cy, drumRadius, d.angle, d.char, d.tier);
-  });
-
-  // Logika Pemutaran & Eliminasi Kontradiksi
   if (bombeRunning) {
-    curKey[2]++;
-    if (curKey[2] >= 26) {
-      curKey[2] = 0;
-      curKey[1]++;
-      if (curKey[1] >= 26) {
-        curKey[1] = 0;
-        curKey[0] = (curKey[0] + 1) % 26;
+    tickTimer++;
+    if (tickTimer >= 3) {
+      tickTimer = 0;
+
+      bombeInternalKey[2]++;
+      if (bombeInternalKey[2] >= 26) {
+        bombeInternalKey[2] = 0;
+        bombeInternalKey[1]++;
+        if (bombeInternalKey[1] >= 26) {
+          bombeInternalKey[1] = 0;
+          bombeInternalKey[0] = (bombeInternalKey[0] + 1) % 26;
+        }
+      }
+
+      allDrums.forEach((d, idx) => {
+        if (d.tier === 2) {
+          const targetStep = (bombeInternalKey[2] + idx) % 26;
+          d.char = ALPHABET[targetStep];
+          d.targetAngle = targetStep * (Math.PI * 2 / 26);
+        } else if (d.tier === 1) {
+          const targetStep = (bombeInternalKey[1] + Math.floor(idx / 3)) % 26;
+          d.char = ALPHABET[targetStep];
+          d.targetAngle = targetStep * (Math.PI * 2 / 26);
+        } else {
+          const targetStep = (bombeInternalKey[0]) % 26;
+          d.char = ALPHABET[targetStep];
+          d.targetAngle = targetStep * (Math.PI * 2 / 26);
+        }
+        d.angle = d.targetAngle;
+      });
+
+      for (let i = 0; i < 26; i++) {
+        activeWelchmanBus[i] = Math.random() < 0.35;
+      }
+
+      const curTag = `${ALPHABET[bombeInternalKey[0]]}-${ALPHABET[bombeInternalKey[1]]}-${ALPHABET[bombeInternalKey[2]]}`;
+
+      if (bombeInternalKey[0] === targetStopKey[0] &&
+          bombeInternalKey[1] === targetStopKey[1] &&
+          bombeInternalKey[2] === targetStopKey[2]) {
+        
+        bombeRunning = false;
+        document.getElementById('btnEngage').disabled = false;
+        document.getElementById('solenoidIndicator').innerText = "SOLENOID: STOP DETECTED!";
+        document.getElementById('solenoidIndicator').style.color = "var(--brass)";
+        document.getElementById('logScanLive').style.display = 'none';
+
+        logRelay(`> <b style="color:var(--term-green);">[STOP CONFIRMED]</b> ZERO-CONTRADICTION HARNESS!`, true);
+        logRelay(`> KOPLING OTOMATIS TRIPPED DI ROTOR: <b style="color:var(--brass); font-size:13px;">[ ${curTag} ]</b>`);
+        logRelay(`> HARMONISASI DIAGONAL BOARD VALID. POSISI SIAP DIUJI KE ENIGMA.`);
+      } else {
+        // Update in-place tanpa baris baru
+        updateScanStatusLive(curTag);
       }
     }
+  }
 
-    // Update sudut 108 silinder
-    drums.forEach((d, idx) => {
-      if (d.tier === 2) {
-        d.angle += 0.45;
-        d.char = ALPHABET[(curKey[2] + idx) % 26];
-      } else if (d.tier === 1) {
-        d.angle += 0.05;
-        d.char = ALPHABET[(curKey[1] + Math.floor(idx / 3)) % 26];
-      } else {
-        d.angle += 0.006;
-        d.char = ALPHABET[curKey[0]];
-      }
+  if (viewMode === 'overview') {
+    const startX = 40;
+    const colSpacing = 82;
+    const drumRadius = 13;
+
+    allDrums.forEach(d => {
+      const rackY = 25 + (d.rack * 132);
+      const cy = rackY + (d.tier * 36);
+      const cx = startX + (d.col * colSpacing);
+      drawMachinedDrum(sCtx, cx, cy, drumRadius, d.angle, d.char, false);
     });
 
-    const keyTag = `${ALPHABET[curKey[0]]}-${ALPHABET[curKey[1]]}-${ALPHABET[curKey[2]]}`;
+    sCtx.fillStyle = "#11141a";
+    sCtx.fillRect(20, 395, stage.width - 40, 16);
+    sCtx.strokeStyle = "#252b36";
+    sCtx.strokeRect(20, 395, stage.width - 40, 16);
 
-    // Cek Kecocokan Bebas Kontradiksi
-    if (curKey[0] === validKeyTarget[0] && curKey[1] === validKeyTarget[1] && curKey[2] === validKeyTarget[2]) {
-      bombeRunning = false;
-      document.getElementById('btnRunBombe').disabled = false;
-      document.getElementById('scanIndicator').innerText = "STATUS: STOP (KUNCI DITEMUKAN)";
-      document.getElementById('scanIndicator').style.color = "var(--brass)";
+    for (let b = 0; b < 26; b++) {
+      const bx = 35 + b * ((stage.width - 70) / 25);
+      sCtx.fillStyle = activeWelchmanBus[b] ? "var(--cyan)" : "#222a36";
+      sCtx.beginPath();
+      sCtx.arc(bx, 403, 3.5, 0, Math.PI * 2);
+      sCtx.fill();
+    }
 
-      logTerminal(`> <b style="color:var(--terminal-green)">[STOP TERVERIFIKASI]</b> BEBAS KONTRADIKSI!`, 'var(--terminal-green)');
-      logTerminal(`> KUNCI ROTOR DITEMUKAN: <b style="color:var(--brass); font-size:13px;">[ ${keyTag} ]</b>`);
-      logTerminal(`> PESAN DEKRIPSI CRIB COCOK: <b>${searchCrib}</b> ➔ <b>${searchCipher}</b>`);
-    } else if (Math.random() < 0.08) {
-      logTerminal(`> Uji Posisi [${keyTag}] ➔ Loop Listrik Menghasilkan Kontradiksi (Dieliminasi)`);
+  } else {
+    sCtx.fillStyle = "#07090c";
+    sCtx.fillRect(0, 0, stage.width, stage.height);
+
+    sCtx.fillStyle = "var(--brass)";
+    sCtx.font = "12px monospace";
+    sCtx.fillText("FOCUS COMMUTATOR BANK: SATELIT 01 (ROTOR I - II - III DETAIL)", 30, 30);
+
+    const centerX = stage.width / 2;
+    const largeRadius = 56;
+    const tiersY = [95, 220, 345];
+    const drumLabels = [
+      `TOP DRUM (ROTOR I - SLOW) : [ ${ALPHABET[bombeInternalKey[0]]} ]`,
+      `MID DRUM (ROTOR II - MED)  : [ ${ALPHABET[bombeInternalKey[1]]} ]`,
+      `BOT DRUM (ROTOR III - FAST): [ ${ALPHABET[bombeInternalKey[2]]} ]`
+    ];
+
+    for (let t = 0; t < 3; t++) {
+      const angle = (t === 2) ? (bombeInternalKey[2] * Math.PI * 2 / 26) :
+                    (t === 1) ? (bombeInternalKey[1] * Math.PI * 2 / 26) :
+                                (bombeInternalKey[0] * Math.PI * 2 / 26);
+      const char = (t === 2) ? ALPHABET[bombeInternalKey[2]] :
+                   (t === 1) ? ALPHABET[bombeInternalKey[1]] :
+                               ALPHABET[bombeInternalKey[0]];
+
+      drawMachinedDrum(sCtx, centerX - 80, tiersY[t], largeRadius, angle, char, true);
+
+      sCtx.fillStyle = "#e2e8f0";
+      sCtx.font = "bold 13px monospace";
+      sCtx.textAlign = "left";
+      sCtx.fillText(drumLabels[t], centerX + 10, tiersY[t] - 8);
+
+      sCtx.fillStyle = "var(--cyan)";
+      sCtx.font = "11px monospace";
+      sCtx.fillText(`COMMUTATOR BRUSH: PIN #${(char.charCodeAt(0)-64)} ACTIVE`, centerX + 10, tiersY[t] + 12);
     }
   }
 
-  requestAnimationFrame(renderBombeLoop);
+  requestAnimationFrame(renderBombeOrchestration);
 }
 
-function setMode(mode) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  if (mode === 'bombe') {
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-    document.getElementById('panel-bombe').style.display = 'flex';
-    document.getElementById('panel-enigma').style.display = 'none';
+function navigate(dest) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (dest === 'bombe') {
+    document.querySelectorAll('.nav-btn')[0].classList.add('active');
+    document.getElementById('deck-bombe').style.display = 'flex';
+    document.getElementById('deck-enigma').style.display = 'none';
   } else {
-    document.querySelectorAll('.tab-btn')[1].classList.add('active');
-    document.getElementById('panel-bombe').style.display = 'none';
-    document.getElementById('panel-enigma').style.display = 'flex';
+    document.querySelectorAll('.nav-btn')[1].classList.add('active');
+    document.getElementById('deck-bombe').style.display = 'none';
+    document.getElementById('deck-enigma').style.display = 'flex';
   }
 }
 
-// Inisialisasi awal
-initEnigmaKeys();
-updateRotorDisplay();
-requestAnimationFrame(renderBombeLoop);
+initKeyDecks();
+updateRotorReadouts();
+requestAnimationFrame(renderBombeOrchestration);
 </script>
 </body>
 </html>
