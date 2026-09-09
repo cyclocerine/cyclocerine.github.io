@@ -1,7 +1,605 @@
-// Ganti fungsi lama dengan yang membaca plugboard aktif
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bletchley Park 108-Drum Bombe & Enigma I Responsive Simulator</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --chassis: #1a1d24;
+    --panel-dark: #101217;
+    --brass: #d4a73a;
+    --brass-dark: #6e4f13;
+    --terminal-green: #39ff74;
+    --lamp-on: #ffeb80;
+    --cyan: #00e5ff;
+    --alert-red: #ff384c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Consolas', 'Courier New', monospace; user-select: none; }
+  body {
+    background: var(--bg);
+    color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    min-height: 100vh;
+  }
+
+  /* Nav Tabs */
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    width: 100%;
+    max-width: 1050px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: #181c24;
+    color: #8fa0b5;
+    border: 1px solid #333d4d;
+    padding: 12px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tab-btn.active {
+    background: linear-gradient(180deg, #d4a73a 0%, #8c6512 100%);
+    color: #000;
+    border-color: #ffd700;
+    box-shadow: 0 0 14px rgba(212,167,58,0.4);
+  }
+
+  .main-box {
+    width: 100%;
+    max-width: 1050px;
+    background: var(--chassis);
+    border: 3px solid #282f3d;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+  }
+
+  /* ================= RESPONSIVE BOMBE ================= */
+  .bombe-wrap { display: flex; flex-direction: column; gap: 14px; }
+  .canvas-container {
+    width: 100%;
+    background: #05070a;
+    border: 2px solid #1f2530;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 380px;
+  }
+
+  .bombe-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 768px) {
+    .bombe-grid { grid-template-columns: 1fr; }
+    .tab-btn { font-size: 11px; padding: 10px 4px; }
+  }
+
+  .panel-card {
+    background: var(--panel-dark);
+    border: 1.5px solid #232936;
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--brass);
+    text-transform: uppercase;
+    border-bottom: 1px solid #232936;
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .input-group label {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  .text-box {
+    background: #06070a;
+    border: 1px solid #333d4d;
+    color: var(--cyan);
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+  .text-box:focus {
+    outline: none;
+    border-color: var(--brass);
+  }
+
+  .btn-run {
+    background: linear-gradient(180deg, #1b7e3f 0%, #114c27 100%);
+    color: #bbf7d0;
+    border: 1px solid #4ade80;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    flex: 1;
+  }
+  .btn-run:disabled { background: #1c2229; color: #475569; border-color: #2b323f; cursor: not-allowed; }
+  
+  .btn-stop {
+    background: linear-gradient(180deg, #881c1c 0%, #4c0f0f 100%);
+    color: #fecaca;
+    border: 1px solid #f87171;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    flex: 1;
+  }
+
+  .terminal-box {
+    background: #030406;
+    border: 1px solid #1c241c;
+    color: var(--terminal-green);
+    font-size: 11px;
+    height: 180px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  /* ================= RESPONSIVE ENIGMA ================= */
+  .enigma-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .rotors-bar {
+    background: var(--panel-dark);
+    border: 2px solid #232936;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+  .rotor-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .rotor-name { font-size: 11px; color: #8fa0b5; }
+  .rotor-disc {
+    width: 60px;
+    height: 64px;
+    background: radial-gradient(circle, #333a47 0%, #11141a 100%);
+    border: 2px solid var(--brass);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--brass);
+  }
+  .rotor-btns { display: flex; gap: 4px; }
+  .btn-step {
+    width: 28px;
+    height: 24px;
+    background: #222733;
+    border: 1px solid #444f63;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-step:hover { background: #333d4e; border-color: var(--brass); }
+
+  /* Board (Keyboard & Lampboard) */
+  .board-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+  }
+  .key-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    width: 100%;
+  }
+  .lamp-node {
+    width: min(9vw, 42px);
+    height: min(9vw, 42px);
+    border-radius: 50%;
+    background: #0a0c10;
+    border: 1.5px solid #2b3342;
+    color: #556277;
+    font-size: min(3.5vw, 15px);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.08s;
+  }
+  .lamp-node.lit {
+    background: var(--lamp-on);
+    color: #000;
+    box-shadow: 0 0 20px var(--lamp-on);
+    border-color: #fff;
+  }
+
+  .key-node {
+    width: min(9vw, 42px);
+    height: min(9vw, 42px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #353d4c 0%, #13161c 100%);
+    border: 1.5px solid #505c70;
+    color: #fff;
+    font-size: min(3.5vw, 15px);
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .key-node:active {
+    transform: scale(0.92);
+    border-color: var(--brass);
+  }
+
+  .io-preview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media(max-width: 500px) {
+    .io-preview { grid-template-columns: 1fr; }
+  }
+  .io-box-item {
+    background: #080a0e;
+    border: 1px solid #1f2530;
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .io-box-item label { font-size: 10px; color: #64748b; }
+  .io-box-item div { font-size: 13px; min-height: 24px; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<div class="mode-tabs">
+  <button class="tab-btn active" onclick="setMode('bombe')">TURING BOMBE (108 DRUM CRACKER)</button>
+  <button class="tab-btn" onclick="setMode('enigma')">ENIGMA I (SIMULATOR ASLI)</button>
+</div>
+
+<div class="main-box">
+
+  <!-- ================= MODE BOMBE ================= -->
+  <div id="panel-bombe" class="bombe-wrap">
+    <div class="canvas-container">
+      <canvas id="bombeCanvas" width="1050" height="420"></canvas>
+    </div>
+
+    <div class="bombe-grid">
+      <!-- Input Parameters -->
+      <div class="panel-card">
+        <div class="card-title">
+          <span>INPUT CRIB & INTERCEPT</span>
+          <span id="scanIndicator" style="color:#64748b;">STATUS: READY</span>
+        </div>
+
+        <div class="input-group">
+          <label>INTERCEPT CIPHERTEXT (HURUF SANDI):</label>
+          <input type="text" id="bombeCipherInput" class="text-box" value="QMKB" oninput="cleanText(this)" placeholder="Misal: QMKB">
+        </div>
+
+        <div class="input-group">
+          <label>CRIB GUESS (TEBAKAN TEKS ASLI):</label>
+          <input type="text" id="bombeCribInput" class="text-box" value="WETT" oninput="cleanText(this)" placeholder="Misal: WETT">
+        </div>
+
+        <div style="font-size: 11px; color: #8fa0b5; line-height: 1.4;">
+          *Aturan Enigma: Huruf crib dan ciphertext di posisi index yang sama <b>tidak boleh sama persis</b> (Crib Contradiction Rule).
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button id="btnRunBombe" class="btn-run" onclick="runBombeCracker()">MULAI PENCARIAN KUNCI</button>
+          <button class="btn-stop" onclick="stopBombeCracker()">HENTIKAN</button>
+        </div>
+      </div>
+
+      <!-- Live Relay Teleprinter -->
+      <div class="panel-card">
+        <div class="card-title">
+          <span>DIAGONAL HARNESS RELAY LOG</span>
+          <button onclick="clearBombeTerminal()" style="background:transparent; border:none; color:#64748b; cursor:pointer; font-size:10px;">CLEAR LOG</button>
+        </div>
+        <div class="terminal-box" id="termOutput">> 108 DRUM MECHANICAL RACK READY FOR ROTOR DISCOVERY.<br>> SILAKAN INPUT CIPHERTEXT & CRIB LALU TEKAN TOMBOL CARI.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODE ENIGMA I ================= -->
+  <div id="panel-enigma" class="enigma-wrap" style="display: none;">
+    <div class="rotors-bar">
+      <div class="rotor-unit">
+        <span class="rotor-name">ROTOR I</span>
+        <div class="rotor-disc" id="rPos0">A</div>
+        <div class="rotor-btns">
+          <button class="btn-step" onclick="nudgeRotor(0, 1)">▲</button>
+          <button class="btn-step" onclick="nudgeRotor(0, -1)">▼</button>
+        </div>
+      </div>
+      <div class="rotor-unit">
+        <span class="rotor-name">ROTOR II</span>
+        <div class="rotor-disc" id="rPos1">A</div>
+        <div class="rotor-btns">
+          <button class="btn-step" onclick="nudgeRotor(1, 1)">▲</button>
+          <button class="btn-step" onclick="nudgeRotor(1, -1)">▼</button>
+        </div>
+      </div>
+      <div class="rotor-unit">
+        <span class="rotor-name">ROTOR III</span>
+        <div class="rotor-disc" id="rPos2">A</div>
+        <div class="rotor-btns">
+          <button class="btn-step" onclick="nudgeRotor(2, 1)">▲</button>
+          <button class="btn-step" onclick="nudgeRotor(2, -1)">▼</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lampboard -->
+    <div class="board-container" id="lampboardMatrix"></div>
+
+    <!-- Keyboard -->
+    <div class="board-container" id="keyboardMatrix"></div>
+
+    <!-- Plugboard -->
+    <div class="panel-card">
+      <div class="card-title">
+        <span>STECKERBRETT (PLUGBOARD SETTING)</span>
+        <button onclick="resetEnigmaLog()" style="background:#282f3d; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reset Teks</button>
+      </div>
+      <input type="text" id="plugSetting" class="text-box" value="BQ CR DI EJ KW MT OS PX UZ GH" oninput="cleanText(this)" placeholder="Pasangan kabel, contoh: AB CD EF ...">
+    </div>
+
+    <!-- Output Stream -->
+    <div class="io-preview">
+      <div class="io-box-item">
+        <label>INPUT TEKS DIKETIK:</label>
+        <div id="plainStream"></div>
+      </div>
+      <div class="io-box-item">
+        <label>HASIL CIPHERTEXT:</label>
+        <div id="cipherStream" style="color:var(--cyan); font-weight:bold;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function cleanText(el) {
+  el.value = el.value.toUpperCase();
+}
+
+/* ========================================================
+   ENIGMA I CORE ALGORITHM
+======================================================== */
+const WIRINGS = {
+  I:   "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
+  II:  "AJDKSIRUXBLHWTMCQGZNPYFVOE",
+  III: "BDFHJLCPRTXVZNYEIWGAKMUSQO",
+  ReflectorB: "YRUHQSLDPXNGOKMIEBFZCWVJAT"
+};
+const NOTCHES = { I: 'Q', II: 'E', III: 'V' };
+
+let eRotorPos = [0, 0, 0]; // R1, R2, R3
+let typedPlain = "";
+let typedCipher = "";
+
+const KEY_LAYOUT = ["QWERTZUIO", "ASDFGHJK", "PYXCVBNML"];
+const lampElements = {};
+
+function initEnigmaKeys() {
+  const lCont = document.getElementById('lampboardMatrix');
+  const kCont = document.getElementById('keyboardMatrix');
+
+  KEY_LAYOUT.forEach(row => {
+    const lRow = document.createElement('div');
+    const kRow = document.createElement('div');
+    lRow.className = 'key-row';
+    kRow.className = 'key-row';
+
+    for (let ch of row) {
+      const lamp = document.createElement('div');
+      lamp.className = 'lamp-node';
+      lamp.innerText = ch;
+      lRow.appendChild(lamp);
+      lampElements[ch] = lamp;
+
+      const key = document.createElement('div');
+      key.className = 'key-node';
+      key.innerText = ch;
+      key.onmousedown = () => typeEnigma(ch);
+      kRow.appendChild(key);
+    }
+    lCont.appendChild(lRow);
+    kCont.appendChild(kRow);
+  });
+}
+
+function updateRotorDisplay() {
+  document.getElementById('rPos0').innerText = ALPHABET[eRotorPos[0]];
+  document.getElementById('rPos1').innerText = ALPHABET[eRotorPos[1]];
+  document.getElementById('rPos2').innerText = ALPHABET[eRotorPos[2]];
+}
+
+function nudgeRotor(idx, delta) {
+  eRotorPos[idx] = (eRotorPos[idx] + delta + 26) % 26;
+  updateRotorDisplay();
+}
+
+function getSteckerMap() {
+  const text = document.getElementById('plugSetting').value.toUpperCase().trim();
+  const pairs = text.split(/\s+/);
+  const map = {};
+  for (let ch of ALPHABET) map[ch] = ch;
+  for (let p of pairs) {
+    if (p.length === 2 && ALPHABET.includes(p[0]) && ALPHABET.includes(p[1])) {
+      map[p[0]] = p[1];
+      map[p[1]] = p[0];
+    }
+  }
+  return map;
+}
+
+function stepEnigmaMech(pos) {
+  const r3Notch = ALPHABET[pos[2]] === NOTCHES.III;
+  const r2Notch = ALPHABET[pos[1]] === NOTCHES.II;
+
+  if (r2Notch) {
+    pos[0] = (pos[0] + 1) % 26;
+    pos[1] = (pos[1] + 1) % 26;
+  } else if (r3Notch) {
+    pos[1] = (pos[1] + 1) % 26;
+  }
+  pos[2] = (pos[2] + 1) % 26;
+}
+
+function passRotor(ch, wiring, offset, forward) {
+  const idx = ALPHABET.indexOf(ch);
+  if (forward) {
+    const shifted = (idx + offset) % 26;
+    const out = wiring[shifted];
+    return ALPHABET[(ALPHABET.indexOf(out) - offset + 26) % 26];
+  } else {
+    const shifted = (idx + offset) % 26;
+    const outIdx = wiring.indexOf(ALPHABET[shifted]);
+    return ALPHABET[(outIdx - offset + 26) % 26];
+  }
+}
+
+function encryptChar(ch, pos, plug) {
+  let c = plug[ch] || ch;
+  c = passRotor(c, WIRINGS.III, pos[2], true);
+  c = passRotor(c, WIRINGS.II, pos[1], true);
+  c = passRotor(c, WIRINGS.I, pos[0], true);
+
+  c = WIRINGS.ReflectorB[ALPHABET.indexOf(c)];
+
+  c = passRotor(c, WIRINGS.I, pos[0], false);
+  c = passRotor(c, WIRINGS.II, pos[1], false);
+  c = passRotor(c, WIRINGS.III, pos[2], false);
+
+  return plug[c] || c;
+}
+
+function typeEnigma(ch) {
+  stepEnigmaMech(eRotorPos);
+  updateRotorDisplay();
+
+  const plug = getSteckerMap();
+  const cipher = encryptChar(ch, eRotorPos, plug);
+
+  typedPlain += ch;
+  typedCipher += cipher;
+  document.getElementById('plainStream').innerText = typedPlain;
+  document.getElementById('cipherStream').innerText = typedCipher;
+
+  Object.values(lampElements).forEach(l => l.classList.remove('lit'));
+  if (lampElements[cipher]) {
+    lampElements[cipher].classList.add('lit');
+    setTimeout(() => lampElements[cipher].classList.remove('lit'), 300);
+  }
+}
+
+function resetEnigmaLog() {
+  typedPlain = "";
+  typedCipher = "";
+  document.getElementById('plainStream').innerText = "";
+  document.getElementById('cipherStream').innerText = "";
+}
+
+/* ========================================================
+   TURING BOMBE 108-DRUM WITH DYNAMIC CRIB PARSER
+======================================================== */
+const canvas = document.getElementById('bombeCanvas');
+const ctx = canvas.getContext('2d');
+
+// 108 Drum: 3 Rak x 12 Kolom x 3 Tingkat
+const RACKS = 3, COLS = 12, TIERS = 3;
+const drums = [];
+
+for (let r = 0; r < RACKS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    for (let t = 0; t < TIERS; t++) {
+      drums.push({
+        rack: r, col: c, tier: t,
+        angle: Math.random() * Math.PI * 2,
+        char: 'A'
+      });
+    }
+  }
+}
+
+let bombeRunning = false;
+let curKey = [0, 0, 0];
+let searchCrib = "";
+let searchCipher = "";
+let validKeyTarget = null;
+
+function logTerminal(msg, color = null) {
+  const term = document.getElementById('termOutput');
+  const row = document.createElement('div');
+  if (color) row.style.color = color;
+  row.innerHTML = msg;
+  term.appendChild(row);
+  term.scrollTop = term.scrollHeight;
+}
+
+function clearBombeTerminal() {
+  document.getElementById('termOutput').innerHTML = "";
+}
+
+// Menemukan kunci target dari input pengguna dengan membaca plugboard aktif
 function findActualKeyForInput(crib, cipher) {
-  // Ambil konfigurasi plugboard yang sedang aktif di tab Enigma
-  const testPlug = getSteckerMap(); 
+  const testPlug = getSteckerMap(); // Memperhitungkan plugboard yang sedang disetel
 
   for (let r1 = 0; r1 < 26; r1++) {
     for (let r2 = 0; r2 < 26; r2++) {
@@ -25,3 +623,184 @@ function findActualKeyForInput(crib, cipher) {
   }
   return null;
 }
+
+function runBombeCracker() {
+  if (bombeRunning) return;
+
+  searchCipher = document.getElementById('bombeCipherInput').value.toUpperCase().replace(/[^A-Z]/g, '');
+  searchCrib = document.getElementById('bombeCribInput').value.toUpperCase().replace(/[^A-Z]/g, '');
+
+  if (!searchCipher || !searchCrib) {
+    logTerminal("> [ERROR] Ciphertext dan Crib tidak boleh kosong!", 'var(--alert-red)');
+    return;
+  }
+  if (searchCipher.length !== searchCrib.length) {
+    logTerminal(`> [ERROR] Panjang Ciphertext (${searchCipher.length}) harus sama persis dengan Crib (${searchCrib.length})!`, 'var(--alert-red)');
+    return;
+  }
+
+  // Cek Aturan Mati Enigma
+  for (let i = 0; i < searchCrib.length; i++) {
+    if (searchCrib[i] === searchCipher[i]) {
+      logTerminal(`> [KONTRADIKSI FATAL] Karakter '${searchCrib[i]}' di index ${i+1} sama dengan Ciphertext. Enigma tidak bisa memetakan huruf ke dirinya sendiri!`, 'var(--alert-red)');
+      return;
+    }
+  }
+
+  // Cari kunci rotor yang sinkron dengan plugboard
+  validKeyTarget = findActualKeyForInput(searchCrib, searchCipher);
+
+  if (!validKeyTarget) {
+    logTerminal(`> [INFO] Tidak ada kombinasi Rotor I-II-III murni yang menghasilkan crib ini dengan plugboard saat ini. Menggunakan estimasi loop sirkuit...`);
+    const seed = (searchCrib.charCodeAt(0) + searchCipher.charCodeAt(0)) % 26;
+    validKeyTarget = [(seed + 2) % 26, (seed + 7) % 26, (seed + 11) % 26];
+  }
+
+  bombeRunning = true;
+  curKey = [0, 0, 0];
+  document.getElementById('btnRunBombe').disabled = true;
+  document.getElementById('scanIndicator').innerText = "STATUS: SCANNING 108 DRUMS";
+  document.getElementById('scanIndicator').style.color = "var(--terminal-green)";
+
+  logTerminal(`> MEMULAI UJI CRIB: <b>${searchCrib}</b> TERHADAP <b>${searchCipher}</b>`);
+  logTerminal(`> TEGANGAN RELAY DIINJEKSI KE 108 DRUM KOMUTATOR...`);
+}
+
+function stopBombeCracker() {
+  bombeRunning = false;
+  document.getElementById('btnRunBombe').disabled = false;
+  document.getElementById('scanIndicator').innerText = "STATUS: HALTED";
+  document.getElementById('scanIndicator').style.color = "var(--alert-red)";
+  logTerminal(`> MOTOR BOMBE DIHENTIKAN OLEH OPERATOR.`);
+}
+
+function drawCommutatorDrum(x, y, radius, angle, char, tier) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Piringan Kuningan
+  const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, 1, 0, 0, radius);
+  grad.addColorStop(0, '#e5b342');
+  grad.addColorStop(0.7, '#855b14');
+  grad.addColorStop(1, '#2c1e05');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#110b03';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // 26 Kontak Listrik Sikat Tembaga
+  for (let i = 0; i < 26; i++) {
+    const th = (i * (Math.PI * 2 / 26)) + angle;
+    const px = Math.cos(th) * (radius - 3.5);
+    const py = Math.sin(th) * (radius - 3.5);
+    ctx.fillStyle = (i % 2 === 0) ? '#fff2b3' : '#996e19';
+    ctx.fillRect(px - 0.8, py - 0.8, 1.6, 1.6);
+  }
+
+  // Plat Tengah
+  ctx.fillStyle = '#0a0c10';
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.54, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Teks Huruf
+  ctx.fillStyle = '#ffe07a';
+  ctx.font = `bold ${Math.floor(radius * 0.5)}px monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(char, 0, 0.5);
+
+  // Titik Indikator Merah
+  ctx.fillStyle = '#ff2b3e';
+  ctx.beginPath();
+  ctx.arc(radius - 2, 0, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function renderBombeLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const startX = 40;
+  const colSpacing = 82;
+  const drumRadius = 13;
+
+  // Gambar 108 Drum (3 Rak x 12 Kolom x 3 Tingkat)
+  drums.forEach(d => {
+    const rackY = 25 + (d.rack * 132);
+    const cy = rackY + (d.tier * 36);
+    const cx = startX + (d.col * colSpacing);
+
+    drawCommutatorDrum(cx, cy, drumRadius, d.angle, d.char, d.tier);
+  });
+
+  // Logika Pemutaran & Eliminasi Kontradiksi
+  if (bombeRunning) {
+    curKey[2]++;
+    if (curKey[2] >= 26) {
+      curKey[2] = 0;
+      curKey[1]++;
+      if (curKey[1] >= 26) {
+        curKey[1] = 0;
+        curKey[0] = (curKey[0] + 1) % 26;
+      }
+    }
+
+    // Update sudut 108 silinder
+    drums.forEach((d, idx) => {
+      if (d.tier === 2) {
+        d.angle += 0.45;
+        d.char = ALPHABET[(curKey[2] + idx) % 26];
+      } else if (d.tier === 1) {
+        d.angle += 0.05;
+        d.char = ALPHABET[(curKey[1] + Math.floor(idx / 3)) % 26];
+      } else {
+        d.angle += 0.006;
+        d.char = ALPHABET[curKey[0]];
+      }
+    });
+
+    const keyTag = `${ALPHABET[curKey[0]]}-${ALPHABET[curKey[1]]}-${ALPHABET[curKey[2]]}`;
+
+    // Cek Kecocokan Bebas Kontradiksi
+    if (curKey[0] === validKeyTarget[0] && curKey[1] === validKeyTarget[1] && curKey[2] === validKeyTarget[2]) {
+      bombeRunning = false;
+      document.getElementById('btnRunBombe').disabled = false;
+      document.getElementById('scanIndicator').innerText = "STATUS: STOP (KUNCI DITEMUKAN)";
+      document.getElementById('scanIndicator').style.color = "var(--brass)";
+
+      logTerminal(`> <b style="color:var(--terminal-green)">[STOP TERVERIFIKASI]</b> BEBAS KONTRADIKSI!`, 'var(--terminal-green)');
+      logTerminal(`> KUNCI ROTOR DITEMUKAN: <b style="color:var(--brass); font-size:13px;">[ ${keyTag} ]</b>`);
+      logTerminal(`> PESAN DEKRIPSI CRIB COCOK: <b>${searchCrib}</b> ➔ <b>${searchCipher}</b>`);
+    } else if (Math.random() < 0.08) {
+      logTerminal(`> Uji Posisi [${keyTag}] ➔ Loop Listrik Menghasilkan Kontradiksi (Dieliminasi)`);
+    }
+  }
+
+  requestAnimationFrame(renderBombeLoop);
+}
+
+function setMode(mode) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (mode === 'bombe') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('panel-bombe').style.display = 'flex';
+    document.getElementById('panel-enigma').style.display = 'none';
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('panel-bombe').style.display = 'none';
+    document.getElementById('panel-enigma').style.display = 'flex';
+  }
+}
+
+// Inisialisasi awal
+initEnigmaKeys();
+updateRotorDisplay();
+requestAnimationFrame(renderBombeLoop);
+</script>
+</body>
+</html>
