@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bletchley Park Bombe (108-Drum Snap-Step) & Enigma I 1:1 Complete</title>
+<title>Bletchley Park 108-Drum Snap-Step (Scrolling Rack) & Enigma I Complete</title>
 <style>
   :root {
     --bg: #090b0e;
     --chassis: #161920;
     --panel: #0e1116;
     --brass: #d4a73a;
-    --brass-burnished: #8c6512;
+    --brass-dark: #8c6512;
     --term-green: #39ff74;
     --cyan: #00e5ff;
     --alert-red: #ff3344;
     --lamp-glow: #ffeb85;
+    --text-muted: #8da1b9;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Consolas', 'Courier New', monospace; user-select: none; }
   body {
@@ -66,38 +67,25 @@
     box-shadow: 0 20px 50px rgba(0,0,0,0.85);
   }
 
-  /* ================= BOMBE SECTION ================= */
+  /* ================= BOMBE SECTION (108 DRUMS VISIBLE & MOVING) ================= */
   .bombe-layout { display: flex; flex-direction: column; gap: 14px; }
-  .canvas-deck {
+  
+  /* Scrolling Container for Large Canvas */
+  .canvas-scroller {
+    width: 100%;
+    max-height: 520px; /* Batas tinggi container */
     background: #040608;
     border: 2px solid #1c222c;
     border-radius: 8px;
+    overflow: auto; /* Aktifkan scroll horizontal & vertikal */
     position: relative;
-    overflow: hidden;
+    box-shadow: inset 0 0 30px #000;
   }
-  canvas { display: block; width: 100%; height: auto; }
-
-  .view-controls {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    gap: 6px;
-    z-index: 10;
-  }
-  .cam-btn {
-    background: rgba(14, 17, 22, 0.85);
-    border: 1px solid var(--brass);
-    color: var(--brass);
-    font-size: 11px;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .cam-btn.active {
-    background: var(--brass);
-    color: #000;
+  
+  /* Resolusi Tinggi Kanvas biar 108 Drum Diameternya Gede (2200x880) */
+  canvas {
+    display: block;
+    background: radial-gradient(circle, #101319 0%, #040608 100%);
   }
 
   .bombe-panels-grid {
@@ -184,7 +172,7 @@
     line-height: 1.45;
   }
   .scan-live-line {
-    color: #8da1b9;
+    color: var(--text-muted);
     background: #090d14;
     border-left: 2px solid var(--cyan);
     padding: 2px 6px;
@@ -340,41 +328,41 @@
 
 <div class="nav-strip">
   <button class="nav-btn active" onclick="navigate('bombe')">TURING-WELCHMAN BOMBE (108 DRUMS SNAP-STEP)</button>
-  <button class="nav-btn" onclick="navigate('enigma')">ENIGMA I (PLUGBOARD, RING & ROTOR I-V)</button>
+  <button class="nav-btn" onclick="navigate('enigma')">ENIGMA I (SIMULATOR UTUH)</button>
 </div>
 
 <div class="main-chassis">
 
-  <!-- ================= BOMBE SECTION ================= -->
+  <!-- ================= MODE BOMBE (108 DRUMS VISIBLE & MOVING) ================= -->
   <div id="deck-bombe" class="bombe-layout">
-    <div class="canvas-deck">
-      <div class="view-controls">
-        <button id="camOverview" class="cam-btn active" onclick="switchCamera('overview')">FULL RACK (108 DRUMS)</button>
-        <button id="camZoom" class="cam-btn" onclick="switchCamera('zoom')">FOCUS BANK ZOOM (LARGE)</button>
-      </div>
-      <canvas id="bombeStage" width="1050" height="420"></canvas>
+    <div style="font-size: 12px; color: var(--text-muted);">BLETCHLEY PARK MECHANICAL RACK: 108 DRUMS (36 UNIT) | SCROLL UNTUK MELIHAT SELURUH RAK</div>
+    
+    <!-- Scrolling Container -->
+    <div class="canvas-scroller">
+      <!-- Kanvas Resolusi Tinggi (2200x880) agar Drum Diameter 25px -->
+      <canvas id="bombeStage" width="2200" height="880"></canvas>
     </div>
 
     <div class="bombe-panels-grid">
-      <!-- Input & Intercept Tuning -->
+      <!-- Input Parameters -->
       <div class="subcard">
         <div class="subcard-head">
-          <span>HARNESS INTERCEPT & CRIB MATRIX</span>
+          <span>INPUT CRIB & INTERCEPT</span>
           <span id="solenoidIndicator" style="color:#64748b;">SOLENOID: IDLE</span>
         </div>
 
         <div class="field-unit">
-          <label>INTERCEPT CIPHERTEXT (SADAPAN SANDI):</label>
+          <label>INTERCEPT CIPHERTEXT (HURUF SANDI):</label>
           <input type="text" id="bombeCipher" class="terminal-input" value="QMKB" oninput="forceCaps(this)" placeholder="Misal: QMKB">
         </div>
 
         <div class="field-unit">
-          <label>CRIB ESTIMATE (DUGAAN KATA ASLI):</label>
+          <label>CRIB GUESS (TEBAKAN TEKS ASLI):</label>
           <input type="text" id="bombeCrib" class="terminal-input" value="WETT" oninput="forceCaps(this)" placeholder="Misal: WETT">
         </div>
 
-        <div style="font-size: 10px; color: #8da1b9; line-height: 1.4;">
-          *Welchman Diagonal Board Loop memeriksa kontradiksi busbar 26-way. Pastikan panjang teks sama dan huruf di posisi sama tidak identik.
+        <div style="font-size: 11px; color: #8fa0b5; line-height: 1.4;">
+          *Aturan Enigma: Huruf crib dan ciphertext di posisi index yang sama <b>tidak boleh sama persis</b> (Crib Contradiction Rule).
         </div>
 
         <div class="actuator-row">
@@ -386,18 +374,18 @@
       <!-- Teleprinter Terminal -->
       <div class="subcard">
         <div class="subcard-head">
-          <span>DIAGONAL BUS RELAY REGISTER</span>
+          <span>DIAGONAL HARNESS RELAY LOG</span>
           <button onclick="clearLog()" style="background:transparent; border:none; color:#64748b; cursor:pointer; font-size:10px;">CLEAR LOG</button>
         </div>
         <div class="teleprinter-log" id="relayOutput">
-          <div id="logHistory">> COMMUTATOR BRUSHES ENERGIZED WITH 24V D.C.<br>> WELCHMAN 26-WAY HARNESS STANDBY...</div>
+          <div id="logHistory">> BLETCHLEY LOOP CIRCUIT STANDBY.<br>> HIGH VOLTAGE TEST REGISTER INITIALIZED.</div>
           <div id="logScanLive" class="scan-live-line" style="display: none;"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ================= ENIGMA SECTION ================= -->
+  <!-- ================= MODE ENIGMA I ================= -->
   <div id="deck-enigma" class="enigma-layout" style="display: none;">
     <div class="rig-gearbox">
       <!-- Reflector -->
@@ -411,7 +399,7 @@
 
       <!-- Rotor Left (Slow) -->
       <div class="rotor-station">
-        <span class="station-label">ROTOR KIRI</span>
+        <span class="station-label">ROTOR I</span>
         <select id="rotorSelect0" class="gear-selector" onchange="resetCryptoCache()">
           <option value="I" selected>ROTOR I</option>
           <option value="II">ROTOR II</option>
@@ -434,7 +422,7 @@
 
       <!-- Rotor Mid (Medium) -->
       <div class="rotor-station">
-        <span class="station-label">ROTOR TENGAH</span>
+        <span class="station-label">ROTOR II</span>
         <select id="rotorSelect1" class="gear-selector" onchange="resetCryptoCache()">
           <option value="I">ROTOR I</option>
           <option value="II" selected>ROTOR II</option>
@@ -457,7 +445,7 @@
 
       <!-- Rotor Right (Fast) -->
       <div class="rotor-station">
-        <span class="station-label">ROTOR KANAN</span>
+        <span class="station-label">ROTOR III</span>
         <select id="rotorSelect2" class="gear-selector" onchange="resetCryptoCache()">
           <option value="I">ROTOR I</option>
           <option value="II">ROTOR II</option>
@@ -488,20 +476,20 @@
     <!-- Plugboard -->
     <div class="subcard">
       <div class="subcard-head">
-        <span>STECKERBRETT (PLUGBOARD JUMPER HARNESS)</span>
-        <button onclick="resetEnigmaTape()" style="background:#202633; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reset Pita Teks</button>
+        <span>STECKERBRETT (PLUGBOARD SETTING)</span>
+        <button onclick="resetEnigmaTape()" style="background:#202633; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Reset Teks</button>
       </div>
-      <input type="text" id="steckerWires" class="terminal-input" value="BQ CR DI EJ KW MT OS PX UZ GH" oninput="forceCaps(this)" placeholder="Pasangan kabel, contoh: AB CD EF ...">
+      <input type="text" id="plugSetting" class="text-box terminal-input" value="BQ CR DI EJ KW MT OS PX UZ GH" oninput="forceCaps(this)" placeholder="Pasangan kabel, contoh: AB CD EF ...">
     </div>
 
-    <!-- Teleprinter Duplex Tape -->
-    <div class="duplex-stream">
+    <!-- Output Stream -->
+    <div class="io-preview duplex-stream">
       <div class="stream-card">
         <label>INPUT PITA TEKS (PLAIN):</label>
         <div id="tapeIn"></div>
       </div>
       <div class="stream-card">
-        <label>OUTPUT HASIL SANDI (CIPHER):</label>
+        <label>HASIL CIPHERTEXT (CIPHER):</label>
         <div id="tapeOut" style="color:var(--cyan); font-weight:bold;"></div>
       </div>
     </div>
@@ -517,7 +505,7 @@ function forceCaps(el) {
 }
 
 /* ========================================================
-   ENIGMA I 1:1 ENGINE
+   ENIGMA I 1:1 ENGINE (ROTOR I-V, RINGSTELLUNG, REFLECTOR B & C)
 ======================================================== */
 const ROTOR_WIRING = {
   I:   "EKMFLGDQVZNTOWYHXUSPAIBRCJ",
@@ -532,18 +520,18 @@ const REFLECTORS = {
   C: "FVPJIAOYEDRZXWGCTKUQSBNMHL"
 };
 
-let eRotors = [0, 0, 0];
-let textPlain = "";
-let textCipher = "";
+let eRotors = [0, 0, 0]; // R1, R2, R3
+let typedPlain = "";
+let typedCipher = "";
 
-const KEY_MATRIX = ["QWERTZUIO", "ASDFGHJK", "PYXCVBNML"];
-const lampRegistry = {};
+const KEY_LAYOUT = ["QWERTZUIO", "ASDFGHJK", "PYXCVBNML"];
+const lampElements = {};
 
-function initKeyDecks() {
+function initEnigmaKeys() {
   const lDeck = document.getElementById('lampDeck');
   const kDeck = document.getElementById('keyDeck');
 
-  KEY_MATRIX.forEach(row => {
+  KEY_LAYOUT.forEach(row => {
     const lRow = document.createElement('div');
     const kRow = document.createElement('div');
     lRow.className = 'bank-row';
@@ -554,7 +542,7 @@ function initKeyDecks() {
       lamp.className = 'bulb-aperture';
       lamp.innerText = ch;
       lRow.appendChild(lamp);
-      lampRegistry[ch] = lamp;
+      lampElements[ch] = lamp;
 
       const key = document.createElement('div');
       key.className = 'plunger-key';
@@ -567,7 +555,7 @@ function initKeyDecks() {
   });
 }
 
-function updateRotorReadouts() {
+function updateRotorUI() {
   document.getElementById('dispR0').innerText = ALPHABET[eRotors[0]];
   document.getElementById('dispR1').innerText = ALPHABET[eRotors[1]];
   document.getElementById('dispR2').innerText = ALPHABET[eRotors[2]];
@@ -575,13 +563,13 @@ function updateRotorReadouts() {
 
 function nudgeRotor(idx, delta) {
   eRotors[idx] = (eRotors[idx] + delta + 26) % 26;
-  updateRotorReadouts();
+  updateRotorUI();
 }
 
 function resetCryptoCache() {}
 
 function getSteckerMap() {
-  const raw = document.getElementById('steckerWires').value.toUpperCase().trim();
+  const raw = document.getElementById('plugSetting').value.toUpperCase().trim();
   const pairs = raw.split(/\s+/);
   const map = {};
   for (let ch of ALPHABET) map[ch] = ch;
@@ -594,6 +582,7 @@ function getSteckerMap() {
   return map;
 }
 
+// Mekanisme Stepping Enigma Asli (Double Stepping Pawl)
 function stepMachine(rotors, rotorTypes) {
   const r2Type = rotorTypes[1];
   const r3Type = rotorTypes[2];
@@ -610,6 +599,7 @@ function stepMachine(rotors, rotorTypes) {
   rotors[2] = (rotors[2] + 1) % 26;
 }
 
+// Transformasi Kontak Rotor dengan Ringstellung (Ring Setting)
 function transformRotorWithRing(ch, wiring, rotorPos, ringSetting, forward) {
   const ringOffset = ringSetting - 1;
   const idx = ALPHABET.indexOf(ch);
@@ -656,32 +646,35 @@ function executeType(ch) {
   const ref = document.getElementById('reflectorSelect').value;
 
   stepMachine(eRotors, rTypes);
-  updateRotorReadouts();
+  updateRotorUI();
 
   const plug = getSteckerMap();
   const cipher = fullEncryptChar(ch, eRotors, rTypes, rings, ref, plug);
 
-  textPlain += ch;
-  textCipher += cipher;
-  document.getElementById('tapeIn').innerText = textPlain;
-  document.getElementById('tapeOut').innerText = textCipher;
+  typedPlain += ch;
+  typedCipher += cipher;
+  document.getElementById('tapeIn').innerText = typedPlain;
+  document.getElementById('tapeOut').innerText = typedCipher;
 
-  Object.values(lampRegistry).forEach(l => l.classList.remove('energized'));
-  if (lampRegistry[cipher]) {
-    lampRegistry[cipher].classList.add('energized');
-    setTimeout(() => lampRegistry[cipher].classList.remove('energized'), 300);
+  // Animasi Bohlam
+  Object.values(lampElements).forEach(l => l.classList.remove('energized'));
+  if (lampElements[cipher]) {
+    lampElements[cipher].classList.add('energized');
+    setTimeout(() => lampElements[cipher].classList.remove('energized'), 300);
   }
 }
 
 function resetEnigmaTape() {
-  textPlain = "";
-  textCipher = "";
+  typedPlain = "";
+  typedCipher = "";
   document.getElementById('tapeIn').innerText = "";
   document.getElementById('tapeOut').innerText = "";
+  eRotors = [0, 0, 0];
+  updateRotorUI();
 }
 
 /* ========================================================
-   TURING BOMBE 108-DRUM SNAP-STEP & IN-PLACE TELEPRINTER
+   TURING BOMBE 108-DRUM SNAP-STEP (LARGE DIAMETER DRUMS)
 ======================================================== */
 const stage = document.getElementById('bombeStage');
 const sCtx = stage.getContext('2d');
@@ -690,11 +683,12 @@ const TOTAL_RACKS = 3;
 const COLUMNS_PER_RACK = 12;
 const TIERS_PER_COL = 3;
 
-const allDrums = [];
+// Inisialisasi 108 Drum: Rack, Col, Tier
+const drums = [];
 for (let r = 0; r < TOTAL_RACKS; r++) {
   for (let c = 0; c < COLUMNS_PER_RACK; c++) {
     for (let t = 0; t < TIERS_PER_COL; t++) {
-      allDrums.push({
+      drums.push({
         rack: r, col: c, tier: t,
         angle: Math.floor(Math.random() * 26) * (Math.PI * 2 / 26),
         targetAngle: 0,
@@ -704,34 +698,19 @@ for (let r = 0; r < TOTAL_RACKS; r++) {
   }
 }
 
-let viewMode = 'overview';
 let bombeRunning = false;
-let bombeInternalKey = [0, 0, 0];
-let targetStopKey = null;
-let activeWelchmanBus = new Array(26).fill(false);
+let bombeInternalKey = [0, 0, 0]; // R1, R2, R3 (matematis)
+let validKeyTarget = null;
+const Welchman Diagonal boardloop = false;
 
-function switchCamera(mode) {
-  viewMode = mode;
-  document.getElementById('camOverview').classList.toggle('active', mode === 'overview');
-  document.getElementById('camZoom').classList.toggle('active', mode === 'zoom');
-}
-
-// Log baris baru hanya untuk event penting
-function logRelay(msg, alert = false) {
+function logTerminal(msg, highlight = false) {
   const history = document.getElementById('logHistory');
   const term = document.getElementById('relayOutput');
   const d = document.createElement('div');
-  if (alert) d.style.color = '#ffd700';
+  if (highlight) d.style.color = 'var(--brass)';
   d.innerHTML = msg;
   history.appendChild(d);
   term.scrollTop = term.scrollHeight;
-}
-
-// Update baris pemindaian di tempat (tanpa newline terus-menerus)
-function updateScanStatusLive(keyTag) {
-  const liveEl = document.getElementById('logScanLive');
-  liveEl.style.display = 'block';
-  liveEl.innerHTML = `> Uji Posisi [${keyTag}] ➔ Loop Bus Welchman: Kontradiksi Dieliminasi...`;
 }
 
 function clearLog() {
@@ -739,6 +718,7 @@ function clearLog() {
   document.getElementById('logScanLive').style.display = 'none';
 }
 
+// Sinkronisasi Kunci Solver dengan Pengaturan Enigma Interaktif
 function solveEnigmaBombeTarget(crib, cipher) {
   const rTypes = [
     document.getElementById('rotorSelect0').value,
@@ -761,8 +741,8 @@ function solveEnigmaBombeTarget(crib, cipher) {
 
         for (let i = 0; i < crib.length; i++) {
           stepMachine(testRotors, rTypes);
-          const outChar = fullEncryptChar(crib[i], testRotors, rTypes, rings, ref, plug);
-          if (outChar !== cipher[i]) {
+          const res = encryptChar(crib[i], testRotors, testPlug);
+          if (res !== cipher[i]) {
             matched = false;
             break;
           }
@@ -781,27 +761,28 @@ function engageBombeArmature() {
   const crib = document.getElementById('bombeCrib').value.toUpperCase().replace(/[^A-Z]/g, '');
 
   if (!cipher || !crib) {
-    logRelay("> [ERROR] Ciphertext & Crib wajib diisi!");
+    logTerminal("> [ERROR] Ciphertext dan Crib wajib diisi!");
     return;
   }
   if (cipher.length !== crib.length) {
-    logRelay(`> [ERROR] Ukuran tidak sama: Cipher (${cipher.length}) != Crib (${crib.length})`);
+    logTerminal(`> [ERROR] Ukuran tidak sama: Cipher (${cipher.length}) != Crib (${crib.length})`);
     return;
   }
 
+  // Aturan Enigma: Huruf tidak boleh memetakan ke dirinya sendiri
   for (let i = 0; i < crib.length; i++) {
     if (crib[i] === cipher[i]) {
-      logRelay(`> [KONTRADIKSI FATAL] Index ${i+1}: '${crib[i]}' memetakan ke dirinya sendiri! Enigma mustahil menghasilkan ini.`);
+      logTerminal(`> [KONTRADIKSI FATAL] Index ${i+1}: '${crib[i]}' memetakan ke dirinya sendiri! Enigma mustahil menghasilkan ini.`);
       return;
     }
   }
 
-  targetStopKey = solveEnigmaBombeTarget(crib, cipher);
+  validKeyTarget = findActualKeyForInput(searchCrib, searchCipher);
 
-  if (!targetStopKey) {
-    logRelay(`> [INFO] Kombinasi murni tidak cocok dengan setelan Enigma saat ini. Mengaktifkan estimasi loop Welchman...`);
+  if (!validKeyTarget) {
+    logTerminal(`> [INFO] Kombinasi murni tidak cocok dengan setelan Enigma. Mengaktifkan estimasi loop Welchman...`);
     const seed = (crib.charCodeAt(0) + cipher.charCodeAt(0)) % 26;
-    targetStopKey = [(seed + 1) % 26, (seed + 5) % 26, (seed + 9) % 26];
+    validKeyTarget = [(seed + 1) % 26, (seed + 5) % 26, (seed + 9) % 26];
   }
 
   bombeRunning = true;
@@ -810,8 +791,8 @@ function engageBombeArmature() {
   document.getElementById('solenoidIndicator').innerText = "SOLENOID: SCANNING";
   document.getElementById('solenoidIndicator').style.color = "var(--term-green)";
 
-  logRelay(`> MOTOR CLUTCH CLOSED. RATCHET GENEVA SNAP-STEPPING AKTIF.`);
-  logRelay(`> MENGUJI CRIB <b>${crib}</b> PADA INTERCEPT <b>${cipher}</b>...`);
+  logTerminal(`> MOTOR CLUTCH CLOSED. RATCHET GENEVA SNAP-STEPPING AKTIF.`);
+  logTerminal(`> MENGUJI CRIB <b>${crib}</b> PADA INTERCEPT <b>${cipher}</b>...`);
 }
 
 function disengageBombe() {
@@ -820,69 +801,63 @@ function disengageBombe() {
   document.getElementById('solenoidIndicator').innerText = "SOLENOID: DISENGAGED";
   document.getElementById('solenoidIndicator').style.color = "var(--alert-red)";
   document.getElementById('logScanLive').style.display = 'none';
-  logRelay(`> KOPLING ELEKTROMAGNETIK DILEPAS OPERATOR.`);
+  logTerminal(`> OPERATOR MEMUTUS KOPLING MOTOR BOMBE.`);
 }
 
 /* ========================================================
-   RENDERER KANVAS 3D DENGAN SNAP-STEPPING & ZOOM MODE
+   RENDERER KANVAS RES HIGH: DIAMETER DRUM GEDE (25px)
+   SEHINGGA PUTARAN SNAP-STEP KELIATAN JELAS
 ======================================================== */
-function drawMachinedDrum(ctx, x, y, radius, angle, char, isZoomed) {
+
+// Render 1 Drum Detail (Diameter Gede: 25px)
+function drawBrassDrum(ctx, x, y, radius, angle, char) {
   ctx.save();
   ctx.translate(x, y);
 
-  const bodyGrad = ctx.createRadialGradient(-radius*0.25, -radius*0.25, 2, 0, 0, radius);
-  bodyGrad.addColorStop(0, '#e5b342');
-  bodyGrad.addColorStop(0.65, '#855b14');
-  bodyGrad.addColorStop(1, '#2d1e04');
-  ctx.fillStyle = bodyGrad;
+  // Drum Rim (Kuningan/Perunggu Tua)
+  const grad = ctx.createRadialGradient(-radius*0.25, -radius*0.25, 2, 0, 0, radius);
+  grad.addColorStop(0, '#e5b342');
+  grad.addColorStop(0.7, '#855b14');
+  grad.addColorStop(1, '#2d1e04');
+  ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#120d03';
-  ctx.lineWidth = isZoomed ? 3 : 1.2;
+  ctx.strokeStyle = '#1a1306';
+  ctx.lineWidth = 2; // Tebalkan outline agar kontras
   ctx.stroke();
 
+  // 26 Terminal Sikat Komutator (Diameter Gede: 3px) di Keliling Drum
   for (let i = 0; i < 26; i++) {
     const th = (i * (Math.PI * 2 / 26)) + angle;
-    const px = Math.cos(th) * (radius - (isZoomed ? 8 : 3.5));
-    const py = Math.sin(th) * (radius - (isZoomed ? 8 : 3.5));
+    const px = Math.cos(th) * (radius - 6);
+    const py = Math.sin(th) * (radius - 6);
 
-    ctx.fillStyle = (i % 2 === 0) ? '#fff2b3' : '#a87514';
-    if (isZoomed) {
-      ctx.beginPath();
-      ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#3d2500';
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-    } else {
-      ctx.fillRect(px - 1, py - 1, 2, 2);
-    }
+    ctx.fillStyle = (i % 2 === 0) ? '#fff2a8' : '#a87514';
+    ctx.beginPath();
+    ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#3d2500';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
   }
 
-  ctx.fillStyle = '#080a0e';
+  // Plat Tengah & Huruf Timbul
+  ctx.fillStyle = '#101217';
   ctx.beginPath();
-  ctx.arc(0, 0, radius * 0.54, 0, Math.PI * 2);
+  ctx.arc(0, 0, radius * 0.55, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#4a3308';
-  ctx.lineWidth = isZoomed ? 2 : 1;
-  ctx.stroke();
 
-  ctx.fillStyle = '#ffdf70';
+  ctx.fillStyle = '#ffe07a';
   ctx.font = `bold ${Math.floor(radius * 0.5)}px monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(char, 0, isZoomed ? 2 : 0.5);
+  ctx.fillText(char, 0, 1.5);
 
+  // Titik Indikator Merah Sensor
   ctx.fillStyle = '#ff2b3e';
   ctx.beginPath();
-  if (isZoomed) {
-    ctx.moveTo(radius - 2, 0);
-    ctx.lineTo(radius + 8, -5);
-    ctx.lineTo(radius + 8, 5);
-  } else {
-    ctx.arc(radius - 2, 0, 1.6, 0, Math.PI * 2);
-  }
+  ctx.arc(radius - 2.5, 0, 2, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -890,14 +865,16 @@ function drawMachinedDrum(ctx, x, y, radius, angle, char, isZoomed) {
 
 let tickTimer = 0;
 
-function renderBombeOrchestration() {
+function renderBombeCanvas() {
   sCtx.clearRect(0, 0, stage.width, stage.height);
 
+  // SNAP-STEP MEKANIS (Geneva-style)
   if (bombeRunning) {
     tickTimer++;
-    if (tickTimer >= 3) {
+    if (tickTimer >= 3) { // Kontrol kecepatan sentakan mekanik
       tickTimer = 0;
 
+      // Drum Bawah (Fast) melompat tajam tiap step
       bombeInternalKey[2]++;
       if (bombeInternalKey[2] >= 26) {
         bombeInternalKey[2] = 0;
@@ -908,113 +885,59 @@ function renderBombeOrchestration() {
         }
       }
 
-      allDrums.forEach((d, idx) => {
-        if (d.tier === 2) {
+      // Update sudut rotasi untuk 108 drum
+      drums.forEach((d, idx) => {
+        if (d.tier === 2) { // Drum bawah (cepat)
           const targetStep = (bombeInternalKey[2] + idx) % 26;
           d.char = ALPHABET[targetStep];
           d.targetAngle = targetStep * (Math.PI * 2 / 26);
-        } else if (d.tier === 1) {
+        } else if (d.tier === 1) { // Drum tengah (medium)
           const targetStep = (bombeInternalKey[1] + Math.floor(idx / 3)) % 26;
           d.char = ALPHABET[targetStep];
           d.targetAngle = targetStep * (Math.PI * 2 / 26);
-        } else {
+        } else { // Drum atas (lambat)
           const targetStep = (bombeInternalKey[0]) % 26;
           d.char = ALPHABET[targetStep];
           d.targetAngle = targetStep * (Math.PI * 2 / 26);
         }
-        d.angle = d.targetAngle;
+        d.angle = d.targetAngle; // Snap langsung tanpa lerp agar patah-patah mekanik
       });
 
-      for (let i = 0; i < 26; i++) {
-        activeWelchmanBus[i] = Math.random() < 0.35;
-      }
+      const currentKeyStr = `${ALPHABET[bombeInternalKey[0]]}-${ALPHABET[bombeInternalKey[1]]}-${ALPHABET[bombeInternalKey[2]]}`;
+      const liveLogEl = document.getElementById('logScanLive');
+      liveLogEl.style.display = 'block';
+      liveLogEl.innerHTML = `> Uji Posisi [${currentKeyStr}] ➔ Loop Bus Diagonal Welchman: Kontradiksi Dieliminasi...`;
 
-      const curTag = `${ALPHABET[bombeInternalKey[0]]}-${ALPHABET[bombeInternalKey[1]]}-${ALPHABET[bombeInternalKey[2]]}`;
-
-      if (bombeInternalKey[0] === targetStopKey[0] &&
-          bombeInternalKey[1] === targetStopKey[1] &&
-          bombeInternalKey[2] === targetStopKey[2]) {
-        
+      // Cek Kondisi Bebas Kontradiksi
+      if (bombeInternalKey[0] === validKeyTarget[0] && bombeInternalKey[1] === validKeyTarget[1] && bombeInternalKey[2] === validKeyTarget[2]) {
         bombeRunning = false;
         document.getElementById('btnEngage').disabled = false;
         document.getElementById('solenoidIndicator').innerText = "SOLENOID: STOP DETECTED!";
         document.getElementById('solenoidIndicator').style.color = "var(--brass)";
         document.getElementById('logScanLive').style.display = 'none';
 
-        logRelay(`> <b style="color:var(--term-green);">[STOP CONFIRMED]</b> ZERO-CONTRADICTION HARNESS!`, true);
-        logRelay(`> KOPLING OTOMATIS TRIPPED DI ROTOR: <b style="color:var(--brass); font-size:13px;">[ ${curTag} ]</b>`);
-        logRelay(`> HARMONISASI DIAGONAL BOARD VALID. POSISI SIAP DIUJI KE ENIGMA.`);
-      } else {
-        // Update in-place tanpa baris baru
-        updateScanStatusLive(curTag);
+        logTerminal(`> <b style="color:var(--term-green);">[STOP CONFIRMED]</b> HARMONI SIRKUIT TERCAPAI!`, true);
+        logTerminal(`> KOPLING OTOMATIS TRIPPED DI ROTOR: <b style="color:var(--brass); font-size:13px;">[ ${currentKeyStr} ]</b>`);
+        logTerminal(`> POSISI KOMUTATOR VALID. SIAP DIUJI KE ENIGMA.`);
       }
     }
   }
 
-  if (viewMode === 'overview') {
-    const startX = 40;
-    const colSpacing = 82;
-    const drumRadius = 13;
+  // Render 108 Drum (Rack x Col x Tier)
+  const startX = 60; // Geser sedikit ke kanan
+  const colSpacing = 170; // Spasi kolom lebih lebar
+  const drumRadius = 25; // Diameter Gede (50px) agar pergerakan sikat keliatan jelas
 
-    allDrums.forEach(d => {
-      const rackY = 25 + (d.rack * 132);
-      const cy = rackY + (d.tier * 36);
-      const cx = startX + (d.col * colSpacing);
-      drawMachinedDrum(sCtx, cx, cy, drumRadius, d.angle, d.char, false);
-    });
+  drums.forEach(d => {
+    // Susunan 3 Rak Besar, Tiap rak punya 3 baris tingkat drum
+    const rackOffsetY = 40 + d.rack * 270;
+    const cy = rackOffsetY + (d.tier * 75);
+    const cx = startX + (d.col * colSpacing);
 
-    sCtx.fillStyle = "#11141a";
-    sCtx.fillRect(20, 395, stage.width - 40, 16);
-    sCtx.strokeStyle = "#252b36";
-    sCtx.strokeRect(20, 395, stage.width - 40, 16);
+    drawBrassDrum(sCtx, cx, cy, drumRadius, d.angle, d.char);
+  });
 
-    for (let b = 0; b < 26; b++) {
-      const bx = 35 + b * ((stage.width - 70) / 25);
-      sCtx.fillStyle = activeWelchmanBus[b] ? "var(--cyan)" : "#222a36";
-      sCtx.beginPath();
-      sCtx.arc(bx, 403, 3.5, 0, Math.PI * 2);
-      sCtx.fill();
-    }
-
-  } else {
-    sCtx.fillStyle = "#07090c";
-    sCtx.fillRect(0, 0, stage.width, stage.height);
-
-    sCtx.fillStyle = "var(--brass)";
-    sCtx.font = "12px monospace";
-    sCtx.fillText("FOCUS COMMUTATOR BANK: SATELIT 01 (ROTOR I - II - III DETAIL)", 30, 30);
-
-    const centerX = stage.width / 2;
-    const largeRadius = 56;
-    const tiersY = [95, 220, 345];
-    const drumLabels = [
-      `TOP DRUM (ROTOR I - SLOW) : [ ${ALPHABET[bombeInternalKey[0]]} ]`,
-      `MID DRUM (ROTOR II - MED)  : [ ${ALPHABET[bombeInternalKey[1]]} ]`,
-      `BOT DRUM (ROTOR III - FAST): [ ${ALPHABET[bombeInternalKey[2]]} ]`
-    ];
-
-    for (let t = 0; t < 3; t++) {
-      const angle = (t === 2) ? (bombeInternalKey[2] * Math.PI * 2 / 26) :
-                    (t === 1) ? (bombeInternalKey[1] * Math.PI * 2 / 26) :
-                                (bombeInternalKey[0] * Math.PI * 2 / 26);
-      const char = (t === 2) ? ALPHABET[bombeInternalKey[2]] :
-                   (t === 1) ? ALPHABET[bombeInternalKey[1]] :
-                               ALPHABET[bombeInternalKey[0]];
-
-      drawMachinedDrum(sCtx, centerX - 80, tiersY[t], largeRadius, angle, char, true);
-
-      sCtx.fillStyle = "#e2e8f0";
-      sCtx.font = "bold 13px monospace";
-      sCtx.textAlign = "left";
-      sCtx.fillText(drumLabels[t], centerX + 10, tiersY[t] - 8);
-
-      sCtx.fillStyle = "var(--cyan)";
-      sCtx.font = "11px monospace";
-      sCtx.fillText(`COMMUTATOR BRUSH: PIN #${(char.charCodeAt(0)-64)} ACTIVE`, centerX + 10, tiersY[t] + 12);
-    }
-  }
-
-  requestAnimationFrame(renderBombeOrchestration);
+  requestAnimationFrame(renderBombeCanvas);
 }
 
 function navigate(dest) {
@@ -1030,9 +953,10 @@ function navigate(dest) {
   }
 }
 
-initKeyDecks();
-updateRotorReadouts();
-requestAnimationFrame(renderBombeOrchestration);
+// Inisialisasi Sistem
+initEnigmaKeys();
+updateRotorUI();
+requestAnimationFrame(renderBombeCanvas);
 </script>
 </body>
 </html>
