@@ -70,3 +70,14 @@ menjadikanmu tokoh utama dalam setiap cerita."
 ```
 
 ##
+## Banyak Banyak
+```poet
+
+"Banyak-banyaklah memasak, Sayang!"
+
+"Karena masakanku enak?"
+
+"Tidak juga.
+
+Tapi, karena kamu cantik saat melakukannya."
+```
