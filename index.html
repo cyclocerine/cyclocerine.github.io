@@ -28,6 +28,12 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap">
     <title>Faiq Hammam | IT Engineer — AI/ML & Full-Stack</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'></rect><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='40' font-family='monospace' font-weight='bold' fill='%2310b981'>F_</text></svg>">
+    <script>
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && sessionStorage.getItem('faiq-portfolio-intro-seen') !== 'true') {
+            sessionStorage.setItem('faiq-portfolio-intro-seen', 'true');
+            document.documentElement.classList.add('intro-pending');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
 
@@ -70,16 +76,155 @@
         .font-mono { font-family: var(--font-mono); }
         .font-tech { font-family: var(--font-tech); }
 
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            display: none;
+            place-items: center;
+            overflow: hidden;
+            background: var(--bg-color);
+            color: var(--text-main);
+            opacity: 1;
+        }
+
+        html.intro-pending .intro-screen {
+            display: grid;
+        }
+
+        .intro-screen.is-leaving {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 450ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hello__div {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: min(100% - 3rem, 600px);
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hello__svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0 auto;
+            overflow: visible;
+            color: var(--text-main);
+            stroke-dasharray: 5800;
+            stroke-dashoffset: 5800;
+            animation: anim__hello 5s linear forwards;
+        }
+
+        @keyframes anim__hello {
+            0%, 25% { stroke-dashoffset: 5800; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        html.intro-pending,
+        html.intro-pending body {
+            overflow: hidden;
+        }
+
         /* Reveal Animation */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+            transition-delay: var(--reveal-delay, 0ms);
+        }
+
+        .motion-ready .reveal:not(.active) {
+            opacity: 0;
+            transform: translateY(24px);
         }
 
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        .scroll-progress {
+            position: fixed;
+            inset: 0 auto auto 0;
+            z-index: 60;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 65%, transparent);
+            transform: scaleX(0);
+            transform-origin: left;
+            pointer-events: none;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            position: absolute;
+            right: 0;
+            bottom: -7px;
+            left: 0;
+            height: 1px;
+            background: var(--accent);
+            content: "";
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 220ms ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link:focus-visible::after {
+            transform: scaleX(1);
+        }
+
+        @keyframes monogram-arrive {
+            from { opacity: 0; transform: translateY(18px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes monogram-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes menu-enter {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes palette-enter {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .hero-art .hero-monogram {
+            opacity: 0;
+        }
+
+        .hero-art.reveal.active .hero-monogram {
+            animation: monogram-arrive 700ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both, monogram-float 7s ease-in-out 900ms infinite;
+        }
+
+        #mobileMenu:not(.hidden) {
+            animation: menu-enter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .palette-panel {
+            animation: palette-enter 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        #paletteOverlay {
+            animation: overlay-enter 180ms ease-out both;
+        }
+
+        @keyframes overlay-enter {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .theme-transition-overlay {
@@ -116,6 +261,34 @@
                 linear-gradient(140deg, color-mix(in srgb, var(--accent) 12%, var(--card-bg)), var(--card-bg) 58%),
                 var(--card-bg);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 100px rgba(0, 0, 0, 0.2);
+            transition: border-color 250ms ease, box-shadow 350ms ease, transform 350ms ease;
+        }
+
+        .project-card {
+            transform: translateY(0);
+            transition: border-color 250ms ease, box-shadow 300ms ease, transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .project-card-art > div[aria-hidden="true"] {
+            transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 350ms ease;
+        }
+
+        .filter-btn {
+            transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+        }
+
+        .filter-btn:active {
+            transform: scale(0.96);
+        }
+
+        .cta-link svg,
+        .cta-link span[aria-hidden="true"] {
+            transition: transform 220ms ease;
+        }
+
+        .cta-link:hover svg,
+        .cta-link:hover span[aria-hidden="true"] {
+            transform: translate(3px, -3px);
         }
 
         .hero-art-grid {
@@ -183,6 +356,32 @@
                 transition-duration: .001ms !important;
                 scroll-behavior: auto !important;
             }
+            .intro-screen {
+                display: none !important;
+            }
+            .motion-ready .reveal:not(.active) {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+            .hero-art:hover {
+                border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 36px 110px color-mix(in srgb, var(--accent) 12%, transparent);
+                transform: translateY(-3px);
+            }
+
+            .project-card:hover,
+            .project-card:focus-visible {
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+                transform: translateY(-5px);
+            }
+
+            .project-card:hover .project-card-art > div[aria-hidden="true"],
+            .project-card:focus-visible .project-card-art > div[aria-hidden="true"] {
+                transform: scale(1.06);
+            }
         }
 
         /* Prevent accidental focus loss behind modal UI. */
@@ -218,8 +417,18 @@
     </script>\n</head>
 
 <body class="selection:bg-emerald-500 selection:text-black">
-    <a class="skip-link" href="#main-content">Skip to content</a>
+        <div id="introScreen" class="intro-screen" role="dialog" aria-modal="true" aria-labelledby="introTitle" tabindex="-1">
+            <h1 id="introTitle" class="sr-only">Hello</h1>
+            <div class="hello__div" aria-hidden="true">
+                <svg class="hello__svg" viewBox="0 0 1230.94 414.57" role="presentation">
+                    <path d="M-293.58-104.62S-103.61-205.49-60-366.25c9.13-32.45,9-58.31,0-74-10.72-18.82-49.69-33.21-75.55,31.94-27.82,70.11-52.22,377.24-44.11,322.48s34-176.24,99.89-183.19c37.66-4,49.55,23.58,52.83,47.92a117.06,117.06,0,0,1-3,45.32c-7.17,27.28-20.47,97.67,33.51,96.86,66.93-1,131.91-53.89,159.55-84.49,31.1-36.17,31.1-70.64,19.27-90.25-16.74-29.92-69.47-33-92.79,16.73C62.78-179.86,98.7-93.8,159-81.63S302.7-99.55,393.3-269.92c29.86-58.16,52.85-114.71,46.14-150.08-7.44-39.21-59.74-54.5-92.87-8.7-47,65-61.78,266.62-34.74,308.53S416.62-58,481.52-130.31s133.2-188.56,146.54-256.23c14-71.15-56.94-94.64-88.4-47.32C500.53-375,467.58-229.49,503.3-127a73.73,73.73,0,0,0,23.43,33.67c25.49,20.23,55.1,16,77.46,6.32a111.25,111.25,0,0,0,30.44-19.87c37.73-34.23,29-36.71,64.58-127.53C724-284.3,785-298.63,821-259.13a71,71,0,0,1,13.69,22.56c17.68,46,6.81,80-6.81,107.89-12,24.62-34.56,42.72-61.45,47.91-23.06,4.45-48.37-.35-66.48-24.27a78.88,78.88,0,0,1-12.66-25.8c-14.75-51,4.14-88.76,11-101.41,6.18-11.39,37.26-69.61,103.42-42.24,55.71,23.05,100.66-23.31,100.66-23.31" transform="translate(311.08 476.02)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="35" />
+                </svg>
+            </div>
+        </div>
 
+        <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <div id="scrollProgress" class="scroll-progress" aria-hidden="true"></div>
     <div id="themeOverlay" class="theme-transition-overlay"></div>
     <!-- Navbar -->
     <nav aria-label="Primary navigation"
@@ -228,9 +437,9 @@
             <div class="flex items-center gap-6 md:gap-12">
                 <span class="text-[var(--text-main)] font-black tracking-tighter text-xl font-tech">FAIQ.</span>
                 <div class="hidden md:flex gap-8 text-[10px] font-bold tracking-[0.2em] text-[var(--text-sub)]">
-                    <a href="#home" class="hover:text-[var(--accent)] transition-colors uppercase">Home</a>
-                    <a href="#works" class="hover:text-[var(--accent)] transition-colors uppercase">Selected work</a>
-                    <a href="#about" class="hover:text-[var(--accent)] transition-colors uppercase">Contact</a>
+                    <a href="#home" class="nav-link hover:text-[var(--accent)] transition-colors uppercase">Home</a>
+                    <a href="#works" class="nav-link hover:text-[var(--accent)] transition-colors uppercase">Selected work</a>
+                    <a href="#about" class="nav-link hover:text-[var(--accent)] transition-colors uppercase">Contact</a>
                 </div>
                 <button id="mobileMenuBtn" type="button" aria-label="Open navigation menu" aria-controls="mobileMenu" aria-expanded="false" class="md:hidden text-[var(--text-sub)] hover:text-[var(--accent)] transition-colors">
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -267,7 +476,7 @@
     <div id="commandPalette" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle" class="fixed inset-0 z-[100] hidden flex items-start justify-center pt-24 sm:pt-32 px-4">
         <div id="paletteOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
         <div
-            class="relative w-full max-w-lg bg-zinc-900" border border-emerald-500/20 rounded shadow-[0_0_50px_rgba(16,185,129,0.1)] overflow-hidden scale-95 transition-transform duration-200">
+            class="palette-panel relative w-full max-w-lg bg-zinc-900 border border-emerald-500/20 rounded shadow-[0_0_50px_rgba(16,185,129,0.1)] overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-white/5 flex items-center gap-4">
                 <span id="commandPaletteTitle" class="sr-only">Command palette</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5"><path fill="none" stroke="currentColor" stroke-width="2" d="m9 18 6-6-6-6"/></svg>
@@ -343,16 +552,16 @@
                     </p>
 
                     <div class="reveal mt-8 flex flex-col sm:flex-row gap-3">
-                        <a href="#works" class="inline-flex items-center justify-center gap-3 px-6 py-4 bg-[var(--accent)] text-black text-[10px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all">
+                        <a href="#works" class="cta-link inline-flex items-center justify-center gap-3 px-6 py-4 bg-[var(--accent)] text-black text-[10px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all">
                             Explore selected work <span aria-hidden="true">↘</span>
                         </a>
-                        <a href="#about" class="inline-flex items-center justify-center gap-3 px-6 py-4 border border-[var(--border)] text-[var(--text-main)] text-[10px] font-bold tracking-[0.12em] uppercase hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">
+                        <a href="#about" class="cta-link inline-flex items-center justify-center gap-3 px-6 py-4 border border-[var(--border)] text-[var(--text-main)] text-[10px] font-bold tracking-[0.12em] uppercase hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">
                             Get in touch <span aria-hidden="true">↗</span>
                         </a>
                     </div>
                 </div>
 
-                <div class="reveal relative mx-auto w-full max-w-[30rem] lg:max-w-none">
+                <div class="hero-art reveal relative mx-auto w-full max-w-[30rem] lg:max-w-none">
                     <div class="hero-art relative aspect-[0.94] overflow-hidden border border-[var(--border)]">
                         <div class="absolute inset-0 hero-art-grid opacity-50"></div>
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -484,29 +693,94 @@
         const themeOverlay = document.getElementById('themeOverlay');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
+        const introScreen = document.getElementById('introScreen');
+        const scrollProgress = document.getElementById('scrollProgress');
         const filterBtns = document.querySelectorAll('.filter-btn');
         let revealObserver = null;
         let previousActiveElement = null;
+        let scrollUpdatePending = false;
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.documentElement.classList.add('motion-ready');
+
+        function startIntro() {
+            if (!document.documentElement.classList.contains('intro-pending')) return;
+
+            const backgroundContent = [
+                document.querySelector('nav'),
+                document.getElementById('main-content'),
+                document.querySelector('footer')
+            ].filter(Boolean);
+            backgroundContent.forEach((element) => { element.inert = true; });
+            document.body.classList.add('modal-open');
+            introScreen.focus();
+
+            let isClosing = false;
+            let closeTimer;
+
+            function closeIntro() {
+                if (isClosing) return;
+                isClosing = true;
+                window.clearTimeout(closeTimer);
+                introScreen.classList.add('is-leaving');
+                window.setTimeout(() => {
+                    document.documentElement.classList.remove('intro-pending');
+                    introScreen.setAttribute('aria-hidden', 'true');
+                    backgroundContent.forEach((element) => { element.inert = false; });
+                    document.body.classList.remove('modal-open');
+                    document.getElementById('main-content').focus({ preventScroll: true });
+                    document.removeEventListener('keydown', trapIntroKeys, true);
+                }, 450);
+            }
+
+            function trapIntroKeys(event) {
+                if (!document.documentElement.classList.contains('intro-pending')) return;
+                event.stopImmediatePropagation();
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeIntro();
+                } else if (event.key === 'Tab') {
+                    event.preventDefault();
+                    introScreen.focus();
+                }
+            }
+
+            document.addEventListener('keydown', trapIntroKeys, true);
+            closeTimer = window.setTimeout(closeIntro, 5600);
+        }
 
         function observeElements() {
             if (revealObserver) revealObserver.disconnect();
+            const revealElements = document.querySelectorAll('.reveal:not(.active)');
+            if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+                revealElements.forEach((el) => el.classList.add('active'));
+                return;
+            }
             revealObserver = new IntersectionObserver((entries, observer) => {
                 for (const entry of entries) {
                     if (!entry.isIntersecting) continue;
+                    const siblings = Array.from(entry.target.parentElement.children);
+                    const siblingIndex = siblings.indexOf(entry.target);
+                    entry.target.style.setProperty('--reveal-delay', `${Math.min(siblingIndex * 90, 270)}ms`);
                     entry.target.classList.add('active');
                     observer.unobserve(entry.target);
                 }
             }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
-            document.querySelectorAll('.reveal:not(.active)').forEach((el) => revealObserver.observe(el));
+            revealElements.forEach((el) => revealObserver.observe(el));
+        }
+
+        function updateScrollProgress() {
+            const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
+            scrollProgress.style.transform = `scaleX(${Math.min(Math.max(progress, 0), 1)})`;
+            scrollUpdatePending = false;
         }
 
         function renderProjects(filter = 'ALL') {
             const filtered = filter === 'ALL' ? PROJECTS : PROJECTS.filter((p) => p.category === filter);
             projectGrid.setAttribute('aria-busy', 'true');
             projectGrid.innerHTML = filtered.map((p) => `
-                <a aria-label="Open ${p.title} on GitHub" href="${p.url}" target="_blank" rel="noopener noreferrer" class="filtering-item reveal group relative bg-[var(--card-bg)] border border-[var(--border)] overflow-hidden hover:border-[var(--accent)]/40 transition-all duration-500 active block" data-category="${p.category}">
+                <a aria-label="Open ${p.title} on GitHub" href="${p.url}" target="_blank" rel="noopener noreferrer" class="filtering-item project-card reveal group relative bg-[var(--card-bg)] border border-[var(--border)] overflow-hidden hover:border-[var(--accent)]/40 transition-all duration-500 block" data-category="${p.category}">
                     <div class="aspect-[16/10] bg-[var(--bg-color)] relative overflow-hidden project-card-art">
                         <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] via-transparent to-transparent opacity-90"></div>
                         <div aria-hidden="true" class="absolute inset-0 flex items-center justify-center opacity-5 group-hover:opacity-20 transition-opacity duration-700">
@@ -591,8 +865,17 @@
             });
         }
 
+        startIntro();
         renderProjects();
+        observeElements();
+        updateScrollProgress();
         if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+
+        window.addEventListener('scroll', () => {
+            if (scrollUpdatePending) return;
+            scrollUpdatePending = true;
+            window.requestAnimationFrame(updateScrollProgress);
+        }, { passive: true });
 
         filterBtns.forEach((btn) => btn.addEventListener('click', () => {
             filterBtns.forEach((b) => {
