@@ -388,7 +388,11 @@
             animation: overlay-enter 180ms ease-out both;
         }
 
-        .cv-reader-panel {
+        #cvReader:not(.hidden) {
+            animation: overlay-enter 220ms ease-out both;
+        }
+
+        #cvReader:not(.hidden) .cv-reader-panel {
             animation: palette-enter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
@@ -817,7 +821,7 @@
                             <h3 class="text-sm font-bold">Universitas Pembangunan Nasional "Veteran" Yogyakarta (UPNYK)</h3>
                             <span class="shrink-0 text-xs text-zinc-600">Yogyakarta, Indonesia</span>
                         </div>
-                        <p class="mt-1 text-xs leading-relaxed text-zinc-700">Bachelor of Science in Information Technology <span class="px-1 text-zinc-400">·</span> Expected Graduation: 2026</p>
+                        <p class="mt-1 text-xs leading-relaxed text-zinc-700">Bachelor of Science in Information Technology <span class="px-1 text-zinc-400">·</span> Expected Graduation: 2028</p>
                         <ul class="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-zinc-700">
                             <li><strong>Current GPA:</strong> 3.44 / 4.00</li>
                             <li><strong>Relevant Coursework:</strong> Machine Learning, Deep Learning, Data Structures &amp; Algorithms, Web Engineering, Database Management Systems, Operating Systems, Parallel Programming.</li>
