@@ -70,72 +70,6 @@
         .font-mono { font-family: var(--font-mono); }
         .font-tech { font-family: var(--font-tech); }
 
-        /* AirPods Tumbling & Orbiting Animation */
-        @keyframes orbit-1 {
-            from { transform: translate(-50%, -50%) rotate(0deg) translateX(180px); }
-            to { transform: translate(-50%, -50%) rotate(360deg) translateX(180px); }
-        }
-        @keyframes orbit-2 {
-            from { transform: translate(-50%, -50%) rotate(180deg) translateX(280px); }
-            to { transform: translate(-50%, -50%) rotate(540deg) translateX(280px); }
-        }
-        @keyframes tumble {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @media (min-width: 768px) {
-            @keyframes orbit-1 {
-                from { transform: translate(-50%, -50%) rotate(0deg) translateX(250px); }
-                to { transform: translate(-50%, -50%) rotate(360deg) translateX(250px); }
-            }
-            @keyframes orbit-2 {
-                from { transform: translate(-50%, -50%) rotate(180deg) translateX(400px); }
-                to { transform: translate(-50%, -50%) rotate(540deg) translateX(400px); }
-            }
-        }
-
-        .blueprint-pod {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 80px;
-            height: 80px;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .airpod-silhouette {
-            width: 100%;
-            height: 100%;
-            fill: none;
-            stroke: var(--accent);
-            stroke-width: 1.2;
-            opacity: 0.2;
-            filter: drop-shadow(0 0 10px var(--accent));
-            animation: tumble 10s linear infinite;
-        }
-
-        .pod-1 { animation: orbit-1 45s linear infinite; }
-        .pod-2 { animation: orbit-2 65s linear infinite; }
-
-        /* Marquee */
-        @keyframes marquee {
-            0% {
-                transform: translateX(0);
-            }
-
-            100% {
-                transform: translateX(-50%);
-            }
-        }
-
-        .animate-marquee {
-            display: flex;
-            width: max-content;
-            animation: marquee 40s linear infinite;
-        }
-
         /* Reveal Animation */
         .reveal {
             opacity: 0;
@@ -159,15 +93,42 @@
         }
 
         .hero-title {
-            font-size: clamp(3rem, 14vw, 11rem);
-            line-height: 0.95;
-            letter-spacing: -0.05em;
+            font-size: clamp(3.25rem, 8.5vw, 7.5rem);
+            line-height: 0.9;
+            letter-spacing: -0.075em;
         }
 
         @media (min-width: 768px) {
             .hero-title {
-                line-height: 0.85;
+                line-height: 0.88;
             }
+        }
+
+        .portfolio-hero {
+            isolation: isolate;
+            background:
+                radial-gradient(ellipse at 78% 40%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 34rem),
+                var(--bg-color);
+        }
+
+        .hero-art {
+            background:
+                linear-gradient(140deg, color-mix(in srgb, var(--accent) 12%, var(--card-bg)), var(--card-bg) 58%),
+                var(--card-bg);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 100px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-art-grid {
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 34px 34px;
+            mask-image: linear-gradient(to bottom, black, transparent 90%);
+        }
+
+        .hero-monogram {
+            font-size: clamp(8rem, 22vw, 17rem);
+            line-height: 0.8;
+            letter-spacing: -0.12em;
+            text-shadow: 0 0 90px color-mix(in srgb, var(--accent) 22%, transparent);
         }
 
         .section-title {
@@ -198,19 +159,6 @@
             filter: blur(2px);
         }
 
-        /* Scanline Effect */
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(16, 185, 129, 0.02) 50%);
-            background-size: 100% 4px;
-            z-index: 100;
-            pointer-events: none;
-        }
-
         /* Accessibility + performance */
         html { scroll-padding-top: 4rem; }
         body { min-width: 320px; }
@@ -235,25 +183,6 @@
                 transition-duration: .001ms !important;
                 scroll-behavior: auto !important;
             }
-            .scanline { display: none; }
-        }
-        @media (max-width: 767px) {
-            .scanline { opacity: .6; }
-        }
-            .page-hidden .animate-marquee, .page-hidden .blueprint-pod { animation-play-state: paused !important; }
-        /* Production hardening — preserves the existing visual language */
-        @media (max-width: 767px) {
-            /* Keep mobile visually clean and reduce compositor work. */
-            .scanline { display: none; }
-            .animate-marquee { animation-duration: 60s; }
-            .airpod-silhouette { filter: none; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .animate-marquee,
-            .blueprint-pod,
-            .airpod-silhouette,
-            .animate-pulse { animation: none !important; }
         }
 
         /* Prevent accidental focus loss behind modal UI. */
@@ -292,8 +221,6 @@
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <div id="themeOverlay" class="theme-transition-overlay"></div>
-    <div class="scanline"></div>
-
     <!-- Navbar -->
     <nav aria-label="Primary navigation"
         class="fixed top-0 left-0 w-full z-50 border-b border-[var(--border)] bg-[var(--bg-color)]/60 backdrop-blur-xl">
@@ -301,15 +228,18 @@
             <div class="flex items-center gap-6 md:gap-12">
                 <span class="text-[var(--text-main)] font-black tracking-tighter text-xl font-tech">FAIQ.</span>
                 <div class="hidden md:flex gap-8 text-[10px] font-bold tracking-[0.2em] text-[var(--text-sub)]">
-                    <a href="#home" class="hover:text-[var(--accent)] transition-colors uppercase">[ HOME ]</a>
-                    <a href="#works" class="hover:text-[var(--accent)] transition-colors uppercase">[ WORKS ]</a>
-                    <a href="#about" class="hover:text-[var(--accent)] transition-colors uppercase">[ ABOUT ]</a>
+                    <a href="#home" class="hover:text-[var(--accent)] transition-colors uppercase">Home</a>
+                    <a href="#works" class="hover:text-[var(--accent)] transition-colors uppercase">Selected work</a>
+                    <a href="#about" class="hover:text-[var(--accent)] transition-colors uppercase">Contact</a>
                 </div>
                 <button id="mobileMenuBtn" type="button" aria-label="Open navigation menu" aria-controls="mobileMenu" aria-expanded="false" class="md:hidden text-[var(--text-sub)] hover:text-[var(--accent)] transition-colors">
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
             </div>
             <div class="flex items-center gap-4">
+                <a href="#about" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-[10px] font-bold tracking-[0.12em] uppercase border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">
+                    Let's talk <span aria-hidden="true">↗</span>
+                </a>
                 <button id="searchBtn" type="button" aria-label="Open command palette" aria-controls="commandPalette" aria-expanded="false"
                     class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded border border-[var(--border)] bg-[var(--text-main)]/5 hover:bg-[var(--text-main)]/10 transition-all group">
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="w-3.5 h-3.5"><path fill="none" stroke="currentColor" stroke-width="2" d="m4 17 6-5-6-5M12 19h8"/></svg>
@@ -327,9 +257,9 @@
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="fixed top-16 left-0 w-full z-40 hidden md:hidden border-b border-[var(--border)] bg-[var(--bg-color)]/95 backdrop-blur-xl">
         <div class="flex flex-col p-6 gap-4 font-mono text-[11px] font-bold tracking-[0.3em] text-[var(--text-sub)] uppercase">
-            <a href="#home" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">[ HOME ]</a>
-            <a href="#works" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">[ WORKS ]</a>
-            <a href="#about" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">[ ABOUT ]</a>
+            <a href="#home" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Home</a>
+            <a href="#works" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Selected work</a>
+            <a href="#about" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Contact</a>
         </div>
     </div>
 
@@ -392,67 +322,64 @@
     <main id="main-content" tabindex="-1">
     <!-- Hero -->
     <section id="home" aria-labelledby="hero-title"
-        class="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-24 pb-20 overflow-hidden">
-        <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
-            <div class="absolute inset-0 bg-[radial-gradient(var(--text-sub)_0.5px,transparent_0.5px)] [background-size:30px_30px] opacity-20"></div>
-            
-            <!-- AirPods Pod 1 -->
-            <div class="blueprint-pod pod-1">
-                <svg viewBox="0 0 100 100" class="airpod-silhouette">
-                    <path d="M48 20c-10 0-18 8-18 18s4 12 10 14l4 24c1 2 3 3 5 2s3-3 2-5l-4-24c6-2 10-8 10-15s-9-14-9-14z" />
-                    <circle cx="48" cy="38" r="4" stroke-dasharray="2 2" />
-                </svg>
-            </div>
-            
-            <!-- AirPods Pod 2 -->
-            <div class="blueprint-pod pod-2">
-                <svg viewBox="0 0 100 100" class="airpod-silhouette" style="animation-duration: 7s;">
-                    <path d="M48 20c-10 0-18 8-18 18s4 12 10 14l4 24c1 2 3 3 5 2s3-3 2-5l-4-24c6-2 10-8 10-15s-9-14-9-14z" transform="scale(-1, 1) translate(-96, 0)" />
-                </svg>
-            </div>
-
-            <!-- Orbit Guides -->
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] sm:w-[500px] h-[360px] sm:h-[500px] border border-[var(--accent)]/5 rounded-full"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] sm:w-[800px] h-[560px] sm:h-[800px] border border-[var(--accent)]/5 rounded-full"></div>
-        </div>
+        class="portfolio-hero relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-28 pb-12 overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none hero-art-grid opacity-30"></div>
 
         <div class="max-w-7xl mx-auto w-full relative z-10">
-            <div class="reveal flex items-center gap-3 mb-8">
-                <div class="w-2 h-2 bg-[var(--accent)] shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-pulse"></div>
-                <span class="text-[var(--accent)] text-[9px] font-mono font-bold tracking-[0.5em] uppercase">status //
-                    engine_active</span>
-            </div>
+            <div class="grid lg:grid-cols-[1.15fr_0.85fr] items-center gap-12 lg:gap-16">
+                <div class="relative z-10">
+                    <div class="reveal inline-flex items-center gap-2.5 rounded-full border border-[var(--border)] bg-[var(--card-bg)] px-4 py-2 mb-8">
+                        <span class="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_14px_var(--accent)]"></span>
+                        <span class="text-[9px] font-mono font-bold tracking-[0.18em] text-[var(--text-sub)] uppercase">IT Engineer · Indonesia</span>
+                    </div>
 
-            <h1 id="hero-title" class="reveal hero-title font-black tracking-tighter text-[var(--text-main)] uppercase">
-                FAIQ<br />
-                <span class="opacity-10">HAMMAM</span>
-            </h1>
+                    <h1 id="hero-title" class="reveal hero-title font-black text-[var(--text-main)]">
+                        FAIQ<br />
+                        <span class="text-[var(--accent)]">HAMMAM<span class="text-[var(--text-main)]">.</span></span>
+                    </h1>
 
-            <div
-                class="reveal mt-16 sm:mt-24 flex flex-col md:flex-row md:items-end justify-between gap-10 border-t border-[var(--border)] pt-10 sm:pt-14">
-                <div class="max-w-xl">
-                    <p class="text-[var(--text-sub)] text-sm sm:text-base leading-relaxed font-mono">
-                        // INITIALIZING BIO...<br>
-                        IT Engineer with a passion for tech, tinkering, and turning coffee into code. Exploring the
-                        frontiers of AI/ML and Web Technologies.
+                    <p class="reveal mt-8 max-w-xl text-[var(--text-sub)] text-sm sm:text-base leading-relaxed">
+                        I turn complex ideas into thoughtful digital experiences. Exploring the intersection of AI/ML, full-stack web, Web3, and IoT.
                     </p>
+
+                    <div class="reveal mt-8 flex flex-col sm:flex-row gap-3">
+                        <a href="#works" class="inline-flex items-center justify-center gap-3 px-6 py-4 bg-[var(--accent)] text-black text-[10px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all">
+                            Explore selected work <span aria-hidden="true">↘</span>
+                        </a>
+                        <a href="#about" class="inline-flex items-center justify-center gap-3 px-6 py-4 border border-[var(--border)] text-[var(--text-main)] text-[10px] font-bold tracking-[0.12em] uppercase hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors">
+                            Get in touch <span aria-hidden="true">↗</span>
+                        </a>
+                    </div>
                 </div>
-                <div
-                    class="flex flex-row md:flex-col flex-wrap items-start md:items-end gap-x-6 gap-y-3 font-mono text-[10px] sm:text-[11px] text-[var(--accent)] font-bold tracking-[0.2em] uppercase">
-                    <div class="flex gap-4 sm:gap-6"><span>[ AI_ML ]</span> <span>[ FULLSTACK ]</span></div>
-                    <div class="flex gap-4 sm:gap-6"><span>[ WEB3 ]</span> <span>[ IOT_CORE ]</span></div>
+
+                <div class="reveal relative mx-auto w-full max-w-[30rem] lg:max-w-none">
+                    <div class="hero-art relative aspect-[0.94] overflow-hidden border border-[var(--border)]">
+                        <div class="absolute inset-0 hero-art-grid opacity-50"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span aria-hidden="true" class="hero-monogram font-black font-tech text-[var(--text-main)]/90">FH<span class="text-[var(--accent)]">.</span></span>
+                        </div>
+                        <div class="absolute left-5 top-5 sm:left-7 sm:top-7 font-mono text-[9px] tracking-[0.18em] text-[var(--text-sub)] uppercase">
+                            <span class="block text-[var(--accent)] mb-1">Portfolio / 2026</span>
+                            Digital craft &amp; engineering
+                        </div>
+                        <div class="absolute right-5 top-1/2 -translate-y-1/2 flex flex-col gap-3">
+                            <span class="rounded-full border border-[var(--border)] bg-[var(--bg-color)]/70 px-3 py-2 text-[9px] font-mono text-[var(--text-main)] backdrop-blur">AI / ML</span>
+                            <span class="rounded-full border border-[var(--border)] bg-[var(--bg-color)]/70 px-3 py-2 text-[9px] font-mono text-[var(--text-main)] backdrop-blur">FULL-STACK</span>
+                            <span class="rounded-full border border-[var(--border)] bg-[var(--bg-color)]/70 px-3 py-2 text-[9px] font-mono text-[var(--text-main)] backdrop-blur">WEB3 · IoT</span>
+                        </div>
+                        <div class="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7 flex items-end justify-between border-t border-[var(--border)] pt-4">
+                            <span class="font-mono text-[9px] text-[var(--text-sub)] tracking-[0.12em] uppercase">Ideas into impact</span>
+                            <span aria-hidden="true" class="text-[var(--accent)] text-xl">↗</span>
+                        </div>
+                    </div>
+                    <div aria-hidden="true" class="absolute -z-10 -right-5 -bottom-5 w-28 h-28 border border-[var(--accent)]/20"></div>
                 </div>
             </div>
-        </div>
 
-        <div
-            class="absolute bottom-0 left-0 w-full overflow-hidden py-6 border-y border-[var(--border)] bg-[var(--bg-color)]">
-            <div class="animate-marquee">
-                <div class="flex gap-20 text-[9px] font-bold font-mono text-zinc-700 tracking-[0.6em] px-10 uppercase">
-                    <span>Python</span><span>Tensorflow</span><span>Keras</span><span>React.js</span><span>PHP</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span>
-                </div>
-                <div class="flex gap-20 text-[9px] font-bold font-mono text-zinc-700 tracking-[0.6em] px-10 uppercase">
-                    <span>Python</span><span>Tensorflow</span><span>Keras</span><span>React.js</span><span>PHP</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span>
+            <div class="reveal mt-14 sm:mt-20 border-t border-[var(--border)] pt-5 sm:pt-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                <span class="shrink-0 text-[9px] font-mono font-bold tracking-[0.2em] text-[var(--text-sub)] uppercase">Tools of the trade</span>
+                <div class="tech-strip flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-8 text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.12em] text-[var(--text-main)]/70 uppercase">
+                    <span>Python</span><span>TensorFlow</span><span>React</span><span>Node.js</span><span>PostgreSQL</span><span>Docker</span>
                 </div>
             </div>
         </div>
@@ -724,10 +651,6 @@
             if (href && href.startsWith('#')) { window.location.hash = href; toggleCommandPalette(false); }
         }));
 
-        // Keep the marquee and orbit effects from consuming CPU when the tab is hidden.
-        document.addEventListener('visibilitychange', () => {
-            document.documentElement.classList.toggle('page-hidden', document.hidden);
-        });
     </script>
 </body>
 
