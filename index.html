@@ -388,6 +388,76 @@
             animation: overlay-enter 180ms ease-out both;
         }
 
+        .cv-reader-panel {
+            animation: palette-enter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .cv-document {
+            color: #18181b;
+            background: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+            letter-spacing: normal;
+        }
+
+        .cv-document a {
+            color: #047857;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        @media (max-width: 767px) {
+            .cv-reader-panel {
+                border-radius: 0;
+            }
+        }
+
+        @media print {
+            @page {
+                margin: 14mm;
+            }
+
+            body:has(#cvReader:not(.hidden)) > :not(#cvReader) {
+                display: none !important;
+            }
+
+            #cvReader:not(.hidden) {
+                position: static;
+                display: block;
+                overflow: visible;
+                padding: 0;
+                background: #ffffff;
+            }
+
+            #cvReader .cv-reader-panel {
+                width: 100%;
+                max-height: none;
+                overflow: visible;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            #cvReader .cv-reader-toolbar {
+                display: none;
+            }
+
+            #cvReader .cv-reader-scroll {
+                overflow: visible;
+                padding: 0;
+            }
+
+            #cvReader .cv-document {
+                max-width: none;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            #cvReader .cv-document > section,
+            #cvReader .cv-document > header {
+                break-inside: avoid;
+            }
+        }
+
         @keyframes overlay-enter {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -617,6 +687,7 @@
                 <a href="#home" class="nav-link uppercase" aria-current="location">Home</a>
                 <a href="#works" class="nav-link uppercase">Work</a>
                 <a href="#publications" class="nav-link uppercase">Research</a>
+                <button type="button" data-open-cv class="nav-link uppercase">CV</button>
                 <a href="#about" class="nav-link uppercase">Contact</a>
             </div>
 
@@ -641,6 +712,7 @@
             <a href="#home" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Home</a>
             <a href="#works" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Selected work</a>
             <a href="#publications" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Research</a>
+            <button type="button" data-open-cv class="mobile-nav-link text-left hover:text-[var(--accent)] transition-colors py-2">CV</button>
             <a href="#about" class="mobile-nav-link hover:text-[var(--accent)] transition-colors py-2">Contact</a>
         </div>
     </div>
@@ -703,6 +775,127 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CV Reader -->
+    <div id="cvReader" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/65 backdrop-blur-md p-0 sm:p-5" role="dialog" aria-modal="true" aria-labelledby="cvReaderTitle">
+        <div class="cv-reader-panel flex max-h-full sm:max-h-[min(92vh,1000px)] w-full max-w-5xl flex-col overflow-hidden border border-[var(--border)] bg-[var(--bg-color)] shadow-2xl sm:rounded-2xl">
+            <header class="cv-reader-toolbar flex shrink-0 items-center justify-between gap-4 border-b border-[var(--border)] px-4 py-3 sm:px-6">
+                <div class="min-w-0">
+                    <p class="text-[9px] font-mono font-bold uppercase tracking-[0.22em] text-[var(--accent)]">Document reader</p>
+                    <h2 id="cvReaderTitle" class="mt-1 truncate text-sm font-bold text-[var(--text-main)]">Faiq Hammam — CV</h2>
+                </div>
+                <div class="flex shrink-0 items-center gap-2">
+                    <button id="cvPrintBtn" type="button" class="inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--border)] px-4 text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--text-main)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7zM17 11h.01" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Print / Save as PDF
+                    </button>
+                    <button id="cvCloseBtn" type="button" aria-label="Close CV reader" class="nav-icon-button">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="cv-reader-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain bg-zinc-100/70 p-4 sm:p-8">
+                <article class="cv-document mx-auto max-w-[800px] px-6 py-8 shadow-sm sm:px-12 sm:py-12 lg:px-16">
+                    <header class="border-b border-zinc-300 pb-5">
+                        <h1 class="font-tech text-3xl font-black tracking-tight sm:text-4xl">FAIQ HAMMAM</h1>
+                        <address class="mt-3 flex flex-wrap gap-x-2 gap-y-1 text-xs not-italic leading-relaxed text-zinc-700">
+                            <span>Yogyakarta, Indonesia</span><span aria-hidden="true">|</span>
+                            <a href="https://cyclocerine.me/" target="_blank" rel="noopener noreferrer">cyclocerine.me</a><span aria-hidden="true">|</span>
+                            <a href="https://github.com/cyclocerine" target="_blank" rel="noopener noreferrer">github.com/cyclocerine</a><span aria-hidden="true">|</span>
+                            <a href="https://linkedin.com/in/faiqhammam" target="_blank" rel="noopener noreferrer">linkedin.com/in/faiqhammam</a><span aria-hidden="true">|</span>
+                            <a href="mailto:hammamfaiq@protonmail.com">hammamfaiq@protonmail.com</a>
+                        </address>
+                    </header>
+
+                    <section class="mt-7" aria-labelledby="cv-education">
+                        <h2 id="cv-education" class="border-b border-zinc-300 pb-1 text-xs font-bold uppercase tracking-[0.16em]">Education</h2>
+                        <div class="mt-3 flex flex-col justify-between gap-1 sm:flex-row sm:gap-6">
+                            <h3 class="text-sm font-bold">Universitas Pembangunan Nasional "Veteran" Yogyakarta (UPNYK)</h3>
+                            <span class="shrink-0 text-xs text-zinc-600">Yogyakarta, Indonesia</span>
+                        </div>
+                        <p class="mt-1 text-xs leading-relaxed text-zinc-700">Bachelor of Science in Information Technology <span class="px-1 text-zinc-400">·</span> Expected Graduation: 2026</p>
+                        <ul class="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-zinc-700">
+                            <li><strong>Current GPA:</strong> 3.44 / 4.00</li>
+                            <li><strong>Relevant Coursework:</strong> Machine Learning, Deep Learning, Data Structures &amp; Algorithms, Web Engineering, Database Management Systems, Operating Systems, Parallel Programming.</li>
+                        </ul>
+                    </section>
+
+                    <section class="mt-7" aria-labelledby="cv-skills">
+                        <h2 id="cv-skills" class="border-b border-zinc-300 pb-1 text-xs font-bold uppercase tracking-[0.16em]">Technical Skills</h2>
+                        <ul class="mt-3 space-y-2 text-xs leading-relaxed text-zinc-700">
+                            <li><strong class="text-zinc-900">Machine Learning &amp; AI:</strong> PyTorch, CUDA, Python, Deep Reinforcement Learning (PPO), Scikit-Learn, Pandas, NumPy, Time-Series Forecasting, Quantitative Modeling.</li>
+                            <li><strong class="text-zinc-900">Web Development:</strong> Next.js, Vite, React, Django, Django REST Framework, JavaScript, TypeScript, HTML5, CSS3, Tailwind CSS.</li>
+                            <li><strong class="text-zinc-900">Programming Languages:</strong> Python, C++, SQL, JavaScript, TypeScript, C.</li>
+                            <li><strong class="text-zinc-900">Tools &amp; Environment:</strong> Git, GitHub, Linux (Debian/Ubuntu), VS Code, Jupyter Notebook, CUDA Toolkit, RESTful APIs.</li>
+                        </ul>
+                    </section>
+
+                    <section class="mt-7" aria-labelledby="cv-projects">
+                        <h2 id="cv-projects" class="border-b border-zinc-300 pb-1 text-xs font-bold uppercase tracking-[0.16em]">Featured Projects</h2>
+                        <div class="mt-4 space-y-5 text-xs leading-relaxed text-zinc-700">
+                            <section>
+                                <div class="flex flex-col justify-between gap-1 sm:flex-row sm:gap-4">
+                                    <h3 class="text-sm font-bold text-zinc-900">Q-ALU PyTorch Implementation</h3>
+                                    <span class="text-zinc-600">PyTorch, CUDA, Python</span>
+                                </div>
+                                <p class="mt-1"><a href="https://github.com/cyclocerine/qalu-pytorch" target="_blank" rel="noopener noreferrer">Official Repository ↗</a></p>
+                                <ul class="mt-1 list-disc space-y-1 pl-5">
+                                    <li>Engineered and open-sourced the official PyTorch implementation of <strong>Q-ALU (Quant Asymmetric Leaky Unit)</strong>, a market-psychology-aware activation function optimized for high-frequency quantitative trading.</li>
+                                    <li>Integrated downside risk protection mechanisms directly into policy gradient algorithms (PPO) to improve training stability and drawdown resistance in volatile environments.</li>
+                                    <li>Utilized CUDA-accelerated tensor computations to achieve ultra-fast backtesting and low-latency inference performance.</li>
+                                </ul>
+                            </section>
+                            <section>
+                                <div class="flex flex-col justify-between gap-1 sm:flex-row sm:gap-4">
+                                    <h3 class="text-sm font-bold text-zinc-900">AI Algorithmic Hedge Fund Platform</h3>
+                                    <span class="text-zinc-600">PyTorch, CUDA, Python</span>
+                                </div>
+                                <ul class="mt-1 list-disc space-y-1 pl-5">
+                                    <li>Architected an algorithmic trading platform featuring automated execution strategies, multi-asset analytics, and real-time risk evaluation modules.</li>
+                                    <li>Developed deep learning time-series forecasting models using PyTorch to predict trend movements across equities, forex, and cryptocurrency markets.</li>
+                                    <li>Engineered dynamic drawdown protection pipelines that recalculate position sizing automatically based on volatility metrics.</li>
+                                </ul>
+                            </section>
+                            <section>
+                                <div class="flex flex-col justify-between gap-1 sm:flex-row sm:gap-4">
+                                    <h3 class="text-sm font-bold text-zinc-900">Full-Stack Interactive Web Platform</h3>
+                                    <span class="text-zinc-600">Next.js, Vite, React, Django</span>
+                                </div>
+                                <ul class="mt-1 list-disc space-y-1 pl-5">
+                                    <li>Designed and deployed a responsive web application leveraging <strong>Next.js</strong> and <strong>Vite</strong> for fast client-side rendering and modular component management.</li>
+                                    <li>Built a high-performance backend with <strong>Django REST Framework</strong> to manage secure authentication, RESTful API endpoints, and database models.</li>
+                                    <li>Styled pixel-perfect responsive layouts using Tailwind CSS with seamless UI/UX interactions across mobile and desktop interfaces.</li>
+                                </ul>
+                            </section>
+                            <section>
+                                <div class="flex flex-col justify-between gap-1 sm:flex-row sm:gap-4">
+                                    <h3 class="text-sm font-bold text-zinc-900">Stock Price &amp; Pattern Prediction System</h3>
+                                    <span class="text-zinc-600">Python, Scikit-Learn, ML</span>
+                                </div>
+                                <ul class="mt-1 list-disc space-y-1 pl-5">
+                                    <li>Built a machine learning data pipeline to detect candlestick patterns and forecast price reversals across financial instruments.</li>
+                                    <li>Extracted dynamic technical indicators and performed feature engineering to reduce market noise and increase model classification performance.</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </section>
+
+                    <section class="mt-7" aria-labelledby="cv-activities">
+                        <h2 id="cv-activities" class="border-b border-zinc-300 pb-1 text-xs font-bold uppercase tracking-[0.16em]">Organizations &amp; Activities</h2>
+                        <div class="mt-3 flex flex-col justify-between gap-1 sm:flex-row sm:gap-6">
+                            <h3 class="text-sm font-bold">Information Technology Student Community / Peer Tutor</h3>
+                            <span class="shrink-0 text-xs text-zinc-600">Yogyakarta, Indonesia</span>
+                        </div>
+                        <p class="mt-1 text-xs text-zinc-700">UPN "Veteran" Yogyakarta <span class="px-1 text-zinc-400">·</span> 2023 – Present</p>
+                        <ul class="mt-2 list-disc pl-5 text-xs leading-relaxed text-zinc-700">
+                            <li>Mentored junior students in core computer science subjects, including Data Structures &amp; Algorithms, C++, Python programming, and Web Development.</li>
+                        </ul>
+                    </section>
+                </article>
             </div>
         </div>
     </div>
@@ -916,12 +1109,16 @@
         const mobileMenu = document.getElementById('mobileMenu');
         const primaryNav = document.getElementById('primaryNav');
         const introScreen = document.getElementById('introScreen');
+        const cvReader = document.getElementById('cvReader');
+        const cvCloseBtn = document.getElementById('cvCloseBtn');
+        const cvPrintBtn = document.getElementById('cvPrintBtn');
         const scrollProgress = document.getElementById('scrollProgress');
         const localClock = document.getElementById('localClock');
         const pageNavLinks = document.querySelectorAll('.floating-nav-links .nav-link');
         const filterBtns = document.querySelectorAll('.filter-btn');
         let revealObserver = null;
         let previousActiveElement = null;
+        let cvPreviousActiveElement = null;
         let scrollUpdatePending = false;
         let lastScrollY = window.scrollY;
 
@@ -1134,6 +1331,52 @@
             }
         }
 
+        function openCVReader() {
+            if (!cvReader.classList.contains('hidden')) return;
+            if (!commandPalette.classList.contains('hidden')) toggleCommandPalette(false);
+            if (!mobileMenu.classList.contains('hidden')) toggleMobileMenu(false);
+
+            showNavigation(false);
+            cvPreviousActiveElement = document.activeElement;
+            cvReader.classList.remove('hidden');
+            cvReader.classList.add('flex');
+            document.body.classList.add('modal-open');
+            [primaryNav, mobileMenu, document.getElementById('main-content'), document.querySelector('footer')].filter(Boolean)
+                .forEach((element) => { element.inert = true; });
+            cvCloseBtn.focus();
+        }
+
+        function closeCVReader() {
+            if (cvReader.classList.contains('hidden')) return;
+
+            cvReader.classList.add('hidden');
+            cvReader.classList.remove('flex');
+            [primaryNav, mobileMenu, document.getElementById('main-content'), document.querySelector('footer')].filter(Boolean)
+                .forEach((element) => { element.inert = false; });
+            document.body.classList.remove('modal-open');
+            cvPreviousActiveElement?.focus?.();
+        }
+
+        function trapCVReaderFocus(event) {
+            const focusable = Array.from(cvReader.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+                .filter((element) => !element.hasAttribute('inert') && element.getClientRects().length);
+            if (!focusable.length) {
+                event.preventDefault();
+                cvReader.focus();
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+
         function filterPaletteCommands(query) {
             const needle = query.trim().toLowerCase();
             document.querySelectorAll('.palette-link').forEach((btn) => {
@@ -1180,14 +1423,30 @@
         themeDark.addEventListener('click', () => { setTheme('dark'); toggleCommandPalette(false); });
         searchBtn.addEventListener('click', () => toggleCommandPalette());
         paletteOverlay.addEventListener('click', () => toggleCommandPalette(false));
+        document.querySelectorAll('[data-open-cv]').forEach((button) => button.addEventListener('click', openCVReader));
+        cvCloseBtn.addEventListener('click', closeCVReader);
+        cvPrintBtn.addEventListener('click', () => window.print());
+        cvReader.addEventListener('click', (event) => {
+            if (event.target === cvReader) closeCVReader();
+        });
         paletteInput.addEventListener('input', (e) => filterPaletteCommands(e.target.value));
         mobileMenuBtn.addEventListener('click', () => toggleMobileMenu());
-        document.querySelectorAll('.mobile-nav-link').forEach((link) => link.addEventListener('click', () => toggleMobileMenu(false)));
+        document.querySelectorAll('a.mobile-nav-link').forEach((link) => link.addEventListener('click', () => toggleMobileMenu(false)));
 
         document.addEventListener('keydown', (e) => {
             if ((e.key.toLowerCase() === 'k') && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
                 toggleCommandPalette();
+            }
+
+            if (!cvReader.classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeCVReader();
+                    return;
+                }
+                if (e.key === 'Tab') trapCVReaderFocus(e);
+                return;
             }
 
             if (e.key === 'Escape') {
