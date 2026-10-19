@@ -1,0 +1,39 @@
+# Faiq Hammam
+
+> Faiq Hammam, also known as Fa'iq Hammam Mutaqin or cyclocerine, is an IT Engineer and researcher focused on AI/ML, quantitative finance, full-stack web development, Web3, and IoT. He studies Informatics at Universitas Pembangunan Nasional "Veteran" Yogyakarta.
+
+## Identity & Official Profiles
+
+- Brand name: Faiq Hammam
+- Full name: Fa'iq Hammam Mutaqin
+- Also known as: cyclocerine
+- Website: https://cyclocerine.me/
+- GitHub: https://github.com/cyclocerine
+- LinkedIn: https://www.linkedin.com/in/faiqhammam/
+- ORCID: https://orcid.org/0009-0008-4920-7623
+- Email: hammamfaiq@protonmail.com
+
+## Technical Skills
+
+- Machine learning and AI: PyTorch, CUDA, deep reinforcement learning (PPO), time-series forecasting, scikit-learn, Pandas, NumPy.
+- Web development: Next.js, React, Vite, Django, Django REST Framework, JavaScript, TypeScript, HTML, CSS, Tailwind CSS.
+- Programming languages: Python, C++, C, SQL, JavaScript, TypeScript, Rust.
+- Tools and environments: Linux (Debian, Ubuntu, Armbian), Git, Docker, CUDA Toolkit, VS Code, Jupyter Notebook.
+
+## Publications & Research
+
+- Q-ALU (Quant Asymmetric Leaky Unit): A market-psychology-aware activation function with downside risk protection for high-frequency quantitative trading and deep reinforcement learning. Working paper on SSRN.
+  - SSRN: https://ssrn.com/abstract=7365098
+  - DOI: https://doi.org/10.2139/ssrn.7365098
+  - Official PyTorch implementation: https://github.com/cyclocerine/qalu-pytorch
+
+## Featured Projects
+
+- AI Algorithmic Hedge Fund Platform: Algorithmic trading strategies using machine learning and reinforcement learning.
+  - Repository: https://github.com/cyclocerine/HedgeFund
+- Hospital Management System: Django-based system for hospital operations and patient care management.
+  - Repository: https://github.com/cyclocerine/HospitalManagementSystem
+- Stock Price & Pattern Prediction System: Machine-learning project for stock-market time-series forecasting.
+  - Repository: https://github.com/cyclocerine/Stock-Price-Prediction
+- Q-ALU PyTorch Implementation: Official implementation of the Q-ALU research project.
+  - Repository: https://github.com/cyclocerine/qalu-pytorch
