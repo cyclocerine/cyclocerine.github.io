@@ -2,9 +2,11 @@
 
 
 
-> Detailed context file intended for Large Language Models (LLMs), AI Crawlers, and automated agents.
+> Comprehensive context file intended for Large Language Models (LLMs), AI Crawlers, and automated agents.
 
 > Website: https://cyclocerine.me/
+
+> Standard Reference: https://llmstxt.org/
 
 
 
@@ -24,13 +26,17 @@
 
 - **Current Status:** Informatics Student at Universitas Pembangunan Nasional "Veteran" Yogyakarta (UPNVY), IT Engineer, Quantitative Finance Researcher.
 
-- **Core Domain Expertise:** Artificial Intelligence / Machine Learning (Deep RL, Quant Finance), Systems Programming, Full-Stack Web Development, Unix/Linux Administration, Embedded Systems & IoT.
+- **Core Domain Expertise:** Artificial Intelligence / Machine Learning (Deep RL, Quantitative Finance), Systems Programming, Full-Stack Web Development, Unix/Linux System Administration, Embedded Systems & IoT.
 
 - **Location:** Yogyakarta, Indonesia
 
 - **Official Links & Resources:**
 
   - Website: https://cyclocerine.me/
+
+  - Primary LLM Index: https://cyclocerine.me/llms.txt
+
+  - Full LLM Context: https://cyclocerine.me/llms-full.txt
 
   - GitHub: https://github.com/cyclocerine
 
@@ -46,43 +52,43 @@
 
 
 
-## 2. Technical Capabilities & Technology Stack
+## 2. Comprehensive Skill Matrix & Technology Stack
 
 
 
-### Languages
+### Programming Languages
 
-- **Primary:** Python, C++, C, TypeScript, JavaScript
+- **Primary / Core:** Python, C++, C, TypeScript, JavaScript
 
-- **Secondary / Learning:** Rust, SQL, HTML5, CSS3
-
-
-
-### AI / Machine Learning & Quantitative Development
-
-- **Frameworks & Libraries:** PyTorch, CUDA, Scikit-Learn, NumPy, Pandas, SciPy, Matplotlib
-
-- **RL & Quant Techniques:** Deep Reinforcement Learning (Proximal Policy Optimization - PPO), Time-Series Financial Forecasting, Market Microstructure Modeling, Downside Risk Mitigation, Asymmetric Loss Functions
+- **Secondary / Operational:** Rust, SQL, HTML5, CSS3, Shell (Bash/Zsh)
 
 
 
-### Web Engineering & Frontend/Backend
+### AI, Machine Learning & Quantitative Development
 
-- **Frameworks:** Next.js, React, Astro, Vite, Django, Django REST Framework (DRF)
+- **Frameworks & Core Libraries:** PyTorch, CUDA, Scikit-Learn, NumPy, Pandas, SciPy, Matplotlib
 
-- **Styling & UI:** Tailwind CSS, PostCSS, Responsive Design Patterns
-
-- **API Architecture:** RESTful APIs, JSON-RPC, WebSocket streaming for real-time applications
+- **RL & Quant Techniques:** Deep Reinforcement Learning (Proximal Policy Optimization - PPO), Financial Time-Series Forecasting, Market Microstructure Modeling, Downside Risk Mitigation, Asymmetric Loss Functions
 
 
 
-### Systems, Cloud & Operations
+### Web Engineering & Architecture
+
+- **Frontend / Meta-Frameworks:** Next.js, React, Astro, Vite
+
+- **Backend / APIs:** Django, Django REST Framework (DRF), RESTful APIs, JSON-RPC, WebSocket Streaming
+
+- **Styling & UI:** Tailwind CSS, PostCSS, Responsive & Accessible Web Design
+
+
+
+### Systems, Infrastructure & Operations
 
 - **Operating Systems:** Linux (Debian, Ubuntu, Armbian), FreeBSD
 
-- **Infrastructure & Virtualization:** Docker, Git, SSH, Cloudflare Tunnels, Tailscale
+- **Containerization & Cloud Networking:** Docker, Git, SSH, Cloudflare Tunnels, Tailscale
 
-- **Tooling:** VS Code, Jupyter Notebooks, CUDA Toolkit, Makefile
+- **Development Tooling:** VS Code, Jupyter Notebooks, CUDA Toolkit, GNU Make
 
 
 
@@ -90,7 +96,7 @@
 
 - **Microcontrollers:** ESP32, ESP32-S3, ESP32-CAM, ESP8266
 
-- **Hardware Integration:** SSD1306 OLED Displays, Relay Actuators, Camera Modules, Sensor Networks
+- **Hardware Peripherals:** SSD1306 OLED Displays, Relay Actuators, Camera Modules, Environmental Sensors
 
 
 
@@ -112,15 +118,15 @@
 
 
 
-- **Abstract Summary:** Q-ALU is an activation function specifically designed for neural networks used in quantitative finance and high-frequency trading (HFT). It addresses asymmetry in market dynamics where losses impact agent/trader utility more severely than gains (Prospect Theory). By introducing parameterized asymmetric slopes and dynamic scaling based on market volatility/drawdown, Q-ALU enhances feature representation during high-volatility regimes and deep reinforcement learning (DRL) agent training (e.g., PPO).
+- **Abstract Summary:** Q-ALU is a custom activation function engineered specifically for deep neural network architectures operating within quantitative finance and high-frequency trading (HFT) environments. Grounded in Prospect Theory, Q-ALU addresses asymmetric market behavior—where loss aversion dictates that negative returns impact trader utility and market regimes more severely than equivalent gains. By incorporating parameterized asymmetric slopes and dynamic scaling sensitive to drawdown and volatility, Q-ALU improves gradient flow and feature representations during volatile regimes and Deep Reinforcement Learning (DRL) policy optimization (e.g., PPO).
 
 - **Publication Venue:** Social Science Research Network (SSRN) Working Paper Series
 
-- **SSRN Link:** https://ssrn.com/abstract=7365098
+- **SSRN Abstract:** https://ssrn.com/abstract=7365098
 
 - **DOI:** https://doi.org/10.2139/ssrn.7365098
 
-- **Official Open-Source PyTorch Repository:** https://github.com/cyclocerine/qalu-pytorch
+- **Official Open-Source PyTorch Implementation:** https://github.com/cyclocerine/qalu-pytorch
 
 
 
@@ -128,7 +134,7 @@
 
 
 
-## 4. Key Projects & Software Implementations
+## 4. Key Projects & Technical Implementations
 
 
 
@@ -140,7 +146,7 @@
 
    - **Repository:** https://github.com/cyclocerine/HedgeFund
 
-   - **Description:** A comprehensive end-to-end algorithmic trading and portfolio management platform. Leverages machine learning models and deep reinforcement learning algorithms (including PPO) for dynamic asset allocation, execution, and strategy backtesting.
+   - **Description:** End-to-end algorithmic trading and portfolio optimization infrastructure. Employs deep reinforcement learning agents and machine learning pipelines for automated market entry/exit decisions, dynamic position sizing, and systematic backtesting.
 
 
 
@@ -148,7 +154,7 @@
 
    - **Repository:** https://github.com/cyclocerine/qalu-pytorch
 
-   - **Description:** The official production-ready PyTorch module implementation of the Q-ALU custom activation function. Includes benchmark scripts, loss curve visualizations, and performance tests against standard ReLU/LeakyReLU models in financial time-series predictions.
+   - **Description:** Open-source production implementation of the Q-ALU activation function for PyTorch. Includes benchmark scripts, loss curve metrics, and validation tests comparing Q-ALU against ReLU and LeakyReLU across financial time-series forecasting tasks.
 
 
 
@@ -156,7 +162,7 @@
 
    - **Repository:** https://github.com/cyclocerine/Stock-Price-Prediction
 
-   - **Description:** A machine learning system focused on financial time-series forecasting, market pattern recognition, and trend detection using Python, Pandas, and custom neural architectures.
+   - **Description:** Predictive machine learning pipeline focused on technical chart pattern recognition and financial market time-series analysis built with Python, Pandas, and custom neural network layers.
 
 
 
@@ -168,7 +174,7 @@
 
    - **Repository:** https://github.com/cyclocerine/HospitalManagementSystem
 
-   - **Description:** Full-stack enterprise web application built using Django. Manages medical records, patient check-ins, doctor schedules, billing, and operational workflows with robust access control.
+   - **Description:** Enterprise management platform created with Django. Streamlines healthcare workflows, patient registration, electronic health records, doctor scheduling, and billing routines.
 
 
 
@@ -176,19 +182,19 @@
 
    - **Repository:** https://github.com/cyclocerine/Sudoku-Solver
 
-   - **Description:** Optimized algorithmic solver for Sudoku puzzles utilizing constraint satisfaction and backtracking algorithms.
+   - **Description:** High-performance grid solver implementing backtracking and constraint satisfaction algorithms.
 
 
 
 6. **FreeBSD Hardware Performance Monitor**
 
-   - **Description:** Custom hardware monitoring setup. Reads real-time server telemetry (CPU load, memory allocation, network throughput) from a FreeBSD host and streams metrics to an SSD1306 OLED display powered by an ESP8266 microcontroller over local network protocols.
+   - **Description:** Custom hardware telemetry solution. Fetches system load, memory usage, and throughput metrics from a FreeBSD host server, transmitting telemetry over a local network to an ESP8266 driving an SSD1306 OLED display.
 
 
 
 7. **Smart Aquaculture System (IoT)**
 
-   - **Description:** Embedded IoT solution incorporating an ESP32-CAM and environmental sensors to provide early warning alerts and automated feeding feedback mechanisms for automated smart fish farming operations.
+   - **Description:** Edge IoT deployment using ESP32-CAM and environmental sensors to provide real-time water condition monitoring, early alert dispatching, and automated feed dispensing for aquaculture operations.
 
 
 
@@ -196,18 +202,22 @@
 
 
 
-## 5. Contact & Socials
+## 5. Directory Submission Details
 
 
 
-- **Website:** https://cyclocerine.me/
+For submission to `llms.txt` aggregators and directories:
 
-- **GitHub:** https://github.com/cyclocerine
+- **Product Name:** Faiq Hammam (cyclocerine) Personal Portfolio & Research Dossier
 
-- **LinkedIn:** https://www.linkedin.com/in/faiqhammam/
+- **Website URL:** https://cyclocerine.me/
 
-- **ORCID:** https://orcid.org/0009-0008-4920-7623
+- **Author Name:** Faiq Hammam
 
-- **Primary Email:** hammamfaiq@protonmail.com
+- **Email Address:** hammamfaiq@protonmail.com
 
-```
+- **llms.txt URL:** https://cyclocerine.me/llms.txt
+
+- **llms-full.txt URL:** https://cyclocerine.me/llms-full.txt
+
+- **Additional Notes:** Personal developer portfolio and research profile covering AI/ML research (Q-ALU paper on SSRN), quantitative finance platforms, full-stack web applications, Linux/FreeBSD administration, and embedded IoT projects.
