@@ -1,0 +1,213 @@
+# Faiq Hammam (cyclocerine) — Full Context & Technical Dossier
+
+
+
+> Detailed context file intended for Large Language Models (LLMs), AI Crawlers, and automated agents.
+
+> Website: https://cyclocerine.me/
+
+
+
+---
+
+
+
+## 1. Identity & Personal Overview
+
+
+
+- **Primary Name:** Faiq Hammam
+
+- **Full Legal Name:** Fa'iq Hammam Mutaqin
+
+- **Handle / Alias:** cyclocerine
+
+- **Current Status:** Informatics Student at Universitas Pembangunan Nasional "Veteran" Yogyakarta (UPNVY), IT Engineer, Quantitative Finance Researcher.
+
+- **Core Domain Expertise:** Artificial Intelligence / Machine Learning (Deep RL, Quant Finance), Systems Programming, Full-Stack Web Development, Unix/Linux Administration, Embedded Systems & IoT.
+
+- **Location:** Yogyakarta, Indonesia
+
+- **Official Links & Resources:**
+
+  - Website: https://cyclocerine.me/
+
+  - GitHub: https://github.com/cyclocerine
+
+  - LinkedIn: https://www.linkedin.com/in/faiqhammam/
+
+  - ORCID: https://orcid.org/0009-0008-4920-7623
+
+  - Primary Contact Email: hammamfaiq@protonmail.com
+
+
+
+---
+
+
+
+## 2. Technical Capabilities & Technology Stack
+
+
+
+### Languages
+
+- **Primary:** Python, C++, C, TypeScript, JavaScript
+
+- **Secondary / Learning:** Rust, SQL, HTML5, CSS3
+
+
+
+### AI / Machine Learning & Quantitative Development
+
+- **Frameworks & Libraries:** PyTorch, CUDA, Scikit-Learn, NumPy, Pandas, SciPy, Matplotlib
+
+- **RL & Quant Techniques:** Deep Reinforcement Learning (Proximal Policy Optimization - PPO), Time-Series Financial Forecasting, Market Microstructure Modeling, Downside Risk Mitigation, Asymmetric Loss Functions
+
+
+
+### Web Engineering & Frontend/Backend
+
+- **Frameworks:** Next.js, React, Astro, Vite, Django, Django REST Framework (DRF)
+
+- **Styling & UI:** Tailwind CSS, PostCSS, Responsive Design Patterns
+
+- **API Architecture:** RESTful APIs, JSON-RPC, WebSocket streaming for real-time applications
+
+
+
+### Systems, Cloud & Operations
+
+- **Operating Systems:** Linux (Debian, Ubuntu, Armbian), FreeBSD
+
+- **Infrastructure & Virtualization:** Docker, Git, SSH, Cloudflare Tunnels, Tailscale
+
+- **Tooling:** VS Code, Jupyter Notebooks, CUDA Toolkit, Makefile
+
+
+
+### Embedded Systems & Hardware / IoT
+
+- **Microcontrollers:** ESP32, ESP32-S3, ESP32-CAM, ESP8266
+
+- **Hardware Integration:** SSD1306 OLED Displays, Relay Actuators, Camera Modules, Sensor Networks
+
+
+
+---
+
+
+
+## 3. Academic Publications & Research Work
+
+
+
+### Publications
+
+
+
+#### 1. Q-ALU (Quant Asymmetric Leaky Unit)
+
+*A market-psychology-aware activation function with downside risk protection for high-frequency quantitative trading and deep reinforcement learning.*
+
+
+
+- **Abstract Summary:** Q-ALU is an activation function specifically designed for neural networks used in quantitative finance and high-frequency trading (HFT). It addresses asymmetry in market dynamics where losses impact agent/trader utility more severely than gains (Prospect Theory). By introducing parameterized asymmetric slopes and dynamic scaling based on market volatility/drawdown, Q-ALU enhances feature representation during high-volatility regimes and deep reinforcement learning (DRL) agent training (e.g., PPO).
+
+- **Publication Venue:** Social Science Research Network (SSRN) Working Paper Series
+
+- **SSRN Link:** https://ssrn.com/abstract=7365098
+
+- **DOI:** https://doi.org/10.2139/ssrn.7365098
+
+- **Official Open-Source PyTorch Repository:** https://github.com/cyclocerine/qalu-pytorch
+
+
+
+---
+
+
+
+## 4. Key Projects & Software Implementations
+
+
+
+### AI & Quantitative Finance
+
+
+
+1. **AI Algorithmic Hedge Fund Platform**
+
+   - **Repository:** https://github.com/cyclocerine/HedgeFund
+
+   - **Description:** A comprehensive end-to-end algorithmic trading and portfolio management platform. Leverages machine learning models and deep reinforcement learning algorithms (including PPO) for dynamic asset allocation, execution, and strategy backtesting.
+
+
+
+2. **Q-ALU PyTorch Module**
+
+   - **Repository:** https://github.com/cyclocerine/qalu-pytorch
+
+   - **Description:** The official production-ready PyTorch module implementation of the Q-ALU custom activation function. Includes benchmark scripts, loss curve visualizations, and performance tests against standard ReLU/LeakyReLU models in financial time-series predictions.
+
+
+
+3. **Stock Price & Pattern Prediction System**
+
+   - **Repository:** https://github.com/cyclocerine/Stock-Price-Prediction
+
+   - **Description:** A machine learning system focused on financial time-series forecasting, market pattern recognition, and trend detection using Python, Pandas, and custom neural architectures.
+
+
+
+### Systems, Web & Applications
+
+
+
+4. **Hospital Management System**
+
+   - **Repository:** https://github.com/cyclocerine/HospitalManagementSystem
+
+   - **Description:** Full-stack enterprise web application built using Django. Manages medical records, patient check-ins, doctor schedules, billing, and operational workflows with robust access control.
+
+
+
+5. **Sudoku Solver**
+
+   - **Repository:** https://github.com/cyclocerine/Sudoku-Solver
+
+   - **Description:** Optimized algorithmic solver for Sudoku puzzles utilizing constraint satisfaction and backtracking algorithms.
+
+
+
+6. **FreeBSD Hardware Performance Monitor**
+
+   - **Description:** Custom hardware monitoring setup. Reads real-time server telemetry (CPU load, memory allocation, network throughput) from a FreeBSD host and streams metrics to an SSD1306 OLED display powered by an ESP8266 microcontroller over local network protocols.
+
+
+
+7. **Smart Aquaculture System (IoT)**
+
+   - **Description:** Embedded IoT solution incorporating an ESP32-CAM and environmental sensors to provide early warning alerts and automated feeding feedback mechanisms for automated smart fish farming operations.
+
+
+
+---
+
+
+
+## 5. Contact & Socials
+
+
+
+- **Website:** https://cyclocerine.me/
+
+- **GitHub:** https://github.com/cyclocerine
+
+- **LinkedIn:** https://www.linkedin.com/in/faiqhammam/
+
+- **ORCID:** https://orcid.org/0009-0008-4920-7623
+
+- **Primary Email:** hammamfaiq@protonmail.com
+
+```
