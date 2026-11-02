@@ -1,0 +1,611 @@
+/* ==========================================================================
+   ID Card Lanyard — hero art widget
+   Vanilla port of the <IDCardLanyard /> React component (components/ui/
+   id-card-lanyard.tsx) so it runs on a static GitHub Pages build with no
+   bundler. Physics, flip, drag, barcode + QR generation all live in
+   assets/id-card-lanyard.js.
+   ========================================================================== */
+
+/* Box-less host. The lanyard hangs free in the hero column: no border, no
+   background, no clipping — just a measured area for the cord physics to
+   live in. .idcl-stage is absolutely positioned, so this needs a real
+   height or the whole widget collapses to zero. */
+.hero-lanyard {
+    position: relative;
+    width: 100%;
+    height: clamp(460px, 62vh, 600px);
+    overflow: visible;
+    pointer-events: none;
+}
+
+.hero-lanyard > .idcl-stage {
+    pointer-events: none;
+}
+
+@media (max-width: 1023px) {
+    .hero-lanyard {
+        height: clamp(420px, 54vh, 500px);
+        max-width: 22rem;
+    }
+}
+
+.idcl-stage {
+    /* Theme bridge: the card reuses the site accent so light/dark both work. */
+    --idcl-accent: var(--accent, #059669);
+    --idcl-accent-dim: color-mix(in srgb, var(--accent, #059669) 62%, #101418);
+    --idcl-card: #faf7f1;
+    --idcl-card-2: #efeadf;
+    --idcl-card-ink: #15171d;
+    --idcl-card-soft: #666c78;
+    --idcl-card-line: #e1dbcb;
+    --idcl-font-display: var(--font-tech, 'Space Grotesk', sans-serif);
+    --idcl-font-mono: var(--font-mono, 'JetBrains Mono', monospace);
+    --idcl-font-script: 'Caveat', cursive;
+
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.idcl-stage *,
+.idcl-stage *::before,
+.idcl-stage *::after {
+    box-sizing: border-box;
+}
+
+/* Canvas holding the swinging cord. */
+.idcl-rope {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Fixed mount plate the cord hangs from. */
+.idcl-rail {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 64px;
+    height: 6px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #3a4150, #21252f);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+    pointer-events: none;
+}
+
+.idcl-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: clamp(128px, 40%, 196px);
+    aspect-ratio: 236 / 460;
+    /* Fallback base unit; assets/id-card-lanyard.js recomputes it from the
+       measured card width so every em stays proportional at any size. */
+    font-size: clamp(6.5px, 2.2vw, 11.4px);
+    font-family: var(--idcl-font-mono);
+    perspective: 1400px;
+    transform-origin: top center;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: auto;
+    will-change: transform;
+}
+
+.idcl-card:active {
+    cursor: grabbing;
+}
+
+.idcl-flipper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 620ms cubic-bezier(.34, 1.2, .4, 1);
+}
+
+.idcl-card.idcl-flipped .idcl-flipper {
+    transform: rotateY(180deg);
+}
+
+.idcl-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 1em 1em .875em;
+    border-radius: 1.1em;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow:
+        0 32px 60px -16px rgba(0, 0, 0, .55),
+        0 10px 20px -8px rgba(0, 0, 0, .35),
+        inset 0 1px 0 rgba(255, 255, 255, .65),
+        inset 0 0 0 1px rgba(0, 0, 0, .05);
+}
+
+.idcl-face::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .55) 0%, transparent 24%),
+        radial-gradient(rgba(0, 0, 0, .07) 1px, transparent 1.3px) 0 0/3px 3px;
+    mix-blend-mode: multiply;
+    opacity: .6;
+}
+
+.idcl-face::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .6), transparent 40%);
+    mix-blend-mode: overlay;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.idcl-card.idcl-hovering .idcl-face::after {
+    opacity: 1;
+}
+
+.idcl-front {
+    background: linear-gradient(165deg, var(--idcl-card), var(--idcl-card-2));
+    text-align: left;
+}
+
+.idcl-back {
+    background: linear-gradient(165deg, var(--idcl-card-2), var(--idcl-card));
+    transform: rotateY(180deg);
+}
+
+/* Holographic security strip. */
+.idcl-holo {
+    position: absolute;
+    top: .875em;
+    bottom: .875em;
+    right: .3em;
+    width: .38em;
+    border-radius: .32em;
+    background: repeating-linear-gradient(125deg, #eef1f7 0%, #cfd6e4 10%, #b9c2d6 20%, #e7ebf3 30%, #eef1f7 40%);
+    background-size: 220% 220%;
+    animation: idcl-foil 7s linear infinite;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1), 0 0 6px rgba(255, 255, 255, .3);
+}
+
+@keyframes idcl-foil {
+    to { background-position: 220% 0%; }
+}
+
+.idcl-hole {
+    width: 2em;
+    height: .56em;
+    margin: 0 auto .65em;
+    flex-shrink: 0;
+    border-radius: .32em;
+    background: var(--idcl-card-ink);
+    opacity: .85;
+}
+
+.idcl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .5em;
+    margin-bottom: .75em;
+    flex-shrink: 0;
+}
+
+.idcl-brand {
+    display: flex;
+    align-items: flex-start;
+    gap: .38em;
+    min-width: 0;
+}
+
+.idcl-brand-mark {
+    font-size: .75em;
+    line-height: 1;
+    margin-top: .06em;
+    color: var(--idcl-accent);
+}
+
+.idcl-brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.idcl-brand-text b {
+    font-family: var(--idcl-font-display);
+    font-weight: 700;
+    font-size: .72em;
+    letter-spacing: .01em;
+    line-height: 1.2;
+    color: var(--idcl-card-ink);
+}
+
+.idcl-brand-text small {
+    font-family: var(--idcl-font-mono);
+    font-size: .39em;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+}
+
+.idcl-pillars {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .06em;
+    flex-shrink: 0;
+}
+
+.idcl-pillars span {
+    font-family: var(--idcl-font-mono);
+    font-size: .44em;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+}
+
+.idcl-pillars i {
+    width: 1em;
+    height: 2px;
+    margin-top: .18em;
+    background: var(--idcl-card-ink);
+}
+
+.idcl-photo {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-bottom: .75em;
+    border-radius: .625em;
+    background: #eae7de;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08), inset 0 2px 6px rgba(0, 0, 0, .12);
+}
+
+.idcl-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+    filter: saturate(.94) contrast(1.02);
+}
+
+.idcl-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .16), transparent 32%, rgba(0, 0, 0, .12));
+}
+
+.idcl-verified {
+    position: absolute;
+    right: -.3em;
+    bottom: -.3em;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.375em;
+    height: 1.375em;
+    border-radius: 50%;
+    background: linear-gradient(160deg, var(--idcl-accent), var(--idcl-accent-dim));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .4), 0 0 0 .19em var(--idcl-card);
+}
+
+.idcl-verified svg {
+    width: .7em;
+    height: .7em;
+}
+
+.idcl-name {
+    margin: 0 0 .12em;
+    font-family: var(--idcl-font-display);
+    font-weight: 700;
+    font-size: 1.125em;
+    letter-spacing: -.01em;
+    line-height: 1.1;
+    color: var(--idcl-card-ink);
+}
+
+.idcl-role {
+    margin: 0 0 .625em;
+    font-size: .625em;
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+}
+
+.idcl-divider {
+    width: 100%;
+    height: 1px;
+    margin-bottom: .625em;
+    background: var(--idcl-card-line);
+    flex-shrink: 0;
+}
+
+.idcl-idrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .625em;
+    width: 100%;
+    margin-bottom: .625em;
+    flex-shrink: 0;
+}
+
+.idcl-idrow-labels {
+    display: flex;
+    flex-direction: column;
+    gap: .3em;
+    font-family: var(--idcl-font-mono);
+    min-width: 0;
+}
+
+.idcl-idrow-labels div {
+    display: flex;
+    gap: .5em;
+    align-items: baseline;
+}
+
+.idcl-idrow-labels span {
+    width: 3.5em;
+    flex-shrink: 0;
+    font-size: .475em;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+}
+
+.idcl-idrow-labels b {
+    font-size: .59em;
+    font-weight: 600;
+    color: var(--idcl-card-ink);
+}
+
+.idcl-footer {
+    width: 100%;
+    margin-top: auto;
+    padding-top: .625em;
+    border-top: 1px solid var(--idcl-card-line);
+    text-align: center;
+    font-family: var(--idcl-font-mono);
+    font-size: .53em;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+    flex-shrink: 0;
+}
+
+.idcl-footer i {
+    font-style: normal;
+    margin: 0 .3em;
+    color: var(--idcl-card-line);
+}
+
+/* ---- back face ------------------------------------------------------- */
+.idcl-stripe {
+    width: 100%;
+    height: 1.875em;
+    margin-bottom: .75em;
+    border-radius: .19em;
+    background: repeating-linear-gradient(45deg, #1b1d24, #1b1d24 6px, #26282f 6px, #26282f 12px);
+    flex-shrink: 0;
+}
+
+.idcl-barcode {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    width: 100%;
+    height: 2em;
+    margin-bottom: .5em;
+    padding: 0 .25em;
+    overflow: hidden;
+    border-radius: .19em;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.idcl-barcode span {
+    width: 2px;
+    background: #1a1c22;
+}
+
+.idcl-idnum {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 .5em;
+    font-family: var(--idcl-font-mono);
+    font-size: .625em;
+    font-weight: 600;
+    letter-spacing: .03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--idcl-card-ink);
+    flex-shrink: 0;
+}
+
+.idcl-idnum em {
+    font-style: normal;
+    color: var(--idcl-card-soft);
+}
+
+.idcl-backrow {
+    display: flex;
+    gap: .75em;
+    align-items: flex-start;
+    margin-bottom: .625em;
+    flex-shrink: 0;
+}
+
+.idcl-qr {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 1px;
+    width: 3.625em;
+    height: 3.625em;
+    padding: .25em;
+    border-radius: .25em;
+    background: #fff;
+    box-shadow: 0 0 0 1px var(--idcl-card-line);
+    flex-shrink: 0;
+}
+
+.idcl-qr i {
+    background: transparent;
+}
+
+.idcl-qr i.on {
+    background: #181a20;
+}
+
+.idcl-scan {
+    padding-top: .12em;
+    font-family: var(--idcl-font-mono);
+    font-size: .525em;
+    line-height: 1.5;
+    color: var(--idcl-card-soft);
+    text-align: left;
+}
+
+.idcl-scan b {
+    display: block;
+    margin-bottom: .12em;
+    font-size: .56em;
+    letter-spacing: .03em;
+    color: var(--idcl-card-ink);
+}
+
+.idcl-connect {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5em;
+    margin-top: auto;
+    padding-top: .5em;
+    flex-shrink: 0;
+}
+
+.idcl-connect span {
+    font-family: var(--idcl-font-mono);
+    font-size: .5em;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+}
+
+.idcl-connect-icons {
+    display: flex;
+    gap: .38em;
+}
+
+.idcl-connect-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.5em;
+    border: 1px solid var(--idcl-card-line);
+    border-radius: 50%;
+    color: var(--idcl-card-soft);
+    transition: border-color .15s ease, color .15s ease, transform .15s ease;
+}
+
+.idcl-connect-icons a:hover,
+.idcl-connect-icons a:focus-visible {
+    border-color: var(--idcl-accent);
+    color: var(--idcl-accent);
+    transform: translateY(-1px);
+}
+
+.idcl-connect-icons svg {
+    width: .75em;
+    height: .75em;
+}
+
+.idcl-sig {
+    margin-top: .625em;
+    flex-shrink: 0;
+}
+
+.idcl-sig .idcl-script {
+    font-family: var(--idcl-font-script);
+    font-size: 1.625em;
+    line-height: 1;
+    color: var(--idcl-card-ink);
+}
+
+.idcl-sig small {
+    display: block;
+    margin-top: .25em;
+    padding-top: .25em;
+    border-top: 1px solid var(--idcl-card-line);
+    font-family: var(--idcl-font-mono);
+    font-size: .5em;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--idcl-card-soft);
+}
+
+/* ---- interaction hint ------------------------------------------------ */
+.idcl-hint {
+    position: absolute;
+    bottom: 74px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: .4em;
+    padding: .45em .9em;
+    border-radius: 999px;
+    background: rgba(10, 12, 16, .72);
+    color: #f3f0e9;
+    font-family: var(--idcl-font-mono);
+    font-size: 9px;
+    letter-spacing: .03em;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity .4s ease;
+}
+
+.idcl-hint.idcl-hint-hidden {
+    opacity: 0;
+}
+
+.idcl-hint svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    opacity: .75;
+}
+
+@media (max-width: 639px) {
+    .idcl-hint {
+        bottom: 62px;
+        font-size: 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .idcl-holo { animation: none; }
+    .idcl-flipper { transition: none; }
+    .idcl-face::after { transition: none; }
+}
