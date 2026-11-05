@@ -3,7 +3,7 @@
 .hero-lanyard {
   position: relative;
   width: 100%;
-  height: clamp(460px, 62vh, 600px);
+  height: clamp(600px, 75vh, 700px);
   overflow: visible;
   pointer-events: none;
 }
@@ -24,7 +24,7 @@
 
 @media (max-width: 1023px) {
   .hero-lanyard {
-    height: clamp(420px, 54vh, 500px);
+    height: clamp(600px, 80vh, 700px);
     max-width: 22rem;
   }
 }

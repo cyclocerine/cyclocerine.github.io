@@ -348,7 +348,7 @@ export default function LanyardBadge({
       links = []
       const cx = W / 2
       const spread = Math.min(W * 0.16, cw * 0.55)
-      const top = -sw * 2
+      const top = 0
       // hang the buckle so the whole card fits, but never above a sixth of the frame
       const bY = Math.max(H * 0.16, Math.min(H * 0.42, H - (lowLen + ringR * 2 + clipH + ch) - 28))
 
