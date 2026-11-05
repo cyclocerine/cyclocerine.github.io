@@ -11,18 +11,140 @@ if (!mountNode) {
 
 createRoot(mountNode).render(
   <LanyardBadge
-    title="Faiq Hammam Mutaqin"
-    subtitle="AI / ML · FULL-STACK ENGINEER"
     name="Faiq Hammam Mutaqin"
     role="AI / ML & FULL-STACK ENGINEER"
     strapText="Faiq Hammam Mutaqin"
     strapLabel="AI / ML · FULL-STACK"
     strapColor="#111827"
-    inkColor="#10b981"
-    cardColor="#f5f2e9"
+    inkColor="#b79a62"
+    cardColor="#f4efe3"
     cardWidth={220}
     height="100%"
     className="lanyard-badge-root"
+    front={
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          background:
+            "radial-gradient(ellipse at 50% 42%, #fffdf7 0%, #f4efe3 64%, #e8dfce 100%)",
+          color: "#171717",
+          textAlign: "center",
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 9,
+            border: "1px solid rgba(164, 132, 72, 0.62)",
+            borderRadius: 7,
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 14,
+            border: "1px solid rgba(164, 132, 72, 0.22)",
+            borderRadius: 5,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 28,
+            left: "50%",
+            display: "grid",
+            width: 43,
+            height: 43,
+            placeItems: "center",
+            transform: "translateX(-50%)",
+            border: "1px solid #b79a62",
+            borderRadius: "50%",
+            color: "#9b7b42",
+            fontFamily: "Georgia, serif",
+            fontSize: 16,
+            letterSpacing: "-0.08em",
+          }}
+        >
+          FH
+        </div>
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: 84,
+            left: "50%",
+            width: 32,
+            height: 1,
+            transform: "translateX(-50%)",
+            background: "#b79a62",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 103,
+            left: 12,
+            right: 12,
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: 19,
+            fontWeight: 600,
+            lineHeight: 1.16,
+            letterSpacing: "0.025em",
+          }}
+        >
+          FAIQ HAMMAM
+          <br />
+          MUTAQIN
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: 158,
+            left: 10,
+            right: 10,
+            color: "#927744",
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: 6,
+            fontWeight: 700,
+            letterSpacing: "0.17em",
+          }}
+        >
+          AI / ML &amp; FULL-STACK ENGINEER
+        </div>
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0,
+            left: 0,
+            height: "29%",
+            background:
+              "linear-gradient(135deg, #24231f 0%, #111111 58%, #29251d 100%)",
+            clipPath: "polygon(0 26%, 50% 0, 100% 26%, 100% 100%, 0 100%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 23,
+            left: 0,
+            color: "#d0b779",
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: 6,
+            letterSpacing: "0.2em",
+          }}
+        >
+          BUILT WITH PURPOSE
+        </div>
+      </div>
+    }
     back={
       <div
         style={{
@@ -30,7 +152,7 @@ createRoot(mountNode).render(
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          background: "#f5f2e9",
+          background: "#f4efe3",
           color: "#111827",
           textAlign: "center",
         }}
@@ -62,7 +184,7 @@ createRoot(mountNode).render(
             top: 154,
             left: 10,
             right: 10,
-            color: "#047857",
+            color: "#927744",
             fontFamily: "var(--font-mono, monospace)",
             fontSize: 7,
             fontWeight: 700,
@@ -106,8 +228,8 @@ createRoot(mountNode).render(
             height: "34%",
             overflow: "hidden",
             borderTopLeftRadius: 38,
-            background: "#111827",
-            color: "#10b981",
+            background: "#181716",
+            color: "#d0b779",
           }}
           aria-hidden="true"
         >
